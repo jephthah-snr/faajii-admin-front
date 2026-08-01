@@ -27,7 +27,7 @@ const handleUnauthorized = () => {
 
 instance.interceptors.request.use(
   async (
-    config: InternalAxiosRequestConfig
+    config: InternalAxiosRequestConfig,
   ): Promise<InternalAxiosRequestConfig> => {
     if (typeof window !== "undefined") {
       const getAuthTokenFromCookies = Cookies.get("faajiiAdminAuthToken");
@@ -41,7 +41,7 @@ instance.interceptors.request.use(
 
     return config;
   },
-  (error: AxiosError): Promise<AxiosError> => Promise.reject(error)
+  (error: AxiosError): Promise<AxiosError> => Promise.reject(error),
 );
 
 instance.interceptors.response.use(
@@ -52,6 +52,6 @@ instance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 export default instance;
