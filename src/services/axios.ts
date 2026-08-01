@@ -5,16 +5,16 @@ import axios, {
 } from "axios";
 import Cookies from "js-cookie";
 
-const getBaseUrl = () => {
+/* const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_ENVIRONMENT === "production") {
-    return `${process.env.NEXT_PUBLIC_PROD_BASE_URL}/v1`;
+    return `${process.env.NEXT_PUBLIC_BASE_URL}/v1`;
   } else {
     return `${process.env.NEXT_PUBLIC_STAGING_BASE_URL}/v1`;
   }
-};
+}; */
 
 const instance = axios.create({
-  baseURL: getBaseUrl(),
+  baseURL: `${process.env.NEXT_PUBLIC_BASE_URL}/v1`,
 });
 
 const handleUnauthorized = () => {
