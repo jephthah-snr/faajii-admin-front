@@ -28,7 +28,13 @@ const SideNav = () => {
         <Flex justify={"space-between"} align={"center"} p={"md"}>
           <Link href="/dashboard">
             <Box py={20}>
-              <Image src={Logo} width={120} height={120} alt="Faajii logo" />
+              <Image
+                src={Logo}
+                width={140}
+                height={50}
+                alt="Faajii logo"
+                priority
+              />
             </Box>
           </Link>
         </Flex>

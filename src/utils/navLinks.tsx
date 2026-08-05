@@ -8,6 +8,7 @@ import {
   IconDebit,
   IconPlay,
   IconAdmin,
+  IconStack,
 } from "@/icons";
 
 export const navLinks = [
@@ -46,6 +47,12 @@ export const navLinks = [
     navLink: "/purchases",
     icon: IconDebit,
     permissions: ["super", "admin", "finance", "support"],
+  },
+  {
+    label: "Wristband Orders",
+    navLink: "/wristband-orders",
+    icon: IconStack,
+    permissions: ["super", "admin"],
   },
   {
     label: "External Integrations",

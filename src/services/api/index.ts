@@ -14,3 +14,4 @@ export * from "./payment-tracking";
 export * from "./integrations";
 export * from "./vibes";
 export * from "./purchases";
+export * from "./wristbands";

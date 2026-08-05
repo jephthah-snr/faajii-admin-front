@@ -93,7 +93,13 @@ const SignIn = () => {
         className="relative z-10"
       >
         <Flex pt={60}>
-          <Image src={Logo} width={160} height={160} alt="logo" />
+          <Image
+            src={Logo}
+            width={180}
+            height={64}
+            alt="Faajii logo"
+            priority
+          />
         </Flex>
 
         <Flex direction="column" align="center">

@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   },
   description: "Faajii administration portal by Trouve Technologies.",
   applicationName: "Faajii Admin",
+  icons: {
+    icon: [{ url: "/icon-higgs.png", type: "image/png" }],
+    shortcut: "/icon-higgs.png",
+    apple: "/icon-higgs.png",
+  },
 };
 
 export default function RootLayout({

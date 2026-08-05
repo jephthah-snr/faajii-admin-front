@@ -3,6 +3,7 @@ import { convertToNaira, formatStringAmount } from "./valueFormatter";
 import { TransactionDetails } from "@/services/api/transaction/transaction.types";
 import { getStatusColorAlt } from "./getStatusColor";
 import { Edges } from "@/services/api/event/event.types";
+import FaajiiLogo from "@/faajii-logo-trnsparent.png";
 
 export const generateReceipt = async (transaction: TransactionDetails) => {
   // Create a temporary container for the receipt
@@ -59,10 +60,10 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
       </div>
 
       <img
-        src="https://res.cloudinary.com/dgyoeesf4/image/upload/v1759422453/pv_logo_k4eah8.svg"
-        alt="logo"
-        width="100"
-        height="100"
+        src="${FaajiiLogo.src}"
+        alt="Faajii logo"
+        width="160"
+        height="57"
       />
     </div>
 
@@ -288,10 +289,10 @@ export const generateReceipt2 = async (transaction: Edges) => {
       </div>
 
       <img
-        src="https://res.cloudinary.com/dgyoeesf4/image/upload/v1759422453/pv_logo_k4eah8.svg"
-        alt="logo"
-        width="100"
-        height="100"
+        src="${FaajiiLogo.src}"
+        alt="Faajii logo"
+        width="160"
+        height="57"
       />
     </div>
 
