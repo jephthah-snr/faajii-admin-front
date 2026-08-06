@@ -30,8 +30,8 @@ const SideNav = () => {
             <Box py={20}>
               <Image
                 src={Logo}
-                width={140}
-                height={50}
+                width={100}
+                height={100}
                 alt="Faajii logo"
                 priority
               />

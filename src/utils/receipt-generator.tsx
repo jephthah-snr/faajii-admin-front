@@ -3,7 +3,7 @@ import { convertToNaira, formatStringAmount } from "./valueFormatter";
 import { TransactionDetails } from "@/services/api/transaction/transaction.types";
 import { getStatusColorAlt } from "./getStatusColor";
 import { Edges } from "@/services/api/event/event.types";
-import FaajiiLogo from "@/faajii-logo-trnsparent.png";
+import { Logo } from "@/images";
 
 export const generateReceipt = async (transaction: TransactionDetails) => {
   // Create a temporary container for the receipt
@@ -19,7 +19,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
   // Format the amount
   const formattedAmount = isPvb
     ? formatStringAmount(
-        convertToNaira(transaction?.transactionAmount || 0) || "0.00"
+        convertToNaira(transaction?.transactionAmount || 0) || "0.00",
       )
     : formatStringAmount(transaction?.transactionAmount);
 
@@ -32,7 +32,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
-    }
+    },
   );
 
   // Set the receipt HTML content
@@ -60,7 +60,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
       </div>
 
       <img
-        src="${FaajiiLogo.src}"
+        src="${Logo.src}"
         alt="Faajii logo"
         width="160"
         height="57"
@@ -106,7 +106,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
             border-radius: 50px;
             background-color: ${getStatusColorAlt(
               transaction.transactionStatus,
-              true
+              true,
             )};
           "
         >
@@ -225,7 +225,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
       link.href = url;
       link.download = `trx-receipt-${transaction.transactionRef.replace(
         "#",
-        ""
+        "",
       )}.png`;
       document.body.appendChild(link);
       link.click();
@@ -261,7 +261,7 @@ export const generateReceipt2 = async (transaction: Edges) => {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
-    }
+    },
   );
 
   // Set the receipt HTML content
@@ -289,7 +289,7 @@ export const generateReceipt2 = async (transaction: Edges) => {
       </div>
 
       <img
-        src="${FaajiiLogo.src}"
+        src="${Logo.src}"
         alt="Faajii logo"
         width="160"
         height="57"
