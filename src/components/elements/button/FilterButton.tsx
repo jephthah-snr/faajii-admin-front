@@ -1,6 +1,6 @@
 "use client";
 
-import { IconCalendar, IconCaretDown, IconCloseBlue } from "@/icons";
+import { IconCalendar, IconChevronDown, IconClose } from "@/config/icons";
 import {
   Button,
   Flex,
@@ -11,7 +11,6 @@ import {
   ScrollArea,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
-import Image from "next/image";
 import { useState } from "react";
 import classes from "@/styles/Input.module.css";
 import { buildDefaultFilters, computeApiFilters, FilterItem } from "@/utils";
@@ -82,12 +81,19 @@ const FilterButton = ({ data, close, onFilterChange }: FilterButtonProps) => {
               radius={8}
               miw={"fit-content"}
               rightSection={
-                <Image
-                  src={menu.isDate ? IconCalendar : IconCaretDown}
-                  width={20}
-                  height={20}
-                  alt="icon"
-                />
+                menu.isDate ? (
+                  <IconCalendar
+                    size={18}
+                    color="currentColor"
+                    variant="Linear"
+                  />
+                ) : (
+                  <IconChevronDown
+                    size={18}
+                    color="currentColor"
+                    variant="Linear"
+                  />
+                )
               }
             >
               {menu.title}
@@ -252,7 +258,7 @@ const FilterButton = ({ data, close, onFilterChange }: FilterButtonProps) => {
         c="#5769E9"
         radius={8}
         rightSection={
-          <Image src={IconCloseBlue} width={10} height={10} alt="icon" />
+          <IconClose size={10} color="currentColor" variant="Linear" />
         }
         onClick={() => {
           if (hasSelectedFilters) {

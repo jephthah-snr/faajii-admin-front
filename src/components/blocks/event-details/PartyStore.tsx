@@ -1,6 +1,6 @@
 "use client";
 
-import { IconCaretDown, IconEllipsisV, IconSearch } from "@/icons";
+import { IconChevronDown, IconMore, IconSearch } from "@/config/icons";
 import { eventStoreHeaders, getStatusColor, rowsPerPage } from "@/utils";
 import {
   ActionIcon,
@@ -8,7 +8,6 @@ import {
   Button,
   Flex,
   Menu,
-  rem,
   Table,
   Text,
   TextInput,
@@ -212,11 +211,7 @@ const EventStore = ({
               aria-label="More"
               onClick={(event) => event.stopPropagation()}
             >
-              <Image
-                src={IconEllipsisV}
-                alt="icon"
-                style={{ width: "70%", height: "70%" }}
-              />
+              <IconMore size={18} color="currentColor" variant="Linear" />
             </ActionIcon>
           </Menu.Target>
 
@@ -257,7 +252,7 @@ const EventStore = ({
           ].map((metric) => (
             <Box
               key={metric.label}
-              bg="#171717"
+              bg="var(--fj-surface-elevated)"
               p={16}
               className="rounded-xl border border-[#242424]"
               miw={150}
@@ -278,11 +273,11 @@ const EventStore = ({
           my={10}
           gap={10}
           py={10}
-          bg="#0A0A0A"
+          bg="var(--fj-bg)"
           className="sticky top-14 z-10"
         >
           <Flex align="center" gap={16}>
-            <Box className="rounded-[6px]" p={10} h={40} bg="#292929">
+            <Box className="rounded-[6px]" p={10} h={40} bg="var(--fj-surface-card)">
               <Flex align="center" gap={4} wrap="wrap">
                 <Text fz={{ base: 12, md: 14 }} c="#868686">
                   Total Items Created:
@@ -310,12 +305,7 @@ const EventStore = ({
 
                     <Flex align="center" gap={4}>
                       <Text fz={{ base: 13, md: 14 }}>{selectedFilter}</Text>
-                      <Image
-                        src={IconCaretDown}
-                        width={20}
-                        height={20}
-                        alt="icon"
-                      />
+                      <IconChevronDown size={20} color="currentColor" variant="Linear" />
                     </Flex>
                   </Flex>
                 </Button>
@@ -348,11 +338,7 @@ const EventStore = ({
             size="sm"
             radius="md"
             leftSection={
-              <Image
-                src={IconSearch}
-                alt="icon"
-                style={{ width: rem(16), height: rem(16) }}
-              />
+              <IconSearch size={16} color="currentColor" variant="Linear" />
             }
           />
         </Flex>

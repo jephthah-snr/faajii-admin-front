@@ -1,3 +1,19 @@
+/**
+ * Status colours, resolved from the shared token palette so a "successful"
+ * badge is the same green everywhere — including inside charts and stat tiles.
+ */
+
+// Literal hex rather than `var(--fj-*)`: these feed Mantine's `color` prop,
+// which parses the value to compute contrast and cannot resolve a CSS variable.
+// Keep in sync with `src/styles/tokens.css`.
+const SUCCESS = "#1ED69E";
+const WARNING = "#FF8A00";
+const DANGER = "#FF5C66";
+const INFO = "#74C0FC";
+const NEUTRAL = "#747482";
+const VIOLET = "#D0BFFF";
+const PINK = "#F45797";
+
 export const getStatusColor = (data: string) => {
   switch (data) {
     case "active":
@@ -9,14 +25,20 @@ export const getStatusColor = (data: string) => {
     case "approved":
     case "delivered":
     case "paid":
-      return "#4AA785";
+    case "gifted":
+      return SUCCESS;
+
     case "pending":
     case "processing":
     case "upcoming":
     case "outofstock":
     case "medium":
     case "intransit":
-      return "#FFC555";
+    case "confirmed":
+    case "customersupport":
+    case "giftingstarted":
+      return WARNING;
+
     case "deactivated":
     case "cancelled":
     case "inactive":
@@ -24,35 +46,31 @@ export const getStatusColor = (data: string) => {
     case "high":
     case "unverified":
     case "disapproved":
-      return "#ED4245";
+    case "suspended":
+    case "rejected":
+    case "revoked":
+      return DANGER;
+
     case "invited":
     case "gifts":
     case "superadmin":
     case "admin":
-      return "#5FD2ED";
-    case "confirmed":
-    case "customersupport":
-      return "#FF9900";
-    case "products":
-      return "#27A07F";
-    case "services":
-      return "#EFCA79";
     case "ticket":
-      return "#BA7D22";
-    case "expectinggift":
-      return "#F8F8F8";
-    case "giftingstarted":
-      return "#FFFF00";
-    case "gifted":
-      return "#10B980";
+      return INFO;
+
+    case "products":
+    case "services":
+      return VIOLET;
 
     case "operations":
-      return "#F44E80";
     case "customrole1":
-      return "#B011EA";
+      return PINK;
+
+    case "expectinggift":
+      return NEUTRAL;
 
     default:
-      return "#FFFFFF66";
+      return NEUTRAL;
   }
 };
 
@@ -62,56 +80,55 @@ export const getStatusColorAlt = (data: string, isTransaction?: boolean) => {
       case "successful":
       case "completed":
       case "paid":
-        return "#42AA4E";
+        return SUCCESS;
       case "inprogress":
       case "pending":
-        return "#F6750B";
+        return WARNING;
       case "failed":
       case "cancelled":
-        return "#F63F00";
+        return DANGER;
       default:
-        return "#FFFFFF66";
+        return NEUTRAL;
     }
   }
 
-  // General status colors
   switch (data) {
     case "all":
       return "#FFFFFF";
+
     case "confirmed":
-      return "#24A181";
-    case "inprogress":
-    case "pending":
-      return "#FFC555";
     case "completed":
     case "delivered":
-      return "#4AA785";
+    case "active":
+      return SUCCESS;
+
+    case "inprogress":
+    case "pending":
+    case "refunded":
+      return WARNING;
+
     case "outfordelivery":
     case "shipped":
-      return "#CFB1FF";
+      return VIOLET;
+
     case "cancelled":
     case "failed":
-      return "#ED4245";
     case "noshow":
-      return "#F63F00";
-    case "refunded":
-      return "#FF7C25";
+      return DANGER;
+
     case "infulfilment":
     case "processing":
-      return "#F600A8";
-    case "paid":
-      return "#52DFFF";
-    case "convertedtocash":
-      return "#848484";
-
-    case "active":
-      return "#25AD32";
-    case "invited":
-      return "#5FD2ED";
     case "suspended":
-      return "#ED5FC2";
+      return PINK;
+
+    case "paid":
+    case "invited":
+      return INFO;
+
+    case "convertedtocash":
+      return NEUTRAL;
 
     default:
-      return "#FFFFFF66";
+      return NEUTRAL;
   }
 };

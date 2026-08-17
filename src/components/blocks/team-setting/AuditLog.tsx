@@ -11,11 +11,14 @@ import {
   Text,
 } from "@mantine/core";
 import PpTable from "../table";
-import Image from "next/image";
-import { IconCaretDown, IconCheck2, IconUpgrade } from "@/icons";
-import { rowsPerPage } from "@/utils";
+import { IconCheck, IconChevronDown, IconChevronUp } from "@/config/icons";
+import {
+  isEndpointUnavailable,
+  retryUnlessUnavailable,
+  rowsPerPage,
+} from "@/utils";
 import { DatePicker } from "@mantine/dates";
-import { StatusBadge } from "@/components/elements";
+import { PendingBackend, StatusBadge } from "@/components/elements";
 import { useMemo, useState } from "react";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
@@ -97,10 +100,12 @@ const AuditLog = () => {
   const {
     data: auditLogsData,
     isFetching: isFetchingLogs,
+    error: auditLogsError,
   } = useQuery({
     queryKey: ["audit-logs", apiFilters],
     queryFn: () => GetAuditLogs(apiFilters),
     placeholderData: (prev) => prev,
+    retry: retryUnlessUnavailable,
   });
 
   const auditData = useMemo(
@@ -157,9 +162,18 @@ const AuditLog = () => {
     setOpenedPicker(false);
   };
 
+  if (isEndpointUnavailable(auditLogsError)) {
+    return (
+      <PendingBackend
+        feature="Audit log"
+        endpoints={["GET /admin/audit-logs"]}
+      />
+    );
+  }
+
   return (
     <Flex direction="column" gap={20}>
-      <Box bg="#0A0A0A" py={10} className="sticky top-14 z-10">
+      <Box bg="var(--fj-bg)" py={10} className="sticky top-14 z-10">
         <ScrollArea.Autosize scrollbarSize={0}>
           <Flex align="center" gap={10}>
             <AuditLogFilter label="Action Taken" value={selectedAction}>
@@ -178,12 +192,7 @@ const AuditLog = () => {
                       }}
                       rightSection={
                         isSelected ? (
-                          <Image
-                            src={IconCheck2}
-                            width={16}
-                            height={16}
-                            alt="icon"
-                          />
+                          <IconCheck size={16} color="currentColor" variant="Linear" />
                         ) : null
                       }
                     >
@@ -211,12 +220,7 @@ const AuditLog = () => {
                       }}
                       rightSection={
                         isSelected ? (
-                          <Image
-                            src={IconCheck2}
-                            width={16}
-                            height={16}
-                            alt="icon"
-                          />
+                          <IconCheck size={16} color="currentColor" variant="Linear" />
                         ) : null
                       }
                     >
@@ -248,12 +252,7 @@ const AuditLog = () => {
                       }}
                       rightSection={
                         isSelected ? (
-                          <Image
-                            src={IconCheck2}
-                            width={16}
-                            height={16}
-                            alt="icon"
-                          />
+                          <IconCheck size={16} color="currentColor" variant="Linear" />
                         ) : null
                       }
                     >
@@ -274,13 +273,7 @@ const AuditLog = () => {
                     <Text c="#FFFFFF" fz={13}>
                       Pick a Custom Date
                     </Text>
-                    <Image
-                      src={IconUpgrade}
-                      width={16}
-                      height={16}
-                      className="rotate-90"
-                      alt="icon"
-                    />
+                    <IconChevronUp size={16} color="currentColor" variant="Linear" />
                   </Flex>
 
                   {openedPicker && (
@@ -288,7 +281,7 @@ const AuditLog = () => {
                       pos="absolute"
                       top={{ base: 0, md: -176 }}
                       left={{ base: -100, md: 190 }}
-                      bg="#1A1A1A"
+                      bg="var(--fj-surface)"
                       className="rounded-[12px]"
                       p={6}
                     >
@@ -362,13 +355,13 @@ const AuditLogFilter = ({
             </Text>
             <Flex align="center" gap={4}>
               <Text fz={13}>{value || "All"}</Text>
-              <Image src={IconCaretDown} width={20} height={20} alt="icon" />
+              <IconChevronDown size={20} color="currentColor" variant="Linear" />
             </Flex>
           </Flex>
         </Button>
       </Menu.Target>
 
-      <Menu.Dropdown bg="#141414">
+      <Menu.Dropdown bg="var(--fj-surface-elevated)">
         <Flex direction="column" p={4} gap={12}>
           <Flex align="center" justify="space-between" gap={12}>
             <Text fz={12} c="#868686">

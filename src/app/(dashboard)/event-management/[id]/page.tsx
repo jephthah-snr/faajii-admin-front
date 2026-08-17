@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Avatar,
   Badge,
   Card,
   Group,
@@ -10,7 +9,6 @@ import {
   Table,
   Tabs,
   Text,
-  ThemeIcon,
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
@@ -18,49 +16,25 @@ import { AppLayout } from "@/layout";
 import {
   GetAdminEventGuests,
   GetAdminEventTickets,
-  GetAdminEventPlanners,
   GetAdminEventTransactions,
-  GetAdminEventVendors,
   GetAdminEventPartyStore,
   GetEventDetails,
 } from "@/services/api";
 import { EventDetails } from "@/services/api/event/event.types";
-import { EventOverview, EventStore } from "@/components";
+import {
+  EventCheckIns,
+  EventCoPlanners,
+  EventOverview,
+  EventStore,
+  EventWallet,
+  StatTile,
+} from "@/components";
+import { formatDateTime as formatDate, formatMoney } from "@/utils";
 import { useMemo, useState } from "react";
 
-function formatDate(value?: string | null) {
-  if (!value) return "Not set";
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
-function formatMoney(amount: number, currency = "NGN") {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency,
-  }).format(amount || 0);
-}
-
-function ComingSoon({ title }: { title: string }) {
-  return (
-    <Card withBorder radius="xl" p={60}>
-      <Stack align="center" gap="md">
-        <ThemeIcon size={64} radius="xl" variant="light">
-          ✦
-        </ThemeIcon>
-        <Text fw={700} fz={24}>
-          {title} is coming soon
-        </Text>
-        <Text c="dimmed" ta="center" maw={480}>
-          This section will appear when its event-management workflow is ready
-          in the Faajii backend.
-        </Text>
-      </Stack>
-    </Card>
-  );
-}
+/** Guards a list-shaped field so a malformed payload renders empty, not crashes. */
+const asArray = <T,>(value: T[] | undefined): T[] =>
+  Array.isArray(value) ? value : [];
 
 export default function EventDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -87,16 +61,6 @@ export default function EventDetailsPage() {
     queryFn: () => GetAdminEventTransactions(id),
     enabled: Boolean(id),
   });
-  const plannersQuery = useQuery({
-    queryKey: ["admin-event-planners", id],
-    queryFn: () => GetAdminEventPlanners(id),
-    enabled: Boolean(id),
-  });
-  const vendorsQuery = useQuery({
-    queryKey: ["admin-event-vendors", id],
-    queryFn: () => GetAdminEventVendors(id),
-    enabled: Boolean(id),
-  });
   const partyStoreQuery = useQuery({
     queryKey: ["admin-event-party-store", id],
     queryFn: () => GetAdminEventPartyStore(id),
@@ -104,7 +68,7 @@ export default function EventDetailsPage() {
   });
 
   const event = overviewQuery.data?.data as EventDetails | undefined;
-  const guests = guestsQuery.data?.data || [];
+  const guests = asArray(guestsQuery.data?.data);
   const ticketTracking = ticketsQuery.data?.data;
   const tickets = useMemo(
     () => ticketTracking?.tickets || [],
@@ -128,13 +92,11 @@ export default function EventDetailsPage() {
     }
     return grouped;
   }, [tickets]);
-  const transactions = transactionsQuery.data?.data || [];
-  const planners = plannersQuery.data?.data || [];
-  const vendors = vendorsQuery.data?.data || [];
-  const partyStoreItems = useMemo(
-    () => partyStoreQuery.data?.data || [],
-    [partyStoreQuery.data?.data],
-  );
+  const transactions = asArray(transactionsQuery.data?.data);
+  const partyStoreItems = useMemo(() => {
+    const data = partyStoreQuery.data?.data;
+    return Array.isArray(data) ? data : [];
+  }, [partyStoreQuery.data?.data]);
   const filteredPartyStoreItems = useMemo(() => {
     const kindByFilter: Record<string, string> = {
       Tickets: "ticket",
@@ -166,44 +128,40 @@ export default function EventDetailsPage() {
         <Tabs.List mb="xl">
           <Tabs.Tab value="overview">Overview</Tabs.Tab>
           <Tabs.Tab value="guests">Guests ({guests.length})</Tabs.Tab>
-          <Tabs.Tab value="planners">Planners ({planners.length})</Tabs.Tab>
-          <Tabs.Tab value="vendors">Vendors ({vendors.length})</Tabs.Tab>
+          <Tabs.Tab value="check-ins">Check-ins</Tabs.Tab>
+          <Tabs.Tab value="planners">Co-planners</Tabs.Tab>
           <Tabs.Tab value="transactions">
             Transactions ({transactions.length})
           </Tabs.Tab>
+          <Tabs.Tab value="wallet">Purse</Tabs.Tab>
           <Tabs.Tab value="party-store">
             Party Store ({partyStoreItems.length})
           </Tabs.Tab>
-          <Tabs.Tab value="wishlist">Wishlist</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="overview">
           <EventOverview
             eventData={event!}
             isFetching={overviewQuery.isFetching}
+            eventId={id}
           />
         </Tabs.Panel>
 
         <Tabs.Panel value="guests">
           <SimpleGrid cols={{ base: 2, md: 5 }} mb="lg">
             {[
-              { label: "Tickets issued", value: ticketTracking?.summary.issued || 0, color: "#F5C912" },
-              { label: "Active", value: ticketTracking?.summary.active || 0, color: "#74C0FC" },
-              { label: "Checked in", value: ticketTracking?.summary.used || 0, color: "#63E6BE" },
-              { label: "Cancelled", value: ticketTracking?.summary.cancelled || 0, color: "#FF8787" },
-              { label: "Ticket holders", value: ticketTracking?.summary.uniqueHolders || 0, color: "#D0BFFF" },
+              { label: "Tickets issued", value: ticketTracking?.summary?.issued || 0, color: "#F5C912" },
+              { label: "Active", value: ticketTracking?.summary?.active || 0, color: "#74C0FC" },
+              { label: "Checked in", value: ticketTracking?.summary?.used || 0, color: "#63E6BE" },
+              { label: "Cancelled", value: ticketTracking?.summary?.cancelled || 0, color: "#FF8787" },
+              { label: "Ticket holders", value: ticketTracking?.summary?.uniqueHolders || 0, color: "#D0BFFF" },
             ].map((metric) => (
-              <Card key={metric.label} withBorder radius="lg" bg="#171717" p="md">
-                <Text fz="xs" c="dimmed">{metric.label}</Text>
-                <Text fz={26} fw={800} c={metric.color} mt={4}>
-                  {metric.value.toLocaleString()}
-                </Text>
-              </Card>
+              <StatTile key={metric.label} label={metric.label} value={metric.value.toLocaleString()} accent={metric.color} />
             ))}
           </SimpleGrid>
 
           <Text fw={700} fz="lg" mb="sm">Guest directory</Text>
-          <Card withBorder radius="xl" p={0}>
+          <Card radius="lg" p={0}>
             <Table.ScrollContainer minWidth={800}>
               <Table verticalSpacing="md" horizontalSpacing="lg">
                 <Table.Thead>
@@ -222,7 +180,7 @@ export default function EventDetailsPage() {
                       <Table.Td fw={600}>{guest.name}</Table.Td>
                       <Table.Td>
                         <Text>{guest.email || "No email"}</Text>
-                        <Text c="dimmed" fz="xs">
+                        <Text c="var(--fj-text-muted)" fz="xs">
                           {guest.phone || "No phone"}
                         </Text>
                       </Table.Td>
@@ -234,12 +192,12 @@ export default function EventDetailsPage() {
                               {ticketsByGuest.get(guest.id)?.count} ticket
                               {ticketsByGuest.get(guest.id)?.count === 1 ? "" : "s"}
                             </Text>
-                            <Text c="dimmed" fz="xs" lineClamp={1}>
+                            <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
                               {[...(ticketsByGuest.get(guest.id)?.tiers || [])].join(", ")}
                             </Text>
                           </Stack>
                         ) : (
-                          <Text c="dimmed">No ticket</Text>
+                          <Text c="var(--fj-text-muted)">No ticket</Text>
                         )}
                       </Table.Td>
                       <Table.Td>
@@ -256,13 +214,13 @@ export default function EventDetailsPage() {
           <Group justify="space-between" mt="xl" mb="sm">
             <Stack gap={2}>
               <Text fw={700} fz="lg">Ticket ledger</Text>
-              <Text c="dimmed" fz="sm">
+              <Text c="var(--fj-text-muted)" fz="sm">
                 Every issued ticket unit, its tier, owner and check-in state.
               </Text>
             </Stack>
             <Badge variant="light" size="lg">{tickets.length} records</Badge>
           </Group>
-          <Card withBorder radius="xl" p={0}>
+          <Card radius="lg" p={0}>
             <Table.ScrollContainer minWidth={1050}>
               <Table verticalSpacing="md" horizontalSpacing="lg">
                 <Table.Thead>
@@ -281,20 +239,20 @@ export default function EventDetailsPage() {
                     <Table.Tr key={ticket.id}>
                       <Table.Td>
                         <Text fw={650}>{ticket.guest.name}</Text>
-                        <Text c="dimmed" fz="xs">
+                        <Text c="var(--fj-text-muted)" fz="xs">
                           {ticket.guest.email || ticket.guest.phone || "No contact"}
                         </Text>
                       </Table.Td>
                       <Table.Td>
                         <Text fw={600}>{ticket.ticket.name}</Text>
-                        <Text c="dimmed" fz="xs" tt="capitalize">
+                        <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">
                           {ticket.ticket.type} · {ticket.guestTicketCount} held
                         </Text>
                       </Table.Td>
                       <Table.Td ff="monospace">{ticket.ticketRef}</Table.Td>
                       <Table.Td>
                         <Text>{ticket.order.reference || `#${ticket.order.id}`}</Text>
-                        <Text c="dimmed" fz="xs" tt="capitalize">{ticket.order.status}</Text>
+                        <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">{ticket.order.status}</Text>
                       </Table.Td>
                       <Table.Td>
                         {formatMoney(ticket.ticket.price, ticket.ticket.currency)}
@@ -322,66 +280,17 @@ export default function EventDetailsPage() {
           </Card>
         </Tabs.Panel>
 
-        <Tabs.Panel value="planners">
-          <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
-            {planners.map((planner) => {
-              const enabledPermissions = planner.permissions.filter(
-                (permission) => permission.access,
-              );
-              return (
-                <Card key={planner.id} withBorder radius="xl">
-                  <Group justify="space-between">
-                    <Group>
-                      <Avatar name={planner.name} />
-                      <Stack gap={0}>
-                        <Text fw={700}>{planner.name}</Text>
-                        <Text c="dimmed" fz="sm">
-                          {planner.phone}
-                        </Text>
-                      </Stack>
-                    </Group>
-                    <Badge>{planner.status}</Badge>
-                  </Group>
-                  <Group gap="xs" mt="lg">
-                    {enabledPermissions.map((permission) => (
-                      <Badge key={permission.id} variant="light">
-                        {permission.id}
-                      </Badge>
-                    ))}
-                  </Group>
-                </Card>
-              );
-            })}
-          </SimpleGrid>
+        <Tabs.Panel value="check-ins">
+          <EventCheckIns eventId={id} />
         </Tabs.Panel>
 
-        <Tabs.Panel value="vendors">
-          <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
-            {vendors.map((vendor) => (
-              <Card key={vendor.id} withBorder radius="xl">
-                <Group>
-                  <Avatar src={vendor.logo} name={vendor.name} size="lg" />
-                  <Stack gap={0}>
-                    <Text fw={700}>{vendor.name}</Text>
-                    <Text c="dimmed" fz="sm">
-                      {vendor.serviceType}
-                    </Text>
-                  </Stack>
-                </Group>
-                <Text mt="md" lineClamp={3}>
-                  {vendor.description || "No description"}
-                </Text>
-                <Group justify="space-between" mt="lg">
-                  <Text fz="sm">{vendor.phone || "No phone"}</Text>
-                  <Badge variant="light">★ {vendor.rating}</Badge>
-                </Group>
-              </Card>
-            ))}
-          </SimpleGrid>
+        <Tabs.Panel value="planners">
+          <EventCoPlanners eventId={id} />
         </Tabs.Panel>
+
 
         <Tabs.Panel value="transactions">
-          <Card withBorder radius="xl" p={0}>
+          <Card radius="lg" p={0}>
             <Table.ScrollContainer minWidth={850}>
               <Table verticalSpacing="md" horizontalSpacing="lg">
                 <Table.Thead>
@@ -417,6 +326,14 @@ export default function EventDetailsPage() {
           </Card>
         </Tabs.Panel>
 
+        <Tabs.Panel value="wallet">
+          <EventWallet eventId={id} />
+        </Tabs.Panel>
+
+
+
+
+
         <Tabs.Panel value="party-store">
           <EventStore
             storeData={filteredPartyStoreItems}
@@ -426,9 +343,6 @@ export default function EventDetailsPage() {
             query={partyStoreSearch}
             onQueryChange={setPartyStoreSearch}
           />
-        </Tabs.Panel>
-        <Tabs.Panel value="wishlist">
-          <ComingSoon title="Wishlist" />
         </Tabs.Panel>
       </Tabs>
     </AppLayout>

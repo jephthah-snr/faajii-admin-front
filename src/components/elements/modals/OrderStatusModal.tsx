@@ -97,7 +97,7 @@ const OrderStatusModal = ({
       console.error("Failed to update order status:", error);
       setConfirmationMessage(
         error?.response?.data?.message ||
-          "Failed to update order status. Please try again."
+          "Failed to update order status. Please try again.",
       );
       setConfirmationType("error");
       openConfirmation();
@@ -145,10 +145,10 @@ const OrderStatusModal = ({
 
               <Link
                 target="_blank"
-                href={`https://www.pv.rsvp/`}
+                href={`https://www.faajii.rsvp/`}
                 style={{ color: "#D9D9D9B2", fontSize: "13px" }}
               >
-                www.pv.rsvp
+                www.faajii.rsvp
               </Link>
             </Flex>
 
@@ -175,7 +175,7 @@ const OrderStatusModal = ({
                     <StatusBadge
                       status={status}
                       px={18}
-                      bg="#262626"
+                      bg="var(--fj-surface-card)"
                       size="xl"
                       style={{ border: "1px solid #2D2D2D" }}
                       useAltColor
@@ -185,7 +185,7 @@ const OrderStatusModal = ({
                 </Menu.Target>
 
                 <Menu.Dropdown
-                  bg="#121212"
+                  bg="var(--fj-surface-elevated)"
                   style={{ border: "1px solid #1C1C1C", borderRadius: "12px" }}
                 >
                   {orderStatuses.map((item, index) => (

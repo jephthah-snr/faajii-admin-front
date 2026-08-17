@@ -1,10 +1,11 @@
 "use client";
 
 import { FormatDate, PpTable, TransactionModal } from "@/components";
-import { IconCredit, IconDebit } from "@/icons";
+import { IconCredit, IconDebit } from "@/config/icons";
 import { AppLayout } from "@/layout";
 import { GetTransactions } from "@/services/api";
 import {
+  asList,
   buildDefaultFilters,
   formatStringAmount,
   initialsColors,
@@ -15,7 +16,6 @@ import {
 import { Avatar, Box, Flex, Table, Text } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
 import { useState } from "react";
 
 const tableHeaders = [
@@ -60,7 +60,7 @@ const Transactions = () => {
         filters.endDate
       ),
   });
-  const transactionsData = transactions?.data?.data || [];
+  const transactionsData = asList(transactions?.data?.data);
   const totalItems = transactions?.data?.pagination?.total || 0;
 
   const handleOpenModal = (ref: string) => {
@@ -89,10 +89,11 @@ const Transactions = () => {
                     : "none",
               }}
             >
-              <Image
-                src={data?.direction === "CREDIT" ? IconCredit : IconDebit}
-                alt="icon"
-              />
+              {data?.direction === "CREDIT" ? (
+                <IconCredit size={18} color="var(--fj-success)" variant="Bulk" />
+              ) : (
+                <IconDebit size={18} color="var(--fj-danger)" variant="Bulk" />
+              )}
             </Box>
             <Box w={300} pr={10}>
               <Text truncate="end" fz={14}>

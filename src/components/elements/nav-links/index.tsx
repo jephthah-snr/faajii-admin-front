@@ -1,37 +1,35 @@
 "use client";
 
-import {
-  Group,
-  Box,
-  UnstyledButton,
-  rem,
-  Text,
-  Flex,
-  Button,
-} from "@mantine/core";
+import { Box, Button, Flex, Group, Text, UnstyledButton } from "@mantine/core";
 import classes from "@/styles/General.module.css";
 import { usePathname } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import Link from "next/link";
-import Image, { StaticImageData } from "next/image";
 import { useDispatch } from "react-redux";
 import { logout } from "@/store/authSlice";
 import { AdminLogout } from "@/services/api/admin";
 import ConfirmationModal from "../modals/ConfirmationModal";
 import { useDisclosure } from "@mantine/hooks";
+import type { Icon } from "@/config/icons";
 
 interface NavLinksProps {
-  icon?: string | StaticImageData;
+  icon?: Icon;
   label: string;
   navLink: string;
 }
 
-const NavLinks = ({ icon, label, navLink }: NavLinksProps) => {
+const NavLinks = ({ icon: IconComponent, label, navLink }: NavLinksProps) => {
   const [opened, { open, close }] = useDisclosure(false);
   const currentPath = usePathname();
-  const isActive = currentPath.startsWith(navLink);
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const isLogout = navLink === "/logout";
+  // Exact match or a true child segment — without the `/` guard, `/wallets`
+  // would light up while you're on `/wallets-something-else`.
+  const isActive =
+    !isLogout &&
+    (currentPath === navLink || currentPath.startsWith(`${navLink}/`));
 
   const handleLogout = async () => {
     close();
@@ -44,30 +42,36 @@ const NavLinks = ({ icon, label, navLink }: NavLinksProps) => {
   return (
     <>
       <Link
-        href={navLink !== "/logout" ? navLink : "#"}
-        onClick={navLink === "/logout" ? open : undefined}
+        href={isLogout ? "#" : navLink}
+        onClick={isLogout ? open : undefined}
       >
         <UnstyledButton
-          className={`${classes.control} ${isActive && classes.active}`}
+          className={`${classes.control} ${isActive ? classes.active : ""}`}
         >
-          <Group justify="space-between" gap={0}>
-            <Box style={{ display: "flex", alignItems: "center" }}>
-              {icon && (
-                <Image
-                  src={icon}
-                  alt="icon"
-                  style={{ width: rem(24), height: rem(24) }}
+          <Group justify="space-between" gap={0} wrap="nowrap">
+            <Flex align="center" gap={12} style={{ minWidth: 0 }}>
+              {IconComponent && (
+                <IconComponent
+                  size={20}
+                  color="currentColor"
+                  // Filled treatment on the active item reads as selected
+                  // without needing a second colour.
+                  variant={isActive ? "Bold" : "Linear"}
+                  style={{ flexShrink: 0 }}
                 />
               )}
-              <Text ml="xs">{label}</Text>
-            </Box>
+              <Text fz={14} fw={isActive ? 600 : 400} truncate="end">
+                {label}
+              </Text>
+            </Flex>
 
             <Box
-              w={5}
-              h={18}
+              w={4}
+              h={16}
               className="rounded-full"
-              bg={isActive ? "#5769E9" : "transparent"}
-            ></Box>
+              bg={isActive ? "var(--fj-accent)" : "transparent"}
+              style={{ flexShrink: 0 }}
+            />
           </Group>
         </UnstyledButton>
       </Link>

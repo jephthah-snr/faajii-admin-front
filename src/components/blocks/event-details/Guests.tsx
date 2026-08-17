@@ -1,6 +1,6 @@
 "use client";
 
-import { IconCaretDown, IconEllipsisV, IconSearch } from "@/icons";
+import { IconChevronDown, IconMore, IconSearch } from "@/config/icons";
 import { Guest } from "@/services/api/event/event.types";
 import {
   capitalizeString,
@@ -14,12 +14,10 @@ import {
   Card,
   Flex,
   Menu,
-  rem,
   Table,
   Text,
   TextInput,
 } from "@mantine/core";
-import Image from "next/image";
 import PpTable from "../table";
 import inputClasses from "@/styles/Input.module.css";
 import { useDisclosure } from "@mantine/hooks";
@@ -130,11 +128,7 @@ const EventGuests = ({
                 aria-label="More"
                 onClick={(event) => event.stopPropagation()}
               >
-                <Image
-                  src={IconEllipsisV}
-                  alt="icon"
-                  style={{ width: "70%", height: "70%" }}
-                />
+                <IconMore size={18} color="currentColor" variant="Linear" />
               </ActionIcon>
             </Menu.Target>
 
@@ -293,11 +287,11 @@ const EventGuests = ({
           gap={10}
           py={10}
           wrap="wrap"
-          bg="#0A0A0A"
+          bg="var(--fj-bg)"
           className="sticky top-14 z-10"
         >
           <Flex align="center" gap={16} wrap="wrap">
-            <Card radius={6} p={10} h={40} bg="#292929">
+            <Card radius={6} p={10} h={40} bg="var(--fj-surface-card)">
               <Flex align="center" gap={4}>
                 <Text fz={14} c="#868686">
                   Total RSVP:
@@ -326,12 +320,7 @@ const EventGuests = ({
 
                     <Flex align="center" gap={4}>
                       <Text>{selectedFilter}</Text>
-                      <Image
-                        src={IconCaretDown}
-                        width={20}
-                        height={20}
-                        alt="icon"
-                      />
+                      <IconChevronDown size={20} color="currentColor" variant="Linear" />
                     </Flex>
                   </Flex>
                 </Button>
@@ -401,11 +390,7 @@ const EventGuests = ({
               size="sm"
               radius="md"
               leftSection={
-                <Image
-                  src={IconSearch}
-                  alt="icon"
-                  style={{ width: rem(16), height: rem(16) }}
-                />
+                <IconSearch size={16} color="currentColor" variant="Linear" />
               }
             />
 

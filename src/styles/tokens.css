@@ -1,0 +1,67 @@
+/**
+ * Faajii admin design tokens.
+ *
+ * Ported from the mobile app's dark theme
+ * (`faajii-mobile-core/src/theme/tokens.ts` → `darkTokens`) so the admin reads
+ * as the same product. Nothing in the admin should hardcode a hex value —
+ * surfaces, text and accents all come from here.
+ */
+
+:root {
+  /* Surfaces, lightest-on-top ordering:
+     bg → surface → surface-card, with `elevated` used for inset panels
+     (table heads, nested tiles) that should recede rather than lift. */
+  --fj-bg: #000000;
+  --fj-surface: #1a1a1d;
+  --fj-surface-card: #222222;
+  --fj-surface-muted: #181a21;
+  --fj-surface-elevated: #111216;
+  --fj-divider: #35353a;
+
+  /* Text */
+  --fj-text-primary: #ffffff;
+  --fj-text-secondary: #a8a8b3;
+  --fj-text-muted: #747482;
+  --fj-text-inverse: #000000;
+
+  /* Borders */
+  --fj-border: #22242a;
+  --fj-border-subtle: rgba(255, 255, 255, 0.06);
+  --fj-border-strong: rgba(255, 255, 255, 0.12);
+
+  /* Inputs */
+  --fj-input-bg: #23252b;
+  --fj-input-border: #2a2a2a;
+  --fj-placeholder: #797986;
+
+  /* Accents */
+  --fj-accent: #ff8a00;
+  --fj-accent-soft: rgba(255, 138, 0, 0.12);
+  --fj-accent-magenta: #a50062;
+  --fj-accent-purple: #5a0b5d;
+  --fj-accent-pink: #f45797;
+
+  /* Status */
+  --fj-danger: #ff5c66;
+  --fj-danger-soft: rgba(255, 92, 102, 0.12);
+  --fj-success: #1ed69e;
+  --fj-success-soft: rgba(30, 214, 158, 0.12);
+  --fj-warning: #ff8a00;
+  --fj-info: #74c0fc;
+
+  /* Data-visualisation ramp — used for chart series and stat tiles so tiles
+     across different screens don't each invent their own palette. */
+  --fj-viz-1: #ff8a00;
+  --fj-viz-2: #74c0fc;
+  --fj-viz-3: #1ed69e;
+  --fj-viz-4: #d0bfff;
+  --fj-viz-5: #f45797;
+
+  /* Radii — the app uses pill buttons and generously rounded fields. */
+  --fj-radius-input: 16px;
+  --fj-radius-card: 18px;
+  --fj-radius-pill: 999px;
+
+  /* One shared elevation. Deep and soft, never a hard grey ring. */
+  --fj-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+}

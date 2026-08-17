@@ -1,10 +1,11 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: var(--fj-bg);
+  --foreground: var(--fj-text-primary);
   --font-grotesk: "Grotesk", sans-serif;
-  --pp-primary: #5769e9;
+  --pp-primary: var(--fj-accent);
 }
 
 @theme inline {
@@ -47,7 +48,11 @@ main::-webkit-scrollbar {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: var(--background);
+  /* Translucent + blurred so content scrolling underneath reads as depth
+     rather than abruptly disappearing behind an opaque bar. */
+  background-color: color-mix(in srgb, var(--fj-bg) 82%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--fj-border);
 }
 
 th,
@@ -64,11 +69,11 @@ td {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: #222222;
+  background-color: var(--fj-surface);
 }
 
 .long-dash-border {
-  border: 1.5px dashed #515151;
+  border: 1.5px dashed var(--fj-divider);
 }
 
 .breakable {
@@ -77,15 +82,16 @@ td {
 }
 
 .black-bg {
-  background-color: #000000 !important;
+  background-color: var(--fj-bg) !important;
 }
 
 @layer components {
   .dynamicBorder {
-    @apply border-l-0 md:border-l md:border-l-[#363636];
+    @apply border-l-0 md:border-l;
+    border-left-color: var(--fj-border);
   }
 
   .borderLeft {
-    border-left: 1px solid #363636;
+    border-left: 1px solid var(--fj-border);
   }
 }

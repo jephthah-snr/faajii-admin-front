@@ -283,7 +283,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
                 </Accordion.Control>
                 <Accordion.Panel>
                   <Card
-                    bg="#161616"
+                    bg="var(--fj-surface-elevated)"
                     className="border border-[#1E1E1E]"
                     radius={8}
                   >
@@ -442,7 +442,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
             />
 
             {/* Button */}
-            <Box pos="sticky" bottom={0} w="100%" py={10} bg="#000000">
+            <Box pos="sticky" bottom={0} w="100%" py={10} bg="var(--fj-bg)">
               <Button
                 type="submit"
                 radius="xl"

@@ -11,8 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import PpTable from "../table";
 import { Avatar, Box, Flex, Table, Text } from "@mantine/core";
 import { EventTransactionModal, FormatDate } from "@/components/elements";
-import Image from "next/image";
-import { IconCredit, IconDebit } from "@/icons";
+import { IconCredit, IconDebit } from "@/config/icons";
 import { Edges } from "@/services/api/event/event.types";
 import { useEffect, useMemo, useState } from "react";
 import { useCursorPagination } from "@/hooks";
@@ -78,10 +77,11 @@ const EventTransactions = ({ id }: EventTransactionsProps) => {
 
         <Table.Td>
           <Flex gap={8}>
-            <Image
-              src={data.type === "credit" ? IconCredit : IconDebit}
-              alt="icon"
-            />
+            {data.type === "credit" ? (
+              <IconCredit size={18} color="var(--fj-success)" variant="Bulk" />
+            ) : (
+              <IconDebit size={18} color="var(--fj-danger)" variant="Bulk" />
+            )}
             <Box w={300} pr={10}>
               <Text truncate="end" fz={14}>
                 {data.description || "N/A"}

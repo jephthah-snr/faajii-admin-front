@@ -35,8 +35,7 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
-import { IconEllipsisV } from "@/icons";
+import { IconMore } from "@/config/icons";
 import { useParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useDisclosure } from "@mantine/hooks";
@@ -365,11 +364,7 @@ const VendorDetailsPage = () => {
                 aria-label="More"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Image
-                  src={IconEllipsisV}
-                  alt="icon"
-                  style={{ width: "70%", height: "70%" }}
-                />
+                <IconMore size={18} color="currentColor" variant="Linear" />
               </ActionIcon>
             </Menu.Target>
 
@@ -445,7 +440,7 @@ const VendorDetailsPage = () => {
                         key={summary.label}
                         w={{ base: "auto", md: "100%" }}
                         miw={{ base: 240, md: "auto" }}
-                        bg="#171717E5"
+                        bg="var(--fj-surface)"
                         p="md"
                         radius={16}
                       >
@@ -517,7 +512,7 @@ const VendorDetailsPage = () => {
           </Tabs.Panel>
 
           <Tabs.Panel value="transactions">
-            <Card withBorder radius={16} p={0} bg="transparent">
+            <Card radius={16} p={0} bg="transparent">
               <Table.ScrollContainer minWidth={820}>
                 <Table verticalSpacing="md" horizontalSpacing="lg">
                   <Table.Thead>
@@ -537,7 +532,7 @@ const VendorDetailsPage = () => {
                         <Table.Td>{transaction.event?.name || "Direct payout"}</Table.Td>
                         <Table.Td>
                           <Text>{transaction.narration || transaction.category}</Text>
-                          <Text c="dimmed" fz="xs" tt="capitalize">
+                          <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">
                             {transaction.type}
                           </Text>
                         </Table.Td>

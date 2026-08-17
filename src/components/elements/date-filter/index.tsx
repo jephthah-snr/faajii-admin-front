@@ -2,8 +2,7 @@
 
 import { Box, Button, Flex, Menu } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
-import Image from "next/image";
-import { IconCalendarAlt } from "@/icons";
+import { IconCalendarTick } from "@/config/icons";
 import classes from "@/styles/Input.module.css";
 import { useEffect, useState } from "react";
 
@@ -87,12 +86,7 @@ const DateFilter = ({
             radius={8}
             miw="fit-content"
             leftSection={
-              <Image
-                src={IconCalendarAlt}
-                width={20}
-                height={20}
-                alt="calendar"
-              />
+              <IconCalendarTick size={20} color="currentColor" variant="Linear" />
             }
           >
             {title && title}

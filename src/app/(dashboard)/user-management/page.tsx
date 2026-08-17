@@ -1,9 +1,10 @@
 "use client";
 
 import { ConfirmationModal, PpTable, StatusBadge } from "@/components";
-import { IconEllipsisH } from "@/icons";
+import { IconMore } from "@/config/icons";
 import { AppLayout } from "@/layout";
 import {
+  asList,
   buildDefaultFilters,
   getUuidPrefix,
   initialsColors,
@@ -22,7 +23,6 @@ import {
   Text,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
-import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { useState } from "react";
 import classes from "@/styles/General.module.css";
@@ -70,7 +70,7 @@ const UserManagement = () => {
       ),
     placeholderData: (prev) => prev,
   });
-  const usersData = users?.data?.data || [];
+  const usersData = asList(users?.data?.data);
   const totalItems = users?.data?.pagination?.total || 0;
 
   const [
@@ -157,11 +157,7 @@ const UserManagement = () => {
                 aria-label="More"
                 onClick={(event) => event.stopPropagation()}
               >
-                <Image
-                  src={IconEllipsisH}
-                  alt="icon"
-                  style={{ width: "70%", height: "70%" }}
-                />
+                <IconMore size={18} color="currentColor" variant="Linear" />
               </ActionIcon>
             </Menu.Target>
 

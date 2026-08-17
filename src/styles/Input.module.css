@@ -1,138 +1,233 @@
+/**
+ * Field chrome, ported from the mobile app's `OutlineTabField`
+ * (`faajii-mobile-core/src/components/OutlineTabField`):
+ *
+ *   - filled surface, generously rounded, no visible border at rest
+ *   - accent border on focus
+ *   - the label lifts out of the flow and becomes an accent pill "tab" sitting
+ *     on the top-left of the border
+ *
+ * The label is a sibling *above* the input in Mantine's DOM, so it is absolutely
+ * positioned out of the flow and revealed with `:focus-within` (focused) or
+ * `:has(:not(:placeholder-shown))` (filled) — matching the app's `focused ||
+ * forceShowLabel` condition without needing per-call-site state.
+ */
+
+.inputRoot {
+  position: relative;
+}
+
 .textInput {
-  border: transparent;
-  background-color: #131313 !important;
-  color: #c4c4c4;
-  font-size: 14px;
-  height: 50px;
+  background-color: var(--fj-input-bg) !important;
+  color: var(--fj-text-primary);
+  font-size: 15px;
   font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0%;
-  border-radius: 12px;
+  line-height: 22px;
+  border: 1.5px solid transparent;
+  border-radius: var(--fj-radius-input);
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+
   &::placeholder {
-    color: #969696;
+    color: var(--fj-placeholder);
   }
 
-  /* Prevent autofill background override */
+  &:focus,
+  &:focus-within {
+    border-color: var(--fj-accent);
+    background-color: var(--fj-input-bg) !important;
+  }
+
+  &[data-error] {
+    border-color: var(--fj-danger);
+  }
+
+  &:disabled,
+  &[data-disabled] {
+    opacity: 0.5;
+    color: var(--fj-text-muted);
+  }
+
+  /* Chrome paints its own autofill background over ours. */
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus,
   &:-webkit-autofill:active {
-    background-color: #131313 !important;
-    color: #c4c4c4;
+    -webkit-text-fill-color: var(--fj-text-primary);
+    -webkit-box-shadow: 0 0 0 1000px var(--fj-input-bg) inset;
+    caret-color: var(--fj-text-primary);
   }
 }
 
 .textAreaInput {
-  border: transparent;
-  background-color: #131313 !important;
-  color: #c4c4c4;
-  font-size: 14px;
-  padding: 16px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0%;
-  border-radius: 12px;
-  &::placeholder {
-    color: #969696;
-  }
+  composes: textInput;
+  padding: 14px 16px;
+  line-height: 22px;
+}
+
+/* ------------------------------- Floating tab ------------------------------ */
+
+.floatingLabel {
+  position: absolute;
+  top: -9px;
+  left: 14px;
+  z-index: 2;
+  margin: 0;
+  padding: 3px 10px;
+  border-radius: var(--fj-radius-pill);
+  background: var(--fj-accent);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(5px);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+/* Focused, or holding a value. */
+.inputRoot:focus-within .floatingLabel,
+.inputRoot:has(input:not(:placeholder-shown)) .floatingLabel,
+.inputRoot:has(textarea:not(:placeholder-shown)) .floatingLabel,
+.inputRoot:has(input[value]:not([value=""])) .floatingLabel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* A field in error state names itself in red rather than accent. */
+.inputRoot:has([data-error]) .floatingLabel {
+  background: var(--fj-danger);
+}
+
+.floatingLabelRequired {
+  color: #ffffff;
+  opacity: 0.75;
+}
+
+.inputSection {
+  color: var(--fj-text-muted);
+}
+
+.inputDescription {
+  color: var(--fj-text-muted);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.inputError {
+  color: var(--fj-danger);
+  font-size: 12px;
+  margin-top: 6px;
 }
 
 .dashedBorderInput {
-  border: 1.5px dashed #515151;
-  background-color: #121212 !important;
-  color: #c4c4c4;
-  font-size: 14px;
+  border: 1.5px dashed var(--fj-divider);
+  background-color: var(--fj-surface-elevated) !important;
+  color: var(--fj-text-primary);
+  font-size: 15px;
   padding: 16px;
   font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0%;
-  border-radius: 12px;
+  line-height: 22px;
+  border-radius: var(--fj-radius-input);
+
   &::placeholder {
-    color: #ffffff4d;
+    color: var(--fj-placeholder);
   }
 }
 
-.textInputLabel {
-  color: #969696;
-  font-size: 14px;
-  margin-bottom: 6px;
-}
+/* --------------------------------- Search --------------------------------- */
+/* Search sits on top of page content, so it reads as a recessed well rather
+   than a raised card, and keeps a static label-free presentation. */
 
 .searchInput {
-  border: 1px solid #ffffff1a;
-  background-color: #1c1c1c66 !important;
-  color: #ffffffb9;
+  border: 1px solid var(--fj-border-subtle);
+  background-color: var(--fj-surface-elevated) !important;
+  color: var(--fj-text-primary);
   font-size: 14px;
-  height: auto;
+  height: 40px;
+  min-height: 40px;
   font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0%;
+  border-radius: var(--fj-radius-input);
+  transition: border-color 140ms ease;
+
   &::placeholder {
-    color: #ffffff33;
+    color: var(--fj-placeholder);
+  }
+
+  &:focus {
+    border-color: var(--fj-accent);
   }
 }
 
 .searchInputAlt {
-  border: 1px solid transparent;
-  background-color: #111111 !important;
-  color: #ffffffb9;
-  font-size: 14px;
-  height: 40px;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: 0%;
-  &::placeholder {
-    color: #ffffff33;
-  }
+  composes: searchInput;
 }
 
 .numberInputControl {
   border-left: none !important;
+  color: var(--fj-text-secondary);
+
   &:hover {
-    background: transparent;
+    background: var(--fj-border-subtle);
   }
 }
 
-/* Date Picker module */
+/* ------------------------------- Date picker ------------------------------- */
+
 .day {
   border-radius: 50%;
+  color: var(--fj-text-primary);
+
   &[data-in-range] {
-    background: #5768e91d;
-    color: #5768e9;
+    background: var(--fj-accent-soft);
+    color: var(--fj-accent);
     border-radius: 50%;
   }
+
   &[data-selected] {
-    color: #fff !important;
-    background: #5769e9 !important;
+    color: var(--fj-text-inverse) !important;
+    background: var(--fj-accent) !important;
     border-radius: 50%;
+  }
+
+  &:hover {
+    background: var(--fj-border-subtle);
   }
 }
 
 .editInput {
   background-color: transparent !important;
-  height: 26px;
+  height: 30px;
   width: 140px;
-  color: #e1e1e1;
+  color: var(--fj-text-primary);
   font-size: 16px;
   padding: 6px;
   font-weight: 500;
-  caret-color: orange;
-  border-radius: 4px;
-  border: 1.5px solid #7d7d7d;
+  caret-color: var(--fj-accent);
+  border-radius: 6px;
+  border: 1.5px solid var(--fj-divider);
+
   &:active,
   &:focus,
   &:focus-visible {
-    border-color: #7d7d7d;
+    border-color: var(--fj-accent);
     outline: none;
   }
 }
 
 .roleCheckboxInput {
   background: transparent;
-  border: 1.5px solid #d1d1d1 !important;
+  border: 1.5px solid var(--fj-divider) !important;
   cursor: pointer;
+
   &:checked {
-    background: #00ebe3 !important;
-    border: #00ebe3 !important;
+    background: var(--fj-accent) !important;
+    border-color: var(--fj-accent) !important;
   }
 }

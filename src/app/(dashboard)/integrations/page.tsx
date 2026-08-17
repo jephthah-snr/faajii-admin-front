@@ -21,6 +21,7 @@ import {
   GetIntegrationBusinesses,
   UpdateIntegrationBusiness,
 } from "@/services/api";
+import { asList } from "@/utils";
 
 function statusColor(status: string) {
   if (status === "active") return "teal";
@@ -77,7 +78,7 @@ export default function IntegrationsPage() {
       queryClient.invalidateQueries({ queryKey: ["integration-businesses"] }),
   });
 
-  const businesses = businessesQuery.data?.data || [];
+  const businesses = asList(businessesQuery.data?.data);
 
   return (
     <AppLayout
@@ -94,14 +95,14 @@ export default function IntegrationsPage() {
 
           return (
             <Grid.Col key={business.id} span={{ base: 12, md: 6, xl: 4 }}>
-              <Card withBorder radius="lg" padding="lg" h="100%">
+              <Card radius="lg" padding="lg" h="100%">
                 <Stack gap="md">
                   <Group justify="space-between" align="flex-start">
                     <Stack gap={2}>
                       <Text fw={700} fz="lg">
                         {business.name}
                       </Text>
-                      <Text c="dimmed" fz="sm">
+                      <Text c="var(--fj-text-muted)" fz="sm">
                         {business.businessId}
                       </Text>
                     </Stack>
@@ -112,7 +113,7 @@ export default function IntegrationsPage() {
 
                   <Stack gap={4}>
                     <Text fz="sm">{business.contactEmail}</Text>
-                    <Text fz="sm" c="dimmed">
+                    <Text fz="sm" c="var(--fj-text-muted)">
                       /{business.slug}
                     </Text>
                   </Stack>
@@ -138,8 +139,8 @@ export default function IntegrationsPage() {
       </Grid>
 
       {!businessesQuery.isLoading && businesses.length === 0 && (
-        <Card withBorder radius="lg" p="xl">
-          <Text ta="center" c="dimmed">
+        <Card radius="lg" p="xl">
+          <Text ta="center" c="var(--fj-text-muted)">
             No external integrations have been added.
           </Text>
         </Card>

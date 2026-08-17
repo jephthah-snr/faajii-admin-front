@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  DownloadCsvButton,
   FormatDate,
+  PendingBackend,
   PpTable,
   StatusBadge,
   PaymentTrackingModal,
@@ -13,10 +15,13 @@ import {
   SERVICE_ID_LABELS,
 } from "@/services/api/payment-tracking/payment-tracking.types";
 import {
+  asList,
   buildDefaultFilters,
   formatStringAmount,
+  isEndpointUnavailable,
   paymentTrackingEmptyState,
   paymentTrackingFilters,
+  retryUnlessUnavailable,
   rowsPerPage,
 } from "@/utils";
 import { Badge, Box, Flex, Table, Text } from "@mantine/core";
@@ -48,7 +53,12 @@ const PaymentTrackingPage = () => {
     buildDefaultFilters(paymentTrackingFilters),
   );
 
-  const { data: paymentTrackings, isFetching } = useQuery({
+  const {
+    data: paymentTrackings,
+    isFetching,
+    error: paymentTrackingsError,
+  } = useQuery({
+    retry: retryUnlessUnavailable,
     queryKey: [
       "paymentTrackings",
       activePage,
@@ -68,7 +78,7 @@ const PaymentTrackingPage = () => {
       ),
   });
 
-  const paymentData = paymentTrackings?.data?.data || [];
+  const paymentData = asList(paymentTrackings?.data?.data);
   const totalItems = paymentTrackings?.data?.pagination?.total || 0;
 
   const [isDownloadingCSV, setIsDownloadingCSV] = useState(false);
@@ -97,7 +107,7 @@ const PaymentTrackingPage = () => {
         filters.endDate,
       );
 
-      const records = allData?.data?.data || [];
+      const records = asList(allData?.data?.data);
 
       const headers = [
         "Reference",
@@ -211,7 +221,7 @@ const PaymentTrackingPage = () => {
             <Text fz={14} fw={500}>
               {data.accountName || "-"}
             </Text>
-            <Text fz={12} c="dimmed">
+            <Text fz={12} c="var(--fj-text-muted)">
               {data.accountNumber} - {data.bankName}
             </Text>
           </Box>
@@ -242,7 +252,7 @@ const PaymentTrackingPage = () => {
             </Text>
             {(data?.metadata?.percentageFee ||
               data?.metadata?.paystackCharge?.percentage) && (
-              <Text fz={14} c="dimmed">
+              <Text fz={14} c="var(--fj-text-muted)">
                 ({percentageFee}%)
               </Text>
             )}
@@ -261,8 +271,29 @@ const PaymentTrackingPage = () => {
     );
   });
 
+  if (isEndpointUnavailable(paymentTrackingsError)) {
+    return (
+      <AppLayout title="Reconciliation">
+        <PendingBackend
+          feature="Payment reconciliation"
+          endpoints={[
+            "GET /admin/payment-tracking",
+            "GET /admin/payment-tracking/stats",
+            "GET /admin/payment-tracking/:id",
+            "POST /admin/payment-tracking/:reference/confirm",
+            "POST /admin/payment-tracking/:reference/assign-ticket",
+            "POST /admin/payment-tracking/:reference/escalate",
+            "POST /admin/payment-tracking/:id/resend-rsvp",
+            "POST /admin/payment-tracking/:id/resend-webhook",
+            "POST /admin/payment-tracking/:id/waive-and-resend",
+          ]}
+        />
+      </AppLayout>
+    );
+  }
+
   return (
-    <AppLayout title="Payment Tracking">
+    <AppLayout title="Reconciliation">
       <Box>
         <PpTable
           headers={tableHeaders}
@@ -278,9 +309,12 @@ const PaymentTrackingPage = () => {
           query={query}
           handleQuery={setQuery}
           onFilterChange={setFilters}
-          handleDownloadCSV={handleDownloadCSV}
-          isDownloadingCSV={isDownloadingCSV}
-          hasDownloadCSVBtn
+          toolbarAction={
+            <DownloadCsvButton
+              onClick={handleDownloadCSV}
+              loading={isDownloadingCSV}
+            />
+          }
           searchPlaceholder="Search by sender name, reference, account..."
         />
       </Box>

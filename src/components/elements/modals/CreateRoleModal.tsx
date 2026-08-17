@@ -12,12 +12,11 @@ import {
   Textarea,
   TextInput,
 } from "@mantine/core";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useForm } from "@mantine/form";
 import { yupResolver } from "mantine-form-yup-resolver";
 import { createRoleSchema } from "@/utils";
-import { IconCaretDown, IconCheck2, IconUpgrade } from "@/icons";
-import Image from "next/image";
+import { IconCheck, IconChevronDown, IconChevronUp } from "@/config/icons";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
 import * as yup from "yup";
@@ -142,7 +141,7 @@ const CreateRoleModal = ({ opened, onClose }: CreateRoleModalProps) => {
                 </Text>
 
                 {isSelected && (
-                  <Image src={IconCheck2} alt="icon" width={12} height={12} />
+                  <IconCheck size={12} color="currentColor" variant="Linear" />
                 )}
               </Flex>
             );
@@ -197,7 +196,7 @@ const CreateRoleModal = ({ opened, onClose }: CreateRoleModalProps) => {
                           : "Click here to select"}
                       </Text>
 
-                      <Image src={IconCaretDown} alt="icon" />
+                      <IconChevronDown size={18} color="currentColor" variant="Linear" />
                     </Flex>
                   </Flex>
                 </Popover.Target>
@@ -218,12 +217,7 @@ const CreateRoleModal = ({ opened, onClose }: CreateRoleModalProps) => {
                           chevron: classes.roleAccordionChevron,
                         }}
                         chevron={
-                          <Image
-                            src={IconUpgrade}
-                            width={14}
-                            height={14}
-                            alt="icon"
-                          />
+                          <IconChevronUp size={14} color="currentColor" variant="Linear" />
                         }
                       >
                         {permissionItems}
@@ -235,7 +229,7 @@ const CreateRoleModal = ({ opened, onClose }: CreateRoleModalProps) => {
             </Flex>
           </ScrollArea.Autosize>
 
-          <Flex py="md" bg="#000" pos="sticky" bottom={0} left={0} w="100%">
+          <Flex py="md" bg="var(--fj-bg)" pos="sticky" bottom={0} left={0} w="100%">
             <Button
               type="submit"
               size="sm"

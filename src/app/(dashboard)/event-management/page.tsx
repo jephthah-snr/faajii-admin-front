@@ -6,9 +6,10 @@ import {
   PpTable,
   StatusBadge,
 } from "@/components";
-import { IconEllipsisH } from "@/icons";
+import { IconMore } from "@/config/icons";
 import { AppLayout } from "@/layout";
 import {
+  asList,
   buildDefaultFilters,
   eventEmptyState,
   eventFilters,
@@ -27,7 +28,6 @@ import {
   Text,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
-import Image from "next/image";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DeleteEvent, GetEvents } from "@/services/api";
@@ -81,7 +81,7 @@ const EventManagement = () => {
       ),
     placeholderData: (prev) => prev,
   });
-  const eventsData = events?.data?.data || [];
+  const eventsData = asList(events?.data?.data);
   const totalItems = events?.data?.pagination?.total || 0;
 
   const handleDeleteEvent = async (id: string) => {
@@ -152,11 +152,7 @@ const EventManagement = () => {
                 aria-label="More"
                 onClick={(event) => event.stopPropagation()}
               >
-                <Image
-                  src={IconEllipsisH}
-                  alt="icon"
-                  style={{ width: "70%", height: "70%" }}
-                />
+                <IconMore size={18} color="currentColor" variant="Linear" />
               </ActionIcon>
             </Menu.Target>
 

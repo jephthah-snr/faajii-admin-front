@@ -15,8 +15,7 @@ import classes from "@/styles/General.module.css";
 import { convertToNaira, formatStringAmount, generateReceipt2 } from "@/utils";
 import FormatDate from "../format-date";
 import { useState } from "react";
-import Image from "next/image";
-import { IconCopy } from "@/icons";
+import { IconCopy } from "@/config/icons";
 import { Edges } from "@/services/api/event/event.types";
 
 interface EventTransactionModalProps {
@@ -55,7 +54,7 @@ const EventTransactionModal = ({
       <>
         <Flex
           direction="column"
-          bg="#121212"
+          bg="var(--fj-surface-elevated)"
           className="rounded-xl long-dash-border"
           mt={20}
           p={20}
@@ -145,12 +144,7 @@ const EventTransactionModal = ({
                         position="top"
                       >
                         <ActionIcon variant="transparent" onClick={copy}>
-                          <Image
-                            src={IconCopy}
-                            width={20}
-                            height={20}
-                            alt="icon"
-                          />
+                          <IconCopy size={20} color="currentColor" variant="Linear" />
                         </ActionIcon>
                       </Tooltip>
                     )}
@@ -181,12 +175,7 @@ const EventTransactionModal = ({
                           position="top"
                         >
                           <ActionIcon variant="transparent" onClick={copy}>
-                            <Image
-                              src={IconCopy}
-                              width={20}
-                              height={20}
-                              alt="icon"
-                            />
+                            <IconCopy size={20} color="currentColor" variant="Linear" />
                           </ActionIcon>
                         </Tooltip>
                       )}

@@ -34,24 +34,23 @@ const AppLayout = ({
   return (
     <AppShell
       navbar={{
-        width: 240,
+        width: 248,
         breakpoint: "sm",
         collapsed: { mobile: !opened },
       }}
       aside={
         isAdmin
-          ? {
-              width: 240,
-              breakpoint: "md",
-              collapsed: { mobile: true },
-            }
+          ? { width: 240, breakpoint: "md", collapsed: { mobile: true } }
           : undefined
       }
     >
       <AppShell.Navbar className={classes.navbar}>
         <SideNav />
       </AppShell.Navbar>
-      <AppShell.Main h={"100vh"} pos={"relative"}>
+
+      {/* `mih` rather than a hard `h`: pages taller than the viewport should
+          extend the main column, not spill out of a clipped one. */}
+      <AppShell.Main mih="100vh" pos="relative">
         <Box className={classes.main}>
           <Box {...props}>
             <Header
@@ -63,10 +62,13 @@ const AppLayout = ({
               isDashboard={isDashboard}
               action={action}
             />
-            <Box p={"lg"}>{children}</Box>
+            <Box px={{ base: "md", md: "xl" }} pt="lg" pb={48}>
+              {children}
+            </Box>
           </Box>
         </Box>
       </AppShell.Main>
+
       {isAdmin && (
         <AppShell.Aside>
           <Box visibleFrom="md" className={classes.adminAside}>

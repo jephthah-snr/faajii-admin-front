@@ -17,8 +17,7 @@ import {
 } from "@mantine/core";
 import SummaryItem from "../summary-item";
 import StatusBadge from "../status-badge";
-import Image from "next/image";
-import { IconCaretDown, IconCopy } from "@/icons";
+import { IconChevronDown, IconCopy } from "@/config/icons";
 import {
   formatStatusLabel,
   getProgressColor,
@@ -98,12 +97,7 @@ const VendorOrderModal = ({
                         position="right"
                       >
                         <ActionIcon variant="transparent" onClick={copy}>
-                          <Image
-                            src={IconCopy}
-                            width={20}
-                            height={20}
-                            alt="icon"
-                          />
+                          <IconCopy size={20} color="currentColor" variant="Linear" />
                         </ActionIcon>
                       </Tooltip>
                     )}
@@ -123,12 +117,7 @@ const VendorOrderModal = ({
                         px={0}
                         useAltColor
                       />
-                      <Image
-                        src={IconCaretDown}
-                        width={20}
-                        height={20}
-                        alt="icon"
-                      />
+                      <IconChevronDown size={20} color="currentColor" variant="Linear" />
                     </Flex>
                   </Menu.Target>
 
@@ -148,7 +137,7 @@ const VendorOrderModal = ({
             />
 
             {/* Host details */}
-            <Card radius={16} p={20} bg="transparent" withBorder>
+            <Card radius={16} p={20} bg="transparent">
               <Flex direction="column" gap={20}>
                 <Text fw={700} c="#fff">
                   Creator Details
@@ -186,11 +175,11 @@ const VendorOrderModal = ({
             </Card>
 
             {/* Payment details */}
-            <Card radius={16} p={26} bg="transparent" withBorder>
+            <Card radius={16} p={26} bg="transparent">
               <Flex direction="column" gap={16}>
                 <Flex align="center" gap={10}>
                   <Flex align="center" gap={4}>
-                    <Box w={8} h={8} bg="#F66A00" className="rounded-full" />
+                    <Box w={8} h={8} bg="var(--fj-accent)" className="rounded-full" />
                     <Text fz={13} c="#F66A00">
                       Payment so far:
                     </Text>
@@ -225,7 +214,7 @@ const VendorOrderModal = ({
         <Flex
           justify="flex-end"
           py="md"
-          bg="#000"
+          bg="var(--fj-bg)"
           pos="sticky"
           bottom={0}
           left={0}

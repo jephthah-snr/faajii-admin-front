@@ -1,99 +1,128 @@
 import {
-  IconBalloon,
+  Icon,
+  IconDashboard,
+  IconEvents,
+  IconGiftLinks,
+  IconHostProfile,
+  IconIntegrations,
   IconLogout,
-  IconPieChart,
-  IconTransfer,
-  IconUser,
-  IconUsers3,
-  IconDebit,
-  IconPlay,
-  IconAdmin,
-  IconStack,
-} from "@/icons";
+  IconMomo,
+  IconNotifications,
+  IconOrders,
+  IconPurchases,
+  IconReconciliation,
+  IconSupport,
+  IconTeamSettings,
+  IconTransactions,
+  IconUsers,
+  IconVendors,
+  IconVibes,
+  IconWallets,
+  IconWristbands,
+} from "@/config/icons";
 
-export const navLinks = [
+export interface NavLink {
+  label: string;
+  navLink: string;
+  icon: Icon;
+}
+
+export interface NavSection {
+  /** Section heading; `null` renders the links without one. */
+  title: string | null;
+  links: NavLink[];
+}
+
+/**
+ * Sidebar structure. Which of these a given admin actually sees is decided by
+ * `canAccessRoute` in `@/config/access` — the same map the edge proxy uses — so
+ * a link can never appear for a role that would be redirected away from it.
+ */
+export const navSections: NavSection[] = [
   {
-    label: "Dashboard",
-    navLink: "/dashboard",
-    icon: IconPieChart,
-    permissions: ["super", "admin", "support", "finance"],
+    title: null,
+    links: [{ label: "Dashboard", navLink: "/dashboard", icon: IconDashboard }],
   },
   {
-    label: "User Management",
-    navLink: "/user-management",
-    icon: IconUser,
-    permissions: ["super", "admin"],
+    title: "Community",
+    links: [
+      { label: "Users", navLink: "/user-management", icon: IconUsers },
+      {
+        label: "Host Profiles",
+        navLink: "/host-profiles",
+        icon: IconHostProfile,
+      },
+      { label: "Vendors", navLink: "/vendor-management", icon: IconVendors },
+    ],
   },
   {
-    label: "Event Management",
-    navLink: "/event-management",
-    icon: IconBalloon,
-    permissions: ["super", "admin", "support"],
+    title: "Events",
+    links: [
+      { label: "Events", navLink: "/event-management", icon: IconEvents },
+    ],
   },
   {
-    label: "Vendor Management",
-    navLink: "/vendor-management",
-    icon: IconUsers3,
-    permissions: ["super", "admin", "support"],
+    title: "Commerce",
+    links: [
+      { label: "Ticket Purchases", navLink: "/purchases", icon: IconPurchases },
+      { label: "Order Tracking", navLink: "/order-management", icon: IconOrders },
+      {
+        label: "Wristband Orders",
+        navLink: "/wristband-orders",
+        icon: IconWristbands,
+      },
+      { label: "Gift Links", navLink: "/gift-links", icon: IconGiftLinks },
+    ],
   },
   {
-    label: "Vibes",
-    navLink: "/vibes",
-    icon: IconPlay,
-    permissions: ["super", "admin", "support"],
+    title: "Money",
+    links: [
+      {
+        label: "Transactions",
+        navLink: "/transactions",
+        icon: IconTransactions,
+      },
+      {
+        label: "Reconciliation",
+        navLink: "/payment-tracking",
+        icon: IconReconciliation,
+      },
+      { label: "Wallets", navLink: "/wallets", icon: IconWallets },
+      { label: "MoMo Accounts", navLink: "/momo-accounts", icon: IconMomo },
+    ],
   },
   {
-    label: "Purchases",
-    navLink: "/purchases",
-    icon: IconDebit,
-    permissions: ["super", "admin", "finance", "support"],
+    title: "Content & Comms",
+    links: [
+      { label: "Vibes", navLink: "/vibes", icon: IconVibes },
+      {
+        label: "Notifications",
+        navLink: "/notifications",
+        icon: IconNotifications,
+      },
+      { label: "Support", navLink: "/support", icon: IconSupport },
+    ],
   },
   {
-    label: "Wristband Orders",
-    navLink: "/wristband-orders",
-    icon: IconStack,
-    permissions: ["super", "admin"],
-  },
-  {
-    label: "External Integrations",
-    navLink: "/integrations",
-    icon: IconAdmin,
-    permissions: ["super", "admin"],
-  },
-  {
-    label: "Wallet Transactions",
-    navLink: "/transactions",
-    icon: IconTransfer,
-    permissions: ["super", "admin", "finance"],
-  },
-  /* {
-    label: "Gift Shop",
-    navLink: "/gift-shop",
-    icon: IconGift,
-    permissions: ["super", "support"],
-  },
-  {
-    label: "Party Bundles",
-    navLink: "/party-bundles",
-    icon: IconStack,
-    permissions: ["super", "support"],
-  },
-  {
-    label: "Drinks",
-    navLink: "/drinks",
-    icon: IconDrink,
-    permissions: ["super", "support"],
-  },
-  {
-    label: "Admin",
-    navLink: "/admin",
-    icon: IconAdmin,
-    permissions: ["super"],
-  }, */
-  {
-    label: "Logout",
-    navLink: "/logout",
-    icon: IconLogout,
-    permissions: ["super", "admin", "support", "finance"],
+    title: "Platform",
+    links: [
+      {
+        label: "Integrations",
+        navLink: "/integrations",
+        icon: IconIntegrations,
+      },
+      {
+        label: "Team & Roles",
+        navLink: "/team-settings",
+        icon: IconTeamSettings,
+      },
+    ],
   },
 ];
+
+/** Always rendered at the bottom, outside the permission-filtered sections. */
+export const logoutLink: NavLink = {
+  label: "Logout",
+  navLink: "/logout",
+  icon: IconLogout,
+};

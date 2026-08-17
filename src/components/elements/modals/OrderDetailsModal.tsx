@@ -74,10 +74,10 @@ const OrderDetailsModal = ({
 
             <Link
               target="_blank"
-              href={`https://www.pv.rsvp/`}
+              href={`https://www.faajii.rsvp/`}
               style={{ color: "#D9D9D9B2", fontSize: "13px" }}
             >
-              www.pv.rsvp
+              www.faajii.rsvp
             </Link>
           </Flex>
         }
@@ -98,7 +98,7 @@ const OrderDetailsModal = ({
                   inset={0}
                   align="center"
                   justify="center"
-                  bg="#121212e1"
+                  bg="var(--fj-surface-elevated)"
                   className="rounded-xl"
                 >
                   <Loader size="sm" />
@@ -128,7 +128,7 @@ const OrderDetailsModal = ({
               <SummaryItem
                 label="Price"
                 value={`₦ ${formatStringAmount(
-                  convertToNaira(data?.orderAmount) || "0.00"
+                  convertToNaira(data?.orderAmount) || "0.00",
                 )}`}
                 fz={14}
               />
@@ -147,7 +147,7 @@ const OrderDetailsModal = ({
                         <StatusBadge
                           status={badgeStatus}
                           px={18}
-                          bg="#262626"
+                          bg="var(--fj-surface-card)"
                           size="lg"
                           style={{ border: "1px solid #2D2D2D" }}
                           useAltColor
@@ -157,7 +157,7 @@ const OrderDetailsModal = ({
                     </Menu.Target>
 
                     <Menu.Dropdown
-                      bg="#121212"
+                      bg="var(--fj-surface-elevated)"
                       style={{
                         border: "1px solid #1C1C1C",
                         borderRadius: "12px",
@@ -198,7 +198,7 @@ const OrderDetailsModal = ({
 
             <Flex
               direction="column"
-              bg="#121212"
+              bg="var(--fj-surface-elevated)"
               className="rounded-xl long-dash-border"
               p={20}
               gap={30}
@@ -211,7 +211,7 @@ const OrderDetailsModal = ({
                 <Text fz={30} fw={500} c="#fff">
                   ₦
                   {formatStringAmount(
-                    convertToNaira(data?.orderAmount) || "0.00"
+                    convertToNaira(data?.orderAmount) || "0.00",
                   )}
                 </Text>
 
@@ -284,7 +284,7 @@ const OrderDetailsModal = ({
               Notes
             </Text>
 
-            <Card radius={16} p={20} bg="#121212">
+            <Card radius={16} p={20} bg="var(--fj-surface-elevated)">
               <Text fz={14} c="#fff">
                 {data?.notes || "N/A"}
               </Text>

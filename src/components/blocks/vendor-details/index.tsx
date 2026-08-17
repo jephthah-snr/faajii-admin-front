@@ -14,8 +14,7 @@ import {
 import classes from "@/styles/General.module.css";
 import { FormatDate, StatusBadge } from "@/components/elements";
 import { extractDocId, formatStringAmount, initialsColors } from "@/utils";
-import Image from "next/image";
-import { IconEye, IconPdf } from "@/icons";
+import { IconDocument, IconEye } from "@/config/icons";
 import { NoImage } from "@/images";
 import { VendorDetails } from "@/services/api/vendor-management/vendor.types";
 import Link from "next/link";
@@ -36,7 +35,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
     <Flex direction={{ base: "column", md: "row" }} gap={20}>
       <Flex direction="column" gap={20} flex={{ base: 1, md: "0 40%" }}>
         {/* Profile */}
-        <Card radius={16} p={20} bg="transparent" withBorder>
+        <Card radius={16} p={20} bg="transparent">
           <Flex direction="column" gap={30}>
             {/* Details */}
             <Flex align="flex-start" gap={20}>
@@ -180,7 +179,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
 
       <Flex flex={{ base: 1, md: "0 60%" }} direction="column" gap={20}>
         {/* Products & Services */}
-        <Card radius={16} p={20} bg="transparent" withBorder>
+        <Card radius={16} p={20} bg="transparent">
           <Flex direction="column" gap={20}>
             <Text fw={700} c="#fff">
               Products & Services
@@ -194,7 +193,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                 {vendorOverview?.services &&
                 vendorOverview?.services?.length > 0 ? (
                   vendorOverview.services.map((service, index) => (
-                    <Card key={index} p={0} radius={16} bg="#171717E5">
+                    <Card key={index} p={0} radius={16} bg="var(--fj-surface)">
                       <Flex>
                         <BackgroundImage
                           src={service?.imageUrl || NoImage.src}
@@ -216,7 +215,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                     </Card>
                   ))
                 ) : (
-                  <Card bg="#181818" radius={10} h={100}>
+                  <Card bg="var(--fj-surface)" radius={10} h={100}>
                     <Center h="100%">
                       <Text fz={13} c="#D9D9D9B2" ta="center">
                         No services found for this vendor
@@ -230,7 +229,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
         </Card>
 
         {/* Documents */}
-        <Card radius={16} p={20} bg="transparent" withBorder>
+        <Card radius={16} p={20} bg="transparent">
           <Flex direction="column" gap={20}>
             <Text fw={700} c="#fff">
               Documents
@@ -248,12 +247,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                         gap={14}
                       >
                         <Flex align="center" gap={8}>
-                          <Image
-                            src={IconPdf}
-                            width={26}
-                            height={26}
-                            alt="cac document"
-                          />
+                          <IconDocument size={26} color="currentColor" variant="Linear" />
                           <Flex direction="column" gap={2}>
                             <Text c="#fff" fw={500} fz={14}>
                               Registration Doc-{extractDocId(doc)}.pdf
@@ -265,12 +259,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                           variant="transparent"
                           onClick={() => viewCacDocument(doc)}
                         >
-                          <Image
-                            src={IconEye}
-                            width={24}
-                            height={24}
-                            alt="view document"
-                          />
+                          <IconEye size={24} color="currentColor" variant="Linear" />
                         </ActionIcon>
                       </Flex>
                     ))
