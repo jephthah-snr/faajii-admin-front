@@ -15,7 +15,7 @@ import classes from "@/styles/General.module.css";
 import { FormatDate, StatusBadge } from "@/components/elements";
 import { extractDocId, formatStringAmount, initialsColors } from "@/utils";
 import { IconDocument, IconEye } from "@/config/icons";
-import { NoImage } from "@/images";
+import { NoImageS } from "@/images";
 import { VendorDetails } from "@/services/api/vendor-management/vendor.types";
 import Link from "next/link";
 
@@ -41,7 +41,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
             <Flex align="flex-start" gap={20}>
               <Box>
                 <BackgroundImage
-                  src={vendorOverview?.vendor?.avatar || NoImage.src}
+                  src={vendorOverview?.vendor?.avatar || NoImageS.src}
                   w={120}
                   h={120}
                   radius={14}
@@ -196,7 +196,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                     <Card key={index} p={0} radius={16} bg="var(--fj-surface)">
                       <Flex>
                         <BackgroundImage
-                          src={service?.imageUrl || NoImage.src}
+                          src={service?.imageUrl || NoImageS.src}
                           w={{ base: 120, md: 120 }}
                           bgsz="cover"
                         />
@@ -247,7 +247,11 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                         gap={14}
                       >
                         <Flex align="center" gap={8}>
-                          <IconDocument size={26} color="currentColor" variant="Linear" />
+                          <IconDocument
+                            size={26}
+                            color="currentColor"
+                            variant="Linear"
+                          />
                           <Flex direction="column" gap={2}>
                             <Text c="#fff" fw={500} fz={14}>
                               Registration Doc-{extractDocId(doc)}.pdf
@@ -259,7 +263,11 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                           variant="transparent"
                           onClick={() => viewCacDocument(doc)}
                         >
-                          <IconEye size={24} color="currentColor" variant="Linear" />
+                          <IconEye
+                            size={24}
+                            color="currentColor"
+                            variant="Linear"
+                          />
                         </ActionIcon>
                       </Flex>
                     ))

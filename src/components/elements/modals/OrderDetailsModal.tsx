@@ -10,7 +10,7 @@ import {
   orderStatuses,
 } from "@/utils";
 import { Order } from "@/services/api/order-management/order.types";
-import { NoImage } from "@/images";
+import { NoImageS } from "@/images";
 import React, { useEffect, useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import OrderStatusModal from "./OrderStatusModal";
@@ -106,7 +106,7 @@ const OrderDetailsModal = ({
               )}
 
               <Image
-                src={data?.productImage || NoImage}
+                src={data?.productImage || NoImageS}
                 width={360}
                 height={360}
                 loading="lazy"

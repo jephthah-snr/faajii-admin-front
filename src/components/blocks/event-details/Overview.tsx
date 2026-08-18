@@ -8,7 +8,7 @@ import {
 import EmptyState from "../empty-state";
 import EventSponsors from "./Sponsors";
 import { IconChevronDown, IconLink, IconVendors } from "@/config/icons";
-import { NoImage } from "@/images";
+import { NoImageP } from "@/images";
 import { EventDetails } from "@/services/api/event/event.types";
 import { formatStringAmount, getStatusColor, initialsColors } from "@/utils";
 import {
@@ -97,7 +97,7 @@ const EventOverview = ({
       <Flex direction={{ base: "column", lg: "row" }} gap={20} align="stretch">
         <Box w={{ base: "100%", lg: 260 }} style={{ flexShrink: 0 }}>
           <BackgroundImage
-            src={eventData?.eventImageUrl || NoImage.src}
+            src={eventData?.eventImageUrl || NoImageP.src}
             h={{ base: 220, lg: "100%" }}
             mih={280}
             radius="var(--fj-radius-card)"

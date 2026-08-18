@@ -9,3 +9,5 @@ export { default as DrinkImage2 } from "./hennessy.png";
 export { default as DrinkImage3 } from "./coca_cola.png";
 export { default as GiftBag } from "./gift_bag.png";
 export { default as PvQrCode } from "./pv_qr.png";
+export { default as NoImageS } from "./no_image_s.png";
+export { default as NoImageP } from "./no_image_p.png";

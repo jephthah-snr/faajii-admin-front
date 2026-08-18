@@ -22,7 +22,7 @@ import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useState } from "react";
-import { NoImage } from "@/images";
+import { NoImageS } from "@/images";
 
 interface PartyStoreDetailsModalProps {
   id: string;
@@ -69,7 +69,7 @@ const PartyStoreDetailsModal = ({
                 gap={16}
               >
                 <Image
-                  src={storeDetails?.item?.images?.[0] || NoImage}
+                  src={storeDetails?.item?.images?.[0] || NoImageS}
                   width={170}
                   height={170}
                   className="rounded-lg"
@@ -146,14 +146,22 @@ const PartyStoreDetailsModal = ({
                         size="md"
                         styles={{ input: { borderRadius: "50px" } }}
                         leftSection={
-                          <IconSearch size={16} color="currentColor" variant="Linear" />
+                          <IconSearch
+                            size={16}
+                            color="currentColor"
+                            variant="Linear"
+                          />
                         }
                       />
                     </Flex>
 
                     <Flex direction="column" gap={14}>
                       {storeDetails?.guestOrders?.map((item) => (
-                        <Card key={item?.guestId} bg="var(--fj-surface)" radius={10}>
+                        <Card
+                          key={item?.guestId}
+                          bg="var(--fj-surface)"
+                          radius={10}
+                        >
                           <Flex align="center" justify="space-between" gap={16}>
                             <Flex align="center" gap={14}>
                               <Avatar
