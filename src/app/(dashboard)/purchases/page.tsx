@@ -3,10 +3,14 @@
 import {
   Badge,
   Card,
+  Divider,
   Flex,
   Group,
+  Loader,
+  Modal,
   Select,
   SimpleGrid,
+  Stack,
   Table,
   Text,
   TextInput,
@@ -15,7 +19,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppLayout } from "@/layout";
-import { GetPurchases, GetPurchaseStatistics } from "@/services/api";
+import { GetPurchase, GetPurchases, GetPurchaseStatistics } from "@/services/api";
 import { PurchaseChannel } from "@/services/api/purchases/purchase.types";
 
 function money(amount: number, currency: string) {
@@ -39,6 +43,7 @@ export default function PurchasesPage() {
   const [debouncedSearch] = useDebouncedValue(search, 400);
   const [status, setStatus] = useState<string>();
   const [channel, setChannel] = useState<PurchaseChannel>();
+  const [selectedReference, setSelectedReference] = useState<string>();
 
   const purchasesQuery = useQuery({
     queryKey: ["purchases", page, debouncedSearch, status, channel],
@@ -54,6 +59,11 @@ export default function PurchasesPage() {
   const statisticsQuery = useQuery({
     queryKey: ["purchase-statistics"],
     queryFn: GetPurchaseStatistics,
+  });
+  const purchaseDetailQuery = useQuery({
+    queryKey: ["purchase", selectedReference],
+    queryFn: () => GetPurchase(selectedReference as string),
+    enabled: Boolean(selectedReference),
   });
 
   const purchases = purchasesQuery.data?.data.data || [];
@@ -128,13 +138,18 @@ export default function PurchasesPage() {
                 <Table.Th>Channel</Table.Th>
                 <Table.Th>Tickets</Table.Th>
                 <Table.Th>Amount</Table.Th>
+                <Table.Th>Market</Table.Th>
                 <Table.Th>Status</Table.Th>
                 <Table.Th>Date</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {purchases.map((purchase) => (
-                <Table.Tr key={purchase.reference}>
+                <Table.Tr
+                  key={purchase.reference}
+                  onClick={() => setSelectedReference(purchase.reference)}
+                  style={{ cursor: "pointer" }}
+                >
                   <Table.Td>
                     <Text fw={600} fz="sm">
                       {purchase.reference}
@@ -160,6 +175,11 @@ export default function PurchasesPage() {
                     {money(purchase.amount, purchase.currency)}
                   </Table.Td>
                   <Table.Td>
+                    <Badge variant="outline">
+                      {purchase.countryCode || "—"} · {purchase.currency}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
                     <Badge color={statusColor(purchase.status)}>
                       {purchase.status}
                     </Badge>
@@ -180,6 +200,90 @@ export default function PurchasesPage() {
           </Group>
         )}
       </Card>
+
+      <Modal
+        opened={Boolean(selectedReference)}
+        onClose={() => setSelectedReference(undefined)}
+        title="Purchase evidence"
+        size="xl"
+      >
+        {purchaseDetailQuery.isLoading && <Group justify="center" p="xl"><Loader /></Group>}
+        {purchaseDetailQuery.isError && <Text c="red">Could not load this purchase.</Text>}
+        {purchaseDetailQuery.data?.data && (() => {
+          const purchase = purchaseDetailQuery.data.data;
+          return (
+            <Stack gap="lg">
+              <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
+                <Evidence label="Payment received" ok={Boolean(purchase.paymentEvidence?.received)} />
+                <Evidence label="Tickets issued" ok={purchase.fulfillmentEvidence?.status === "issued"} />
+                <Evidence label="Wallet credited" ok={purchase.walletCredit?.status === "success"} />
+                <Evidence label="Market consistent" ok={Boolean(purchase.market?.consistent)} />
+              </SimpleGrid>
+
+              <Card withBorder>
+                <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                  <Fact label="Checkout reference" value={purchase.reference} />
+                  <Fact label="Provider reference" value={purchase.paymentProviderReference || "Not recorded"} />
+                  <Fact label="Event" value={`${purchase.event.name} (${purchase.event.eventId})`} />
+                  <Fact label="Buyer" value={`${purchase.buyer.name} · ${purchase.buyer.email || purchase.buyer.phone || "No contact"}`} />
+                  <Fact label="Amount" value={money(purchase.amount, purchase.currency)} />
+                  <Fact label="Market" value={`${purchase.market?.countryCode || purchase.countryCode || "Unknown"} · ${purchase.currency}`} />
+                  <Fact label="Payment method" value={purchase.paymentMethod || "Not recorded"} />
+                  <Fact label="Channel" value={purchase.channel} />
+                </SimpleGrid>
+              </Card>
+
+              {(purchase.reconciliations?.length || 0) > 0 && (
+                <Card withBorder bg="red.0">
+                  <Text fw={700} c="red">Payment reconciliation required</Text>
+                  {purchase.reconciliations?.map((item) => (
+                    <Text key={item.id} fz="sm">
+                      {item.kind}: expected {money(item.expectedAmount, item.currency)}, received {money(item.receivedAmount, item.currency)} · {item.status}
+                    </Text>
+                  ))}
+                </Card>
+              )}
+
+              <Divider label={`Issued tickets (${purchase.fulfillmentEvidence?.tickets.length || 0})`} />
+              {(purchase.fulfillmentEvidence?.tickets.length || 0) === 0 ? (
+                <Text c="dimmed">No ticket was issued for this checkout.</Text>
+              ) : (
+                <Table.ScrollContainer minWidth={650}>
+                  <Table>
+                    <Table.Thead><Table.Tr><Table.Th>Ticket</Table.Th><Table.Th>Holder</Table.Th><Table.Th>Item</Table.Th><Table.Th>Status</Table.Th></Table.Tr></Table.Thead>
+                    <Table.Tbody>{purchase.fulfillmentEvidence?.tickets.map((ticket) => (
+                      <Table.Tr key={ticket.ticketRef}>
+                        <Table.Td>{ticket.ticketRef}</Table.Td>
+                        <Table.Td>{ticket.guestName}<Text fz="xs" c="dimmed">{ticket.guestEmail || ticket.guestPhone}</Text></Table.Td>
+                        <Table.Td>{ticket.offerTitle || "Ticket"}</Table.Td>
+                        <Table.Td><Badge variant="light">{ticket.status}</Badge></Table.Td>
+                      </Table.Tr>
+                    ))}</Table.Tbody>
+                  </Table>
+                </Table.ScrollContainer>
+              )}
+
+              <Divider label="Wallet credit" />
+              {purchase.walletCredit ? (
+                <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                  <Fact label="Credit reference" value={purchase.walletCredit.reference} />
+                  <Fact label="Credited amount" value={money(purchase.walletCredit.amount, purchase.walletCredit.currency)} />
+                  <Fact label="Wallet market" value={`${purchase.walletCredit.walletCountryCode} · ${purchase.walletCredit.walletCurrency}`} />
+                  <Fact label="Credit status" value={purchase.walletCredit.status} />
+                </SimpleGrid>
+              ) : <Text c="red">No wallet credit is linked to this checkout.</Text>}
+            </Stack>
+          );
+        })()}
+      </Modal>
     </AppLayout>
   );
+}
+
+function Evidence({ label, ok }: { label: string; ok: boolean }) {
+  return <Card withBorder><Text fz="xs" c="dimmed">{label}</Text><Badge color={ok ? "teal" : "red"}>{ok ? "Yes" : "No"}</Badge></Card>;
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return <div><Text fz="xs" c="dimmed">{label}</Text><Text fw={600} style={{ overflowWrap: "anywhere" }}>{value}</Text></div>;
 }
