@@ -21,8 +21,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import StatusBadge from "../status-badge";
 import FormatDate from "../format-date";
-import Image from "next/image";
-import { IconCopy } from "@/icons";
+import { IconCopy } from "@/config/icons";
 import { formatStringAmount } from "@/utils";
 import {
   PaymentTracking,
@@ -280,7 +279,7 @@ const PaymentTrackingModal = ({
         {/* Main Info Section */}
         <Flex
           direction="column"
-          bg="#121212"
+          bg="var(--fj-surface-elevated)"
           className="rounded-xl"
           p={20}
           gap={20}
@@ -501,7 +500,7 @@ const PaymentTrackingModal = ({
             </Text>
             <Flex
               direction="column"
-              bg="#1a1a1a"
+              bg="var(--fj-surface)"
               className="rounded-xl"
               p={16}
               gap={16}
@@ -534,7 +533,7 @@ const PaymentTrackingModal = ({
                   <Text fw={500} c="#999" fz={13} mb={8}>
                     Submitter
                   </Text>
-                  <Box bg="#222" p={12} className="rounded-lg">
+                  <Box bg="var(--fj-surface)" p={12} className="rounded-lg">
                     <GridItem
                       label="Name"
                       value={metadata.submitter.name}
@@ -565,7 +564,7 @@ const PaymentTrackingModal = ({
                     highlightOnHover
                     withTableBorder
                     withColumnBorders
-                    bg="#222"
+                    bg="var(--fj-surface)"
                     className="rounded-lg overflow-hidden"
                   >
                     <Table.Thead>
@@ -594,7 +593,7 @@ const PaymentTrackingModal = ({
                   </Text>
                   <Flex direction="column" gap={8}>
                     {metadata.guests.map((guest, idx) => (
-                      <Box key={idx} bg="#222" p={12} className="rounded-lg">
+                      <Box key={idx} bg="var(--fj-surface)" p={12} className="rounded-lg">
                         <GridItem label="Name" value={guest.name} dark />
                         <GridItem label="Email" value={guest.email} dark />
                         <GridItem label="Phone" value={guest.phone} dark />
@@ -626,7 +625,7 @@ const PaymentTrackingModal = ({
                     </Text>
                     <Flex direction="column" gap={8}>
                       {metadata.paymentAttempts.map((attempt, idx) => (
-                        <Box key={idx} bg="#222" p={12} className="rounded-lg">
+                        <Box key={idx} bg="var(--fj-surface)" p={12} className="rounded-lg">
                           <Flex justify="space-between" mb={8}>
                             <Badge size="sm">
                               Attempt #{attempt.attemptNumber}
@@ -706,7 +705,7 @@ const PaymentTrackingModal = ({
                   <Text fw={500} c="#999" fz={13} mb={8}>
                     Summary
                   </Text>
-                  <Box bg="#222" p={12} className="rounded-lg">
+                  <Box bg="var(--fj-surface)" p={12} className="rounded-lg">
                     <GridItem
                       label="Total Amount"
                       value={formatAmount(
@@ -776,7 +775,7 @@ const PaymentTrackingModal = ({
                         (guest, idx) => (
                           <Box
                             key={idx}
-                            bg="#222"
+                            bg="var(--fj-surface)"
                             p={12}
                             className="rounded-lg"
                           >
@@ -817,7 +816,7 @@ const PaymentTrackingModal = ({
                         (assignment, idx) => (
                           <Box
                             key={idx}
-                            bg="#222"
+                            bg="var(--fj-surface)"
                             p={12}
                             className="rounded-lg"
                           >
@@ -871,7 +870,7 @@ const PaymentTrackingModal = ({
                         (orderGroup, idx) => (
                           <Box
                             key={idx}
-                            bg="#222"
+                            bg="var(--fj-surface)"
                             p={12}
                             className="rounded-lg"
                           >
@@ -910,7 +909,7 @@ const PaymentTrackingModal = ({
                               striped
                               withTableBorder
                               withColumnBorders
-                              bg="#1a1a1a"
+                              bg="var(--fj-surface)"
                               className="rounded-lg overflow-hidden"
                             >
                               <Table.Thead>
@@ -959,7 +958,7 @@ const PaymentTrackingModal = ({
                     <Text fw={500} c="#999" fz={13} mb={8}>
                       RSVP Codes
                     </Text>
-                    <Box bg="#222" p={12} className="rounded-lg">
+                    <Box bg="var(--fj-surface)" p={12} className="rounded-lg">
                       {Object.entries(
                         processingResult.processedData.guestRsvpCodes,
                       ).map(([guestId, code]) => (
@@ -984,7 +983,7 @@ const PaymentTrackingModal = ({
               Webhook Payload
             </Text>
             <Box
-              bg="#1a1a1a"
+              bg="var(--fj-surface)"
               p={12}
               className="rounded-lg"
               style={{ maxHeight: 200, overflow: "auto" }}
@@ -1021,7 +1020,7 @@ const PaymentTrackingModal = ({
           <Box bg="#f8f9fa" p={16} className="rounded-lg">
             <Flex direction="column" gap={8}>
               <Flex justify="space-between" align="center">
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c="var(--fj-text-muted)">
                   Amount
                 </Text>
                 <Text fw={600} size="lg">
@@ -1029,7 +1028,7 @@ const PaymentTrackingModal = ({
                 </Text>
               </Flex>
               <Flex justify="space-between" align="center">
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c="var(--fj-text-muted)">
                   Reference
                 </Text>
                 <Text fw={500} size="sm">
@@ -1037,7 +1036,7 @@ const PaymentTrackingModal = ({
                 </Text>
               </Flex>
               <Flex justify="space-between" align="center">
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c="var(--fj-text-muted)">
                   Account
                 </Text>
                 <Text size="sm">
@@ -1047,7 +1046,7 @@ const PaymentTrackingModal = ({
             </Flex>
           </Box>
 
-          <Text size="sm" c="dimmed">
+          <Text size="sm" c="var(--fj-text-muted)">
             This action will mark the payment as confirmed and process any
             pending actions (e.g., RSVP, tickets, orders).
           </Text>
@@ -1118,7 +1117,7 @@ const CopyableValue = ({ value }: CopyableValueProps) => {
               position="top"
             >
               <ActionIcon variant="transparent" onClick={copy} size="sm">
-                <Image src={IconCopy} width={16} height={16} alt="copy" />
+                <IconCopy size={16} color="currentColor" variant="Linear" />
               </ActionIcon>
             </Tooltip>
           )}

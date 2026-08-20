@@ -1,7 +1,14 @@
 "use client";
 
-import { ConfirmationModal, FormatDate, PpTable } from "@/components";
-import { IconEllipsisV, IconSearch } from "@/icons";
+import {
+  ConfirmationModal,
+  FormatDate,
+  PpTable,
+  TableToolbar,
+} from "@/components";
+import {
+  IconMore,
+} from "@/config/icons";
 import { AppLayout } from "@/layout";
 import { initialsColors, rowsPerPage } from "@/utils";
 import {
@@ -11,19 +18,15 @@ import {
   Button,
   Flex,
   Menu,
-  rem,
   Table,
   Text,
-  TextInput,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { useState } from "react";
 import classes from "@/styles/General.module.css";
 import { useQuery } from "@tanstack/react-query";
 import { ApproveVendor, GetVendors, RejectVendor } from "@/services/api";
-import inputClasses from "@/styles/Input.module.css";
 
 const tableHeaders = [
   "Business Name",
@@ -215,11 +218,7 @@ const PendingVendors = () => {
                 aria-label="More"
                 onClick={(event) => event.stopPropagation()}
               >
-                <Image
-                  src={IconEllipsisV}
-                  alt="icon"
-                  style={{ width: "70%", height: "70%" }}
-                />
+                <IconMore size={18} color="currentColor" variant="Linear" />
               </ActionIcon>
             </Menu.Target>
 
@@ -259,7 +258,7 @@ const PendingVendors = () => {
             direction={{ base: "column", md: "row" }}
             align={{ base: "flex-start", md: "center" }}
             justify="space-between"
-            bg="#0A0A0A"
+            bg="var(--fj-bg)"
             my={10}
             py={10}
             gap={16}
@@ -269,7 +268,7 @@ const PendingVendors = () => {
               <Text c="#fff" fw={700} fz={16}>
                 Pending Vendors
               </Text>
-              <Box className="rounded-[6px]" p={10} h={38} bg="#292929">
+              <Box className="rounded-[6px]" p={10} h={38} bg="var(--fj-surface-card)">
                 <Flex align="center" gap={4} wrap="wrap">
                   <Text fz={14} c="#868686">
                     Total:
@@ -281,23 +280,10 @@ const PendingVendors = () => {
               </Box>
             </Flex>
 
-            <TextInput
-              placeholder="Search"
-              variant="default"
-              w={{ base: "100%", md: "auto" }}
-              leftSectionPointerEvents="none"
-              classNames={{ input: inputClasses.searchInputAlt }}
-              value={query}
-              onChange={(e: any) => setQuery(e.currentTarget.value)}
-              size="sm"
-              radius="md"
-              leftSection={
-                <Image
-                  src={IconSearch}
-                  alt="icon"
-                  style={{ width: rem(16), height: rem(16) }}
-                />
-              }
+            <TableToolbar
+              query={query}
+              onQueryChange={setQuery}
+              searchPlaceholder="Search vendors"
             />
           </Flex>
         )}

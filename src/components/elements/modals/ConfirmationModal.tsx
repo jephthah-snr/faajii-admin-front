@@ -1,7 +1,6 @@
 import { ActionIcon, Box, Flex, Modal, Text } from "@mantine/core";
 import classes from "@/styles/General.module.css";
-import { IconClose, IconDanger, IconSuccess, IconWarning } from "@/icons";
-import Image from "next/image";
+import { IconClose, IconDanger, IconSuccess, IconWarning } from "@/config/icons";
 import { ConfirmationModalTypes } from "@/services/api/utils/utils.types";
 
 interface ConfirmationModalProps {
@@ -41,21 +40,16 @@ const ConfirmationModal = ({
         top={10}
         onClick={close}
       >
-        <Image src={IconClose} width={20} height={20} alt="icon" />
+        <IconClose size={20} color="currentColor" variant="Linear" />
       </ActionIcon>
 
-      <Image
-        src={
-          type === "error"
-            ? IconDanger
-            : type === "success"
-            ? IconSuccess
-            : IconWarning
-        }
-        width={50}
-        height={50}
-        alt="icon"
-      />
+      {type === "error" ? (
+        <IconDanger size={48} color="var(--fj-danger)" variant="Bulk" />
+      ) : type === "success" ? (
+        <IconSuccess size={48} color="var(--fj-success)" variant="Bulk" />
+      ) : (
+        <IconWarning size={48} color="var(--fj-accent)" variant="Bulk" />
+      )}
 
       <Flex direction="column" gap={6} mt={10} px="sm">
         <Text fw={500}>{title}</Text>

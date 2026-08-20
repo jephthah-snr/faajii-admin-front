@@ -1,9 +1,10 @@
+"use client";
+
 import { BackButton } from "@/components/elements";
-import { IconCaretRight } from "@/icons";
+import { IconArrowRight } from "@/config/icons";
 import { truncateText } from "@/utils";
-import { Burger, Flex, Text } from "@mantine/core";
+import { Burger, Flex, Stack, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import Image from "next/image";
 
 interface HeaderProps {
   title?: string | React.ReactNode;
@@ -31,43 +32,56 @@ const Header = ({
       w="100%"
       direction={{ base: "column", md: "row" }}
       align={{ base: "flex-start", md: "center" }}
-      justify={"space-between"}
-      gap={10}
-      p={"md"}
+      justify="space-between"
+      gap={12}
+      px={{ base: "md", md: "xl" }}
+      py="md"
       className="app-header"
     >
       <Flex align="center" justify="space-between" w="100%" gap={10}>
-        <Flex align={"center"} gap={8}>
+        <Flex align="center" gap={10} style={{ minWidth: 0 }}>
           {hasBackButton && <BackButton />}
 
           {isDashboard ? (
-            <Flex align={"center"} gap={8}>
+            <Flex align="center" gap={10}>
               {title}
             </Flex>
           ) : hasBackButton ? (
-            <Flex align={"center"} gap={8}>
-              <Text c={"#D9D9D9B2"} fz={{ base: 14, md: 16 }}>
+            <Flex align="center" gap={8} style={{ minWidth: 0 }}>
+              <Text c="var(--fj-text-muted)" fz={{ base: 13, md: 15 }}>
                 {title}
               </Text>
               {subTitle && (
-                <Image src={IconCaretRight} alt="icon" width={20} height={20} />
+                <IconArrowRight
+                  size={16}
+                  color="var(--fj-text-muted)"
+                  variant="Linear"
+                />
               )}
-              <Text fw={"bold"} fz={{ base: 14, md: 16 }}>
+              <Text fw={700} fz={{ base: 14, md: 16 }} truncate="end">
                 {isMobile ? truncateText(subTitle, 15) : subTitle}
               </Text>
             </Flex>
           ) : (
-            <Text fw={"bold"} fz={{ sm: 14, md: 20 }}>
-              {title}
-            </Text>
+            // Title + optional caption stacked, so a page can explain itself
+            // without a second heading block inside the content area.
+            <Stack gap={2} style={{ minWidth: 0 }}>
+              <Text fw={700} fz={{ base: 18, md: 22 }} lh={1.2}>
+                {title}
+              </Text>
+              {subTitle && (
+                <Text c="var(--fj-text-muted)" fz={13} lh={1.3}>
+                  {subTitle}
+                </Text>
+              )}
+            </Stack>
           )}
         </Flex>
 
         <Burger opened={openNav} onClick={onClick} hiddenFrom="sm" size="sm" />
       </Flex>
 
-      {/* Actions */}
-      {action && action}
+      {action}
     </Flex>
   );
 };

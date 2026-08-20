@@ -20,7 +20,7 @@ const EventDetailsSkeleton = () => {
           />
         </Box>
 
-        <Card bg="#171717E5" radius={16} p={26} w="100%" flex={1}>
+        <Card bg="var(--fj-surface)" radius={16} p={26} w="100%" flex={1}>
           <Flex direction="column" gap={40}>
             {/* Event details */}
             {Array.from({ length: detailsLength }).map((_, index) => (
@@ -43,7 +43,7 @@ const EventDetailsSkeleton = () => {
       <Box className="grid grid-cols-1 md:grid-cols-3 gap-[20px]">
         <Flex direction="column" gap={20}>
           {/* Event description */}
-          <Card radius={16} p={26} bg="transparent" withBorder>
+          <Card radius={16} p={26} bg="transparent">
             <Flex direction="column" gap={16}>
               <Skeleton h={10} w={160} radius="md" />
               <Skeleton h={50} w={"100%"} radius="md" />
@@ -51,7 +51,7 @@ const EventDetailsSkeleton = () => {
           </Card>
 
           {/* Event id */}
-          <Card radius={16} p={26} bg="transparent" withBorder>
+          <Card radius={16} p={26} bg="transparent">
             <Flex align="center" gap={{ base: 4, md: 12 }}>
               <Skeleton h={20} w={"100%"} radius="xl" />
             </Flex>
@@ -59,7 +59,7 @@ const EventDetailsSkeleton = () => {
         </Flex>
 
         {/* Planner */}
-        <Card radius={16} p={26} bg="transparent" withBorder>
+        <Card radius={16} p={26} bg="transparent">
           <Flex direction="column" gap={30}>
             <Skeleton h={20} w={120} radius="xl" />
 
@@ -79,7 +79,7 @@ const EventDetailsSkeleton = () => {
         </Card>
 
         {/* Vendors */}
-        <Card radius={16} p={26} bg="transparent" withBorder>
+        <Card radius={16} p={26} bg="transparent">
           <Flex direction="column" gap={30}>
             <Skeleton h={20} w={120} radius="xl" />
 

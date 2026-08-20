@@ -2,16 +2,16 @@
 
 import {
   ConfirmationModal,
+  FilterPill,
   FormatDate,
   PpTable,
   SummaryItem,
+  TableToolbar,
 } from "@/components";
 import {
-  IconCaretDown,
-  IconCaretRight,
-  IconEllipsisV,
-  IconSearch,
-} from "@/icons";
+  IconArrowRight,
+  IconMore,
+} from "@/config/icons";
 import { AppLayout } from "@/layout";
 import { initialsColors, rowsPerPage } from "@/utils";
 import {
@@ -22,20 +22,16 @@ import {
   Card,
   Flex,
   Menu,
-  rem,
   ScrollArea,
   Table,
   Text,
-  TextInput,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
 import { useEffect, useState } from "react";
 import classes from "@/styles/General.module.css";
 import { useQuery } from "@tanstack/react-query";
 import { DeleteVendor, GetVendors, ToggleVendorStatus } from "@/services/api";
-import inputClasses from "@/styles/Input.module.css";
 
 const tableHeaders = [
   "ID",
@@ -251,11 +247,7 @@ const VendorManagement = () => {
               aria-label="More"
               onClick={(event) => event.stopPropagation()}
             >
-              <Image
-                src={IconEllipsisV}
-                alt="icon"
-                style={{ width: "70%", height: "70%" }}
-              />
+              <IconMore size={18} color="currentColor" variant="Linear" />
             </ActionIcon>
           </Menu.Target>
 
@@ -293,7 +285,7 @@ const VendorManagement = () => {
             {/* Summary Section */}
             <ScrollArea scrollbarSize={0}>
               <Flex align="center" gap={16}>
-                <Card miw={240} bg="#171717E5" p="md" radius={16}>
+                <Card miw={240} bg="var(--fj-surface)" p="md" radius={16}>
                   <SummaryItem
                     label="Total Vendors"
                     value={
@@ -306,7 +298,7 @@ const VendorManagement = () => {
 
                 <Card
                   miw={240}
-                  bg="#171717E5"
+                  bg="var(--fj-surface)"
                   p="md"
                   radius={16}
                   className="cursor-pointer"
@@ -324,13 +316,8 @@ const VendorManagement = () => {
                         <Text fz={20} fw={500} c="#FFFFFF">
                           {vendors?.data?.totalInactiveVendors}
                         </Text>
-                        <ActionIcon bg="#222222" radius="xl">
-                          <Image
-                            src={IconCaretRight}
-                            width={20}
-                            height={20}
-                            alt="icon"
-                          />
+                        <ActionIcon bg="var(--fj-surface)" radius="xl">
+                          <IconArrowRight size={20} color="currentColor" variant="Linear" />
                         </ActionIcon>
                       </Flex>
                     }
@@ -339,7 +326,7 @@ const VendorManagement = () => {
 
                 <Card
                   miw={240}
-                  bg="#171717E5"
+                  bg="var(--fj-surface)"
                   p="md"
                   radius={16}
                   className="cursor-pointer"
@@ -357,13 +344,8 @@ const VendorManagement = () => {
                         <Text fz={20} fw={500} c="#FFFFFF">
                           {vendors?.data?.totalRejectedVendors}
                         </Text>
-                        <ActionIcon bg="#222222" radius="xl">
-                          <Image
-                            src={IconCaretRight}
-                            width={20}
-                            height={20}
-                            alt="icon"
-                          />
+                        <ActionIcon bg="var(--fj-surface)" radius="xl">
+                          <IconArrowRight size={20} color="currentColor" variant="Linear" />
                         </ActionIcon>
                       </Flex>
                     }
@@ -372,86 +354,30 @@ const VendorManagement = () => {
               </Flex>
             </ScrollArea>
 
-            {/* Filter & Search */}
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              align={{ base: "flex-start", md: "center" }}
-              justify="space-between"
-              bg="#0A0A0A"
-              my={10}
-              py={10}
-              gap={10}
-              className="sticky top-14 z-10"
-            >
-              <Flex w="100%" align="center" justify="space-between" gap={16}>
-                <Menu shadow="md">
-                  <Menu.Target>
-                    <Button
-                      size="sm"
-                      h={40}
-                      style={{ border: "1px solid #181818" }}
-                      color="#0D0D0D"
-                      radius={8}
-                      miw="fit-content"
-                    >
-                      <Flex align="center" justify="space-between" gap={10}>
-                        <Text fz={14} c="#868686">
-                          Filter:
-                        </Text>
-                        <Flex align="center" gap={4}>
-                          <Text>{selectedFilter}</Text>
-                          <Image
-                            src={IconCaretDown}
-                            width={20}
-                            height={20}
-                            alt="icon"
-                          />
-                        </Flex>
-                      </Flex>
-                    </Button>
-                  </Menu.Target>
-
-                  <Menu.Dropdown>
-                    {["All"].map((filter) => (
-                      <Menu.Item
-                        key={filter}
-                        onClick={() => setSelectedFilter(filter)}
-                      >
-                        {filter}
-                      </Menu.Item>
-                    ))}
-                  </Menu.Dropdown>
-                </Menu>
-
-                <TextInput
-                  placeholder="Search"
-                  variant="default"
-                  leftSectionPointerEvents="none"
-                  classNames={{ input: inputClasses.searchInputAlt }}
-                  value={query}
-                  onChange={(e: any) => setQuery(e.currentTarget.value)}
-                  size="sm"
-                  radius="md"
-                  leftSection={
-                    <Image
-                      src={IconSearch}
-                      alt="icon"
-                      style={{ width: rem(16), height: rem(16) }}
-                    />
-                  }
-                />
-              </Flex>
-
-              <Button
-                h={38}
-                px={14}
-                radius="md"
-                className={classes.btnWhite}
-                styles={{ root: { minWidth: 160 } }}
-              >
-                Add New Vendor
-              </Button>
-            </Flex>
+            <TableToolbar
+              query={query}
+              onQueryChange={setQuery}
+              searchPlaceholder="Search vendors"
+              action={
+                <Flex gap={10} wrap="wrap">
+                  <FilterPill
+                    label="Filter"
+                    value={selectedFilter || "All"}
+                    items={["All"]}
+                    onChange={(value) => setSelectedFilter(String(value))}
+                  />
+                  <Button
+                    h={40}
+                    px={16}
+                    radius={10}
+                    className={classes.btnWhite}
+                    styles={{ root: { minWidth: "auto" } }}
+                  >
+                    Add New Vendor
+                  </Button>
+                </Flex>
+              }
+            />
           </>
         )}
 

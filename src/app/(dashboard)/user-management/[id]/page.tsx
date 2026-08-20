@@ -10,6 +10,7 @@ import {
   Flex,
   Group,
   ScrollArea,
+  SimpleGrid,
   Skeleton,
   Table,
   Tabs,
@@ -21,13 +22,14 @@ import {
   EditUserModal,
   FormatDate,
   PpTable,
+  StatRowSkeleton,
+  StatTile,
   StatusBadge,
-  SummaryCard,
-  SummaryCardSkeletonAlt,
   TransactionModal,
   UserProfileSkeleton,
 } from "@/components";
 import {
+  asList,
   eventEmptyState,
   eventFilters,
   formatStringAmount,
@@ -37,8 +39,14 @@ import {
   transactionFilters,
 } from "@/utils";
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { IconCredit, IconDebit, IconDebit2, IconEllipsisH } from "@/icons";
+import {
+  IconCredit,
+  IconDebit,
+  IconEdit,
+  IconMore,
+  IconRefresh,
+  IconTrash,
+} from "@/config/icons";
 import { useParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
@@ -147,7 +155,7 @@ const UserDetails = () => {
     queryKey: ["userEvents", id],
     queryFn: () => GetUserEvents(id),
   });
-  const userEventsData = userEvents?.data || [];
+  const userEventsData = asList(userEvents?.data);
 
   //Fetching user transactions
   const { data: transactions, isFetching: isFetchingTransactions } = useQuery({
@@ -166,7 +174,7 @@ const UserDetails = () => {
         debouncedQuery,
       ),
   });
-  const userTransactions = transactions?.data?.data || [];
+  const userTransactions = asList(transactions?.data?.data);
   const totalTransactionItems = transactions?.data?.pagination?.total || 0;
 
   //Fetching user filtered events
@@ -175,14 +183,14 @@ const UserDetails = () => {
       queryKey: ["filteredEvents", id, activeEventTab],
       queryFn: () => GetUserFilteredEvents(id, "1", "10", activeEventTab),
     });
-  const userFilteredEvents = filteredEvents?.data || [];
+  const userFilteredEvents = asList(filteredEvents?.data);
 
   //Fetching user activities
   const { data: activities, isFetching: isFetchingActivities } = useQuery({
     queryKey: ["activities", id],
     queryFn: () => GetUserActivities(id),
   });
-  const userActivities = activities?.data || [];
+  const userActivities = asList(activities?.data);
 
   const [
     deleteModalOpened,
@@ -338,10 +346,11 @@ const UserDetails = () => {
         <Table.Td>{data?.wallet?.partyBankName || "N/A"}</Table.Td>
         <Table.Td>
           <Flex gap={8}>
-            <Image
-              src={data?.direction === "CREDIT" ? IconCredit : IconDebit2}
-              alt="icon"
-            />
+            {data?.direction === "CREDIT" ? (
+              <IconCredit size={18} color="var(--fj-success)" variant="Bulk" />
+            ) : (
+              <IconDebit size={18} color="var(--fj-danger)" variant="Bulk" />
+            )}
             <Text fz={14}>{data?.narration || "N/A"}</Text>
           </Flex>
         </Table.Td>
@@ -381,11 +390,7 @@ const UserDetails = () => {
         </Table.Td>
         <Table.Td>
           <ActionIcon variant="transparent" aria-label="More">
-            <Image
-              src={IconEllipsisH}
-              alt="icon"
-              style={{ width: "70%", height: "70%" }}
-            />
+            <IconMore size={18} color="currentColor" variant="Linear" />
           </ActionIcon>
         </Table.Td>
       </Table.Tr>
@@ -403,10 +408,11 @@ const UserDetails = () => {
         <Table.Td>{data.wallet?.partyBankName || "N/A"}</Table.Td>
         <Table.Td>
           <Flex gap={8}>
-            <Image
-              src={data?.direction === "CREDIT" ? IconCredit : IconDebit}
-              alt="icon"
-            />
+            {data?.direction === "CREDIT" ? (
+              <IconCredit size={18} color="var(--fj-success)" variant="Bulk" />
+            ) : (
+              <IconDebit size={18} color="var(--fj-danger)" variant="Bulk" />
+            )}
             <Text fz={14}>{data?.narration || "N/A"}</Text>
           </Flex>
         </Table.Td>
@@ -451,29 +457,37 @@ const UserDetails = () => {
   });
 
   return (
-    <AppLayout title="User Management" subTitle="User Details" hasBackButton>
-      <Box pos="relative">
-        <Group
-          mb={{ base: 20, md: 0 }}
-          pos={{ base: "relative", md: "absolute" }}
-          top={0}
-          right={0}
-        >
+    <AppLayout
+      title="User Management"
+      subTitle="User Details"
+      hasBackButton
+      action={
+        <Group gap={10} wrap="nowrap">
           <Button
-            className={classes.btnWhite}
-            onClick={openSuspendModal}
+            variant="default"
             radius="xl"
+            className={classes.btnNeutral}
+            onClick={openSuspendModal}
+            styles={{ root: { minWidth: "auto" } }}
           >
             {isUserSuspended ? "Unblock User" : "Suspend User"}
           </Button>
           <Button
-            className={classes.btnDanger}
-            onClick={openDeleteModal}
+            variant="light"
+            color="red"
             radius="xl"
+            onClick={openDeleteModal}
+            styles={{ root: { minWidth: "auto" } }}
+            leftSection={
+              <IconTrash size={16} color="currentColor" variant="Linear" />
+            }
           >
-            Delete User
+            Delete
           </Button>
         </Group>
+      }
+    >
+      <Box pos="relative">
         <Tabs defaultValue="overview" keepMounted={false}>
           <Tabs.List>
             <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -486,7 +500,7 @@ const UserDetails = () => {
             <Flex direction={{ base: "column", md: "row" }} gap={20}>
               <Card
                 w={{ base: "100%", md: "30%" }}
-                bg="#222222E5"
+                bg="var(--fj-surface)"
                 radius={"lg"}
                 p={24}
               >
@@ -501,20 +515,25 @@ const UserDetails = () => {
                       gap={10}
                     >
                       <Flex align="center" gap={10}>
-                        <Text fw={700} c="#fff">
+                        <Text fw={700} c="var(--fj-text-primary)">
                           Profile
                         </Text>
-                        <Text
-                          fz={12}
-                          c="#24A181"
-                          style={{
-                            cursor: "pointer",
-                            textDecoration: "underline",
-                          }}
+                        <Button
+                          variant="subtle"
+                          color="gray"
+                          size="compact-xs"
+                          styles={{ root: { minWidth: "auto" } }}
+                          leftSection={
+                            <IconEdit
+                              size={13}
+                              color="currentColor"
+                              variant="Linear"
+                            />
+                          }
                           onClick={openEditModal}
                         >
                           Edit
-                        </Text>
+                        </Button>
                       </Flex>
                       <StatusBadge status={userProfile?.status || "N/A"} />
                     </Flex>
@@ -531,15 +550,15 @@ const UserDetails = () => {
                           size={120}
                         />
                         <Flex direction="column" align="center">
-                          <Text c="#fff" tt="capitalize">
+                          <Text c="var(--fj-text-primary)" tt="capitalize">
                             {userProfile?.name || "N/A"}
                           </Text>
-                          {/* <Text c="#D9D9D9B2">{userProfile?.tag || "-"}</Text> */}
+                          {/* <Text c="var(--fj-text-muted)">{userProfile?.tag || "-"}</Text> */}
                         </Flex>
                       </Flex>
 
                       {/* Bio */}
-                      <Text c="#fff" fz={13}>
+                      <Text c="var(--fj-text-primary)" fz={13}>
                         {userProfile?.bio || "N/A"}
                       </Text>
 
@@ -570,19 +589,24 @@ const UserDetails = () => {
                       </Flex>
 
                       {/* Reset Transaction PIN */}
-                      <Box mt={20}>
-                        <Text
-                          fz={12}
-                          c="#24A181"
-                          style={{
-                            cursor: "pointer",
-                            textDecoration: "underline",
-                          }}
-                          onClick={openResetPinModal}
-                        >
-                          Reset PIN
-                        </Text>
-                      </Box>
+                      <Button
+                        mt={12}
+                        fullWidth
+                        variant="default"
+                        radius="xl"
+                        className={classes.btnNeutral}
+                        styles={{ root: { minWidth: "auto" } }}
+                        leftSection={
+                          <IconRefresh
+                            size={15}
+                            color="currentColor"
+                            variant="Linear"
+                          />
+                        }
+                        onClick={openResetPinModal}
+                      >
+                        Reset transaction PIN
+                      </Button>
                     </Flex>
                   </>
                 )}
@@ -590,67 +614,55 @@ const UserDetails = () => {
 
               <Box w={{ base: "100%", md: "70%" }}>
                 <Flex direction="column" gap={20}>
-                  <Card bg="#222222E5" radius={"lg"} p={24}>
+                  <Card bg="var(--fj-surface)" radius={"lg"} p={24}>
                     {isFetchingQuickStats ? (
                       <Skeleton radius={"xl"} width={100} height={18} />
                     ) : (
-                      <Text fw={700} c="#fff">
+                      <Text fw={700} c="var(--fj-text-primary)">
                         Quick Stats
                       </Text>
                     )}
 
-                    <Box
-                      className="overflow-x-hidden md:overflow-x-auto hide-scrollbar flex flex-wrap md:flex-nowrap gap-x-0 md:gap-x-6 gap-y-6"
-                      mt={20}
-                    >
-                      {isFetchingQuickStats ? (
-                        <SummaryCardSkeletonAlt />
-                      ) : (
-                        <>
-                          <SummaryCard
-                            className="profile-stats-card"
-                            title="Events Created"
-                            value={quickStats?.EventsCreated || 0}
-                            withLightTitle
-                          />
-                          <SummaryCard
-                            className="profile-stats-card borderLeft"
-                            title="Events Co-planned"
-                            value={quickStats?.eventsCoPlanned || 0}
-                            withLightTitle
-                          />
-                          <SummaryCard
-                            className="profile-stats-card dynamicBorder"
-                            title="RSVP’s Received"
-                            value={quickStats?.rsvpEvents || 0}
-                            withLightTitle
-                          />
-                          <SummaryCard
-                            className="profile-stats-card borderLeft"
-                            title="Total Amount Spent"
-                            value={formatStringAmount(
-                              quickStats?.totalAmountSpent || 0,
-                            )}
-                            isCurrency
-                            withLightTitle
-                          />
-                          <SummaryCard
-                            className="profile-stats-card dynamicBorder"
-                            title="Gifts Sent"
-                            value={quickStats?.giftsGiven || 0}
-                            withLightTitle
-                          />
-                          <SummaryCard
-                            className="profile-stats-card borderLeft"
-                            title="Gifts received"
-                            value={quickStats?.giftsReceived || 0}
-                            withLightTitle
-                          />
-                        </>
-                      )}
-                    </Box>
+                    {isFetchingQuickStats ? (
+                      <Box mt={20}>
+                        <StatRowSkeleton count={6} />
+                      </Box>
+                    ) : (
+                      <SimpleGrid cols={{ base: 2, md: 3 }} mt={20}>
+                        <StatTile
+                          label="Events created"
+                          value={quickStats?.EventsCreated || 0}
+                          accent="var(--fj-viz-1)"
+                        />
+                        <StatTile
+                          label="Events co-planned"
+                          value={quickStats?.eventsCoPlanned || 0}
+                          accent="var(--fj-viz-2)"
+                        />
+                        <StatTile
+                          label="RSVPs received"
+                          value={quickStats?.rsvpEvents || 0}
+                          accent="var(--fj-viz-3)"
+                        />
+                        <StatTile
+                          label="Total spent"
+                          value={`₦${formatStringAmount(
+                            quickStats?.totalAmountSpent || 0,
+                          )}`}
+                          accent="var(--fj-viz-4)"
+                        />
+                        <StatTile
+                          label="Gifts sent"
+                          value={quickStats?.giftsGiven || 0}
+                        />
+                        <StatTile
+                          label="Gifts received"
+                          value={quickStats?.giftsReceived || 0}
+                        />
+                      </SimpleGrid>
+                    )}
                   </Card>
-                  <Card bg="#222222E5" radius={"lg"} p={24}>
+                  <Card bg="var(--fj-surface)" radius={"lg"} p={24}>
                     <Tabs
                       defaultValue="userevents"
                       value={activeEventTab}
@@ -685,7 +697,7 @@ const UserDetails = () => {
                       )}
 
                       <Tabs.Panel value="userevents">
-                        <Card bg={"#2B2B2B"} c={"#fff"} radius={"lg"} p={6}>
+                        <Card bg="var(--fj-surface-card)" c="var(--fj-text-primary)" radius={"lg"} p={6}>
                           <ScrollArea.Autosize
                             mah={250}
                             p={10}
@@ -709,7 +721,7 @@ const UserDetails = () => {
                       </Tabs.Panel>
 
                       <Tabs.Panel value="coplannedevents">
-                        <Card bg={"#2B2B2B"} c={"#fff"} radius={"lg"} p={6}>
+                        <Card bg="var(--fj-surface-card)" c="var(--fj-text-primary)" radius={"lg"} p={6}>
                           <ScrollArea.Autosize
                             mah={250}
                             p={10}
@@ -733,7 +745,7 @@ const UserDetails = () => {
                       </Tabs.Panel>
 
                       <Tabs.Panel value="rsvpevents">
-                        <Card bg={"#2B2B2B"} c={"#fff"} radius={"lg"} p={6}>
+                        <Card bg="var(--fj-surface-card)" c="var(--fj-text-primary)" radius={"lg"} p={6}>
                           <ScrollArea.Autosize
                             mah={250}
                             p={10}
@@ -762,7 +774,7 @@ const UserDetails = () => {
             </Flex>
 
             {/* Recent Transactions */}
-            <Card bg={"#222222E5"} radius={"lg"} p={24} mt={20}>
+            <Card bg="var(--fj-surface)" radius={"lg"} p={24} mt={20}>
               <Text fw={700}>Recent Transactions</Text>
 
               <PpTable
@@ -1021,14 +1033,14 @@ const ProfileDetail = ({
 }) => {
   return (
     <Flex gap={16}>
-      <Text fz={13} c="#D9D9D9B2" flex="25% 0 0">
+      <Text fz={13} c="var(--fj-text-muted)" flex="25% 0 0">
         {title}
       </Text>
       <Flex gap={4} flex="75% 0 0">
-        <Text fz={13} c="#D9D9D9B2">
+        <Text fz={13} c="var(--fj-text-muted)">
           :
         </Text>
-        <Text fz={13} c="#fff">
+        <Text fz={13} c="var(--fj-text-primary)">
           {value || "N/A"}
         </Text>
       </Flex>

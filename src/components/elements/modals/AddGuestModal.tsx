@@ -25,7 +25,7 @@ import ConfirmationModal from "./ConfirmationModal";
 import { ConfirmationModalTypes } from "@/services/api/utils/utils.types";
 import { createGuest, formatStringAmount } from "@/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { NoImage } from "@/images";
+import { NoImageS } from "@/images";
 import { AddEventGuest, GetEventDetails } from "@/services/api";
 import { Store } from "@/services/api/event/event.types";
 
@@ -100,7 +100,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
 
         if (exists) {
           const updated = sel.map((t) =>
-            t.ticketId === id ? { ...t, quantity: newCount } : t
+            t.ticketId === id ? { ...t, quantity: newCount } : t,
           );
           form.setFieldValue("tickets", updated);
           return updated;
@@ -132,7 +132,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
         }
 
         const updated = sel.map((t) =>
-          t?.ticketId === id ? { ...t, quantity: newCount } : t
+          t?.ticketId === id ? { ...t, quantity: newCount } : t,
         );
 
         form.setFieldValue("tickets", updated);
@@ -160,7 +160,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
 
         if (exists) {
           const updated = sel.map((t) =>
-            t.ticketId === id ? { ...t, quantity: safeValue } : t
+            t.ticketId === id ? { ...t, quantity: safeValue } : t,
           );
           form.setFieldValue("tickets", updated);
           return updated;
@@ -221,7 +221,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
     } catch (error: any) {
       console.log(error);
       setConfirmationMessage(
-        error.response.data.message || "Failed to add guest. Please try again."
+        error.response.data.message || "Failed to add guest. Please try again.",
       );
       setConfirmationType("error");
       openConfirmation();
@@ -283,7 +283,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
                 </Accordion.Control>
                 <Accordion.Panel>
                   <Card
-                    bg="#161616"
+                    bg="var(--fj-surface-elevated)"
                     className="border border-[#1E1E1E]"
                     radius={8}
                   >
@@ -305,21 +305,21 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
                         ticketItems?.map((item, index) => {
                           const count = getCount(item?.id);
                           const isSelected = selectedTickets.some(
-                            (t) => t?.ticketId === item?.id
+                            (t) => t?.ticketId === item?.id,
                           );
                           const isSoldOut = item?.itemsLeft < 1;
 
                           const buttonColor = isSoldOut
                             ? "#C22B2B"
                             : isSelected
-                            ? "#10B982"
-                            : "#000000";
+                              ? "#10B982"
+                              : "#000000";
 
                           const buttonLabel = isSoldOut
                             ? "Sold Out"
                             : isSelected
-                            ? "Selected"
-                            : "Select";
+                              ? "Selected"
+                              : "Select";
 
                           const handleSelectClick = () => {
                             if (!isSoldOut) toggleSelect(item.id);
@@ -339,7 +339,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
                                   <BackgroundImage
                                     w={40}
                                     h={40}
-                                    src={item?.images?.[0] || NoImage.src}
+                                    src={item?.images?.[0] || NoImageS.src}
                                     radius={4}
                                   />
 
@@ -442,7 +442,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
             />
 
             {/* Button */}
-            <Box pos="sticky" bottom={0} w="100%" py={10} bg="#000000">
+            <Box pos="sticky" bottom={0} w="100%" py={10} bg="var(--fj-bg)">
               <Button
                 type="submit"
                 radius="xl"

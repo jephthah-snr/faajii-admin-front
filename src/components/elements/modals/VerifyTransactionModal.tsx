@@ -21,8 +21,7 @@ import {
 } from "@/utils";
 import FormatDate from "../format-date";
 import { TransactionDetailsSkeleton } from "../skeletons";
-import Image from "next/image";
-import { IconCopy } from "@/icons";
+import { IconCopy } from "@/config/icons";
 import { useState } from "react";
 import { yupResolver } from "mantine-form-yup-resolver";
 import { useForm } from "@mantine/form";
@@ -280,12 +279,7 @@ const VerifyTransactionModal = ({
                                   variant="transparent"
                                   onClick={copy}
                                 >
-                                  <Image
-                                    src={IconCopy}
-                                    width={20}
-                                    height={20}
-                                    alt="icon"
-                                  />
+                                  <IconCopy size={20} color="currentColor" variant="Linear" />
                                 </ActionIcon>
                               </Tooltip>
                             )}
@@ -325,12 +319,7 @@ const VerifyTransactionModal = ({
                                       variant="transparent"
                                       onClick={copy}
                                     >
-                                      <Image
-                                        src={IconCopy}
-                                        width={20}
-                                        height={20}
-                                        alt="icon"
-                                      />
+                                      <IconCopy size={20} color="currentColor" variant="Linear" />
                                     </ActionIcon>
                                   </Tooltip>
                                 )}

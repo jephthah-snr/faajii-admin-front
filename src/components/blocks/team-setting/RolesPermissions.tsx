@@ -1,6 +1,6 @@
 "use client";
 
-import { IconSearch } from "@/icons";
+import { IconSearch } from "@/config/icons";
 import {
   Box,
   Button,
@@ -12,11 +12,11 @@ import {
   Table,
   TextInput,
 } from "@mantine/core";
-import Image from "next/image";
 import inputClasses from "@/styles/Input.module.css";
 import classes from "@/styles/General.module.css";
 import { useDisclosure } from "@mantine/hooks";
-import { CreateRoleModal } from "@/components/elements";
+import { CreateRoleModal, PendingBackend } from "@/components/elements";
+import { isEndpointUnavailable, retryUnlessUnavailable } from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -32,9 +32,14 @@ const RolesPermissions = () => {
   const [opened, { open, close }] = useDisclosure(false);
 
   // Fetch roles with their permissions
-  const { data: rolesData, isFetching: isFetchingRoles } = useQuery({
+  const {
+    data: rolesData,
+    isFetching: isFetchingRoles,
+    error: rolesError,
+  } = useQuery({
     queryKey: ["roles"],
     queryFn: GetRoles,
+    retry: retryUnlessUnavailable,
   });
 
   // Fetch all permissions grouped by category
@@ -42,6 +47,7 @@ const RolesPermissions = () => {
     {
       queryKey: ["permissions"],
       queryFn: GetPermissions,
+      retry: retryUnlessUnavailable,
     },
   );
 
@@ -134,6 +140,22 @@ const RolesPermissions = () => {
 
   const isLoading = isFetchingRoles || isFetchingPermissions;
 
+  if (isEndpointUnavailable(rolesError)) {
+    return (
+      <PendingBackend
+        feature="Roles & permissions"
+        endpoints={[
+          "GET /admin/roles",
+          "POST /admin/roles",
+          "PUT /admin/roles/:id",
+          "DELETE /admin/roles/:id",
+          "PUT /admin/roles/:id/permissions",
+          "GET /admin/permissions",
+        ]}
+      />
+    );
+  }
+
   return (
     <Box>
       {/* Search + Create role */}
@@ -142,7 +164,7 @@ const RolesPermissions = () => {
         justify="space-between"
         gap={10}
         wrap="wrap"
-        bg="#0A0A0A"
+        bg="var(--fj-bg)"
         py={14}
         className="sticky top-14 z-10"
       >
@@ -155,11 +177,7 @@ const RolesPermissions = () => {
           size="sm"
           radius="md"
           leftSection={
-            <Image
-              src={IconSearch}
-              alt="icon"
-              style={{ width: rem(16), height: rem(16) }}
-            />
+            <IconSearch size={16} color="currentColor" variant="Linear" />
           }
         />
 
@@ -219,7 +237,7 @@ const RolesPermissions = () => {
                             ta="center"
                             fw={500}
                             fz={14}
-                            bg="#0A0A0A"
+                            bg="var(--fj-bg)"
                             pos={{ base: "relative", md: "sticky" }}
                             left={0}
                             style={{
@@ -239,7 +257,7 @@ const RolesPermissions = () => {
                           fz={13}
                           py={16}
                           pl={20}
-                          bg="#0A0A0A"
+                          bg="var(--fj-bg)"
                           pos={{ base: "relative", md: "sticky" }}
                           left={{ base: 0, md: 186 }}
                           style={{

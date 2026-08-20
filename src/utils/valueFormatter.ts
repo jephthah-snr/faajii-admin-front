@@ -20,6 +20,32 @@ export const formatStringAmount = (
   });
 };
 
+/** Currency-aware amount formatter shared by the newer admin modules. */
+export const formatMoney = (
+  amount: number | string | null | undefined,
+  currency = "NGN",
+): string => {
+  const value = Number(amount);
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: currency || "NGN",
+  }).format(Number.isFinite(value) ? value : 0);
+};
+
+/** Human date + time, or a placeholder when the value is absent. */
+export const formatDateTime = (
+  value?: string | null,
+  fallback = "Not set",
+): string => {
+  if (!value) return fallback;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return fallback;
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+};
+
 export const extractWalletName = (walletString: string): string => {
   return walletString.replace(
     /-\b[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}\b/,

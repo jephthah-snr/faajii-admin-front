@@ -10,12 +10,11 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useForm } from "@mantine/form";
 import { yupResolver } from "mantine-form-yup-resolver";
 import { addTeamMemberSchema } from "@/utils";
-import { IconCaretDown, IconCheck2 } from "@/icons";
-import Image from "next/image";
+import { IconCheck, IconChevronDown } from "@/config/icons";
 import StatusBadge from "../status-badge";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
@@ -30,7 +29,6 @@ interface AddTeamMemberModalProps {
 
 const AddTeamMemberModal = ({ opened, onClose }: AddTeamMemberModalProps) => {
   const queryClient = useQueryClient();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch roles dynamically
   const { data: rolesData } = useQuery({
@@ -162,7 +160,7 @@ const AddTeamMemberModal = ({ opened, onClose }: AddTeamMemberModalProps) => {
                         </Text>
                       )}
 
-                      <Image src={IconCaretDown} alt="icon" />
+                      <IconChevronDown size={18} color="currentColor" variant="Linear" />
                     </Flex>
                   </Flex>
                 </Menu.Target>
@@ -177,7 +175,7 @@ const AddTeamMemberModal = ({ opened, onClose }: AddTeamMemberModalProps) => {
                         onClick={() => form.setFieldValue("role", role.value)}
                         rightSection={
                           isSelected ? (
-                            <Image src={IconCheck2} alt="icon" />
+                            <IconCheck size={18} color="currentColor" variant="Linear" />
                           ) : null
                         }
                       >
@@ -195,7 +193,7 @@ const AddTeamMemberModal = ({ opened, onClose }: AddTeamMemberModalProps) => {
             </Flex>
           </ScrollArea.Autosize>
 
-          <Flex py="md" bg="#000" pos="sticky" bottom={0} left={0} w="100%">
+          <Flex py="md" bg="var(--fj-bg)" pos="sticky" bottom={0} left={0} w="100%">
             <Button
               type="submit"
               size="sm"

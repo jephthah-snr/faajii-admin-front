@@ -5,7 +5,7 @@ export const userManagementFilters: FilterItem[] = [
     title: "Status",
     apiKey: "status",
     default: "All",
-    items: ["All", "Pending", "Active"],
+    items: ["All", "Pending", "Active", "Suspended"],
     transform: (v) => v?.toLowerCase(),
   },
   {
@@ -26,7 +26,7 @@ export const eventFilters: FilterItem[] = [
     title: "Status",
     apiKey: "status",
     default: "All",
-    items: ["All", "Pending", "Active"],
+    items: ["All", "Draft", "Published", "Completed", "Cancelled"],
     transform: (v) => v?.toLowerCase(),
   },
   {
@@ -41,7 +41,7 @@ export const transactionFilters: FilterItem[] = [
     title: "Status",
     apiKey: "status",
     default: "All",
-    items: ["All", "Pending", "Active"],
+    items: ["All", "Pending", "Success", "Failed"],
     transform: (v) => v?.toLowerCase(),
   },
   {

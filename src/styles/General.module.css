@@ -1,14 +1,32 @@
-/* Navigation modules */
+/* ---------------------------------------------------------------- Navigation */
+
 .navbar {
-  background-color: var(--background);
+  background-color: var(--fj-bg);
+  border-right: 1px solid var(--fj-border);
+  /* The nav is a column: brand block, one flexible scroll region, then the
+     pinned footer. Height is deliberately left to Mantine (which computes it
+     from the viewport) — overriding it with `100%` resolves against the wrong
+     containing block and cuts the list short. */
   display: flex;
-  justify-content: space-between;
-  border-right: 1px solid #3e3e3e;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.navScroll {
+  flex: 1;
+  min-height: 0;
 }
 
 .adminAside {
-  background-color: var(--background);
-  border-left: 1px solid #3e3e3e;
+  background-color: var(--fj-bg);
+  border-left: 1px solid var(--fj-border);
   padding: 40px 20px;
   height: 100vh;
 }
@@ -17,49 +35,91 @@
   display: block;
   border-radius: 10px;
   width: 100%;
-  padding: var(--mantine-spacing-sm) var(--mantine-spacing-xs);
-  color: #ffffff;
-  font-size: var(--mantine-font-size-sm);
+  padding: 10px 12px;
+  color: var(--fj-text-secondary);
+  font-size: 14px;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
 
   &:hover {
-    background: #ffffff09;
-    color: #ffffff;
+    background: var(--fj-border-subtle);
+    color: var(--fj-text-primary);
   }
 }
 
 .active {
-  background: #ffffff1a;
-  color: #ffffff;
+  background: var(--fj-accent-soft);
+  color: var(--fj-accent);
 
   &:hover {
-    background: #ffffff1a;
-    color: #ffffff;
-    border-right: transparent;
+    background: var(--fj-accent-soft);
+    color: var(--fj-accent);
   }
 }
-.main {
-  background-color: var(--background);
-  height: 100%;
+
+.navGroupLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fj-text-muted);
+  padding: 0 12px;
+  margin: 14px 0 6px;
 }
 
-/* Table modules */
+/* --------------------------------------------------------------------- Cards */
+
+.surfaceCard {
+  background-color: var(--fj-surface);
+  border: 1px solid var(--fj-border);
+  border-radius: var(--fj-radius-card);
+}
+
+/* Nested tiles inside a panel recede rather than lift, so a stat row doesn't
+   read as a second layer of cards stacked on the first. */
+.insetCard {
+  background-color: var(--fj-surface-elevated);
+  border: 1px solid var(--fj-border-subtle);
+  border-radius: 14px;
+}
+
+/* -------------------------------------------------------------------- Tables */
 
 .tableHeader {
   background: transparent !important;
-  color: #ffffff66;
 }
 
 .thItem {
-  font-weight: 400;
-  font-size: 14px;
-  border-bottom: 1px solid #ffffff33;
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fj-text-muted);
+  border-bottom: 1px solid var(--fj-border) !important;
   background: transparent !important;
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 
 .tableRow {
   font-size: 14px;
-  height: 50px;
-  border-bottom: 1px solid #ffffff1a;
+  color: var(--fj-text-primary);
+  border-bottom: 1px solid var(--fj-border-subtle);
+  transition: background-color 120ms ease;
+
+  & td {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  &:last-child {
+    border-bottom: 1px solid transparent;
+  }
+
+  &:hover {
+    background: var(--fj-border-subtle);
+  }
 }
 
 .noHeaderBorder.thItem,
@@ -68,41 +128,42 @@
 }
 
 .lightHeaderBorder.thItem {
-  border-bottom: 1px solid #171717;
+  border-bottom: 1px solid var(--fj-border-subtle) !important;
 }
 
-/* Pagination modules */
+/* ---------------------------------------------------------------- Pagination */
 
 .paginationControl {
   background: transparent;
-  border: transparent;
+  border: 1px solid transparent;
   border-radius: 8px;
-  color: white;
+  color: var(--fj-text-secondary);
+
   &[data-active] {
-    background: #ffffff1a;
-    color: white;
+    background: var(--fj-accent-soft);
+    color: var(--fj-accent);
+
     &:hover {
-      background: #ffffff1a;
+      background: var(--fj-accent-soft);
     }
   }
-  &:first-child,
-  &:last-child {
-    background: transparent;
-    color: white;
-  }
+
   &:hover {
-    background: transparent;
+    background: var(--fj-border-subtle);
+    color: var(--fj-text-primary);
   }
 }
 
 .paginationDots {
-  color: white;
+  color: var(--fj-text-muted);
 }
 
-/* Tabs modules */
+/* ---------------------------------------------------------------------- Tabs */
+
 .tabList {
   &[data-variant="default"] {
     width: fit-content;
+
     &::before {
       border-bottom: none !important;
     }
@@ -112,6 +173,7 @@
 .tabListFull {
   &[data-variant="default"] {
     width: 100%;
+
     &::before {
       border-bottom: none !important;
     }
@@ -119,23 +181,27 @@
 }
 
 .tab {
-  color: #d9d9d9b2;
-  border-bottom: none !important;
+  color: var(--fj-text-secondary);
+  border-bottom: 2px solid transparent !important;
+  font-size: 14px;
+  transition: color 120ms ease;
 
   &:hover {
     background: transparent;
-    font-weight: 500;
+    color: var(--fj-text-primary);
   }
 
   &[data-active] {
-    border-bottom: 2px solid #5769e9 !important;
-    color: #5769e9;
+    border-bottom: 2px solid var(--fj-accent) !important;
+    color: var(--fj-accent);
+    font-weight: 600;
   }
 }
 
 .tabListAlt {
   &[data-variant="default"] {
     width: 100%;
+
     &::before {
       border-bottom: none !important;
     }
@@ -143,92 +209,114 @@
 }
 
 .tabAlt {
-  color: #d9d9d9b2;
+  color: var(--fj-text-secondary);
   border-bottom: none !important;
 
   &:hover {
     background: transparent;
-    font-weight: 500;
+    color: var(--fj-text-primary);
   }
 
   &[data-active] {
     border-bottom: none !important;
-    color: #fff;
+    color: var(--fj-text-primary);
     font-weight: 700;
   }
 }
 
+.tabLabel,
+.tabLabelAlt {
+  font-size: 14px;
+}
+
 .tabPillList {
-  background: #1a1a1a;
+  background: var(--fj-surface-elevated);
+  border: 1px solid var(--fj-border-subtle);
   padding: 4px;
-  border-radius: 8px;
+  border-radius: 12px;
   width: fit-content;
 }
 
 .tabPill {
   background: transparent;
-  color: #767676;
+  color: var(--fj-text-muted);
+  border: none !important;
+
+  &:hover {
+    color: var(--fj-text-primary);
+  }
 
   &[data-active] {
-    background: #111111;
+    background: var(--fj-surface-card);
     border-bottom: none !important;
-    color: #f5f5f5;
-    border-radius: 6px;
+    color: var(--fj-text-primary);
+    border-radius: 9px;
   }
 }
 
 .tabPanel {
-  padding-top: 20px;
+  padding-top: 24px;
 }
 
 .teamAdminTabList {
   flex-wrap: nowrap;
+
   &[data-variant="default"] {
     &::before {
-      border-bottom: 1px solid #181818 !important;
+      border-bottom: 1px solid var(--fj-border) !important;
     }
   }
 }
 
 .teamAdminTab {
   &[data-active] {
-    border-bottom: 2px solid #ffffff !important;
-    color: #ffffff;
+    border-bottom: 2px solid var(--fj-accent) !important;
+    color: var(--fj-accent);
   }
 }
 
-/* Menu modules */
+/* ---------------------------------------------------------------------- Menu */
 
 .menuDropdown {
-  border-radius: 10px;
-  border: none;
-  background-color: #222222;
-  padding-left: 10px;
-  padding-right: 10px;
+  border-radius: 14px;
+  border: 1px solid var(--fj-border);
+  background-color: var(--fj-surface-card);
+  padding: 6px;
+  box-shadow: var(--fj-shadow-card);
 }
 
 .menuDropdownAlt {
-  background: #000000;
-  border-radius: 10px;
-  border: 1px solid #222222;
-  padding: 8px 0px;
+  background: var(--fj-surface);
+  border-radius: 14px;
+  border: 1px solid var(--fj-border);
+  padding: 6px;
+  box-shadow: var(--fj-shadow-card);
 }
 
 .menuDivider {
-  border-color: #363434;
+  border-color: var(--fj-border);
 }
 
 .menuItem {
   font-size: 13px;
-  color: #ffffff;
-  text-align: center;
-  background: transparent !important;
+  color: var(--fj-text-primary);
+  border-radius: 8px;
+  background: transparent;
+
+  &:hover {
+    background: var(--fj-border-subtle) !important;
+  }
 }
 
 .menuItemAlt {
   font-size: 14px;
   text-align: left;
-  background: transparent !important;
+  border-radius: 8px;
+  background: transparent;
+
+  &:hover {
+    background: var(--fj-border-subtle) !important;
+  }
 }
 
 .filterMenuArrow {
@@ -236,74 +324,81 @@
   margin-left: 10px;
 }
 
-/* Button modules */
+/* ------------------------------------------------------------------- Buttons */
 
 .btnRoot {
-  min-width: 200px;
-}
-
-@media screen and (max-width: 765px) {
-  .btnRoot {
-    min-width: auto;
-  }
+  font-weight: 600;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
 }
 
 .btnLabel {
-  font-weight: 500;
+  font-weight: 600;
 }
 
+/* The app's primary action is a white pill with black text. */
 .btnWhite {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--fj-text-primary);
+  color: var(--fj-text-inverse);
+
   &:hover {
-    background-color: #f8f0f0;
-    color: #000000;
+    background-color: #ececf1;
+    color: var(--fj-text-inverse);
   }
-  &:disabled {
-    background: #b1b1b1;
-    color: #2524247a;
+
+  &:disabled,
+  &[data-disabled] {
+    background: var(--fj-surface-card);
+    color: var(--fj-text-muted);
   }
 }
 
 .btnNeutral {
-  background-color: #363636;
-  color: #ffffff;
+  background-color: var(--fj-surface-card);
+  color: var(--fj-text-primary);
+  border: 1px solid var(--fj-border);
+
   &:hover {
-    background-color: #302f2f;
-    color: #ffffff;
+    background-color: var(--fj-surface);
+    color: var(--fj-text-primary);
   }
 }
 
 .btnWarning {
-  background-color: #ff9801;
-  color: #000000;
+  background-color: var(--fj-accent);
+  color: var(--fj-text-inverse);
+
   &:hover {
-    background-color: #f29304;
-    color: #000000;
+    background-color: #e87d00;
+    color: var(--fj-text-inverse);
   }
 }
 
 .btnDanger {
-  background-color: #ed4245;
-  color: #000000;
+  background-color: var(--fj-danger);
+  color: var(--fj-text-inverse);
+
   &:hover {
-    background-color: #e33b3e;
-    color: #000000;
+    background-color: #f0505a;
+    color: var(--fj-text-inverse);
   }
 }
 
-/* Modal modules */
+/* -------------------------------------------------------------------- Modals */
 
 .modalContent {
-  background-color: #222222;
-  color: #ffffff;
-  border-radius: 12px;
+  background-color: var(--fj-surface);
+  color: var(--fj-text-primary);
+  border: 1px solid var(--fj-border);
+  border-radius: var(--fj-radius-card);
+  box-shadow: var(--fj-shadow-card);
 }
 
 .modalContent.confirmation-modal {
-  background-color: #222222 !important;
-  color: #ffffff;
-  padding: 0px;
+  background-color: var(--fj-surface) !important;
+  color: var(--fj-text-primary);
+  padding: 0;
   background: url("../../public/images/png/bg_pattern.png") no-repeat top left;
   background-size: 300px;
 }
@@ -311,89 +406,104 @@
 .modalHeader {
   min-height: unset !important;
   height: auto !important;
-  padding: 18px 10px !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #222222;
+  padding: 18px 20px !important;
+  background: var(--fj-surface);
+  border-bottom: 1px solid var(--fj-border);
 }
 
 .modalTitle {
   width: 100%;
-  text-align: center;
+  font-weight: 700;
+  color: var(--fj-text-primary);
 }
 
-/* Drawer modules */
+.modalOverlay {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+/* ------------------------------------------------------------------- Drawers */
 
 .drawerContent {
-  background: #191919;
-  border-radius: 12px 12px 0px 0px;
+  background: var(--fj-surface);
+  border-radius: var(--fj-radius-card) var(--fj-radius-card) 0 0;
   height: 90%;
 }
 
 .drawerHeader {
   min-height: unset !important;
   height: 54px !important;
-  padding: 50px auto !important;
-  background: #191919;
+  background: var(--fj-surface);
 }
 
+.rightDrawerHeader {
+  background: var(--fj-bg);
+  border-bottom: 1px solid var(--fj-border);
+}
+
+.rightDrawerTitle {
+  color: var(--fj-text-secondary);
+  font-weight: 600;
+}
+
+.rightDrawerOverlay {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.rightDrawerContent {
+  background: var(--fj-bg);
+}
+
+.rightDrawerClose {
+  background: var(--fj-surface-card);
+  color: var(--fj-text-primary);
+  border-radius: 8px;
+
+  &:hover {
+    background: var(--fj-divider);
+  }
+}
+
+/* --------------------------------------------------------------------- Misc. */
+
 .dropzoneRoot {
-  background: transparent;
-  border: 2px dashed #515151;
-  border-radius: 12px;
+  background: var(--fj-surface-elevated);
+  border: 2px dashed var(--fj-divider);
+  border-radius: var(--fj-radius-card);
   padding: 8px;
   text-align: center;
 
   &:hover {
-    background: #262525;
+    background: var(--fj-surface);
   }
 }
 
 .ratingProgress {
-  background-color: #ffffff17 !important;
-}
-
-/* Drawer styles */
-.rightDrawerHeader {
-  background: #000000;
-}
-.rightDrawerTitle {
-  color: #868686;
-  font-weight: 500;
-}
-.rightDrawerOverlay {
-  background: #191919cc;
-}
-.rightDrawerContent {
-  background: #000000;
-}
-.rightDrawerClose {
-  background: #313131;
-  color: #ffffff;
-  border-radius: 6px;
+  background-color: var(--fj-border-subtle) !important;
 }
 
 .starRating {
   gap: 6px;
 }
 
-/* Accordion */
+/* ---------------------------------------------------------------- Accordions */
+
 .accordionControl {
   background: transparent !important;
-  border: 1px solid #363636e5;
-  color: #d9d9d9b2;
-  border-radius: 8px;
+  border: 1px solid var(--fj-border);
+  color: var(--fj-text-secondary);
+  border-radius: 10px;
   font-size: 14px;
 }
 
 .accordionItem {
   border-bottom: 1px solid transparent !important;
-  padding: 0px;
+  padding: 0;
 }
 
 .accordionContent {
-  padding: 0px;
+  padding: 0;
   margin-top: 20px;
 }
 
@@ -403,12 +513,12 @@
 
 .roleAccordionItem,
 .roleAccordionContent {
-  padding: 0px;
+  padding: 0;
   border-bottom: 1px solid transparent;
 }
 
 .roleAccordionItem:not(:last-child) {
-  border-bottom: 1px solid #222222 !important;
+  border-bottom: 1px solid var(--fj-border) !important;
 }
 
 .roleAccordionChevron {
@@ -428,6 +538,13 @@
   text-decoration: underline;
 }
 
+/* --------------------------------------------------------------------- Shell */
+
+.main {
+  background-color: var(--fj-bg);
+  height: 100%;
+}
+
 @media screen and (max-width: 640px) {
   .navbar {
     width: 80%;
@@ -436,4 +553,52 @@
   .adminAside {
     padding: 40px auto;
   }
+}
+
+/* --------------------------------------------------------- Filters & toolbar */
+
+/* The canonical filter control, as established on Vendor Management: a low
+   recessed pill that names its dimension, then its current value. */
+.filterPill {
+  height: 40px;
+  min-width: fit-content;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--fj-surface-elevated);
+  border: 1px solid var(--fj-border-subtle);
+  color: var(--fj-text-primary);
+  font-size: 14px;
+  font-weight: 400;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.filterPill:hover {
+  background: var(--fj-surface);
+  border-color: var(--fj-border);
+}
+
+/* A pill holding a non-default value announces itself. */
+.filterPillActive {
+  border-color: var(--fj-accent);
+  background: var(--fj-accent-soft);
+}
+
+.toolbar {
+  position: sticky;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  background: var(--fj-bg);
+}
+
+/* Once pinned, a hairline separates the toolbar from the rows scrolling under
+   it — without it the sticky row and the table head merge into one block. */
+.toolbarStuck {
+  border-bottom: 1px solid var(--fj-border);
 }

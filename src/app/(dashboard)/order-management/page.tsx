@@ -2,14 +2,16 @@
 
 import {
   DateFilter,
+  DownloadCsvButton,
   FormatDate,
   OrderDetailsModal,
   OrderStatusModal,
+  PendingBackend,
   PpTable,
   StatusBadge,
   StatusFilter,
+  TableToolbar,
 } from "@/components";
-import { IconDocumentDownload, IconSearch } from "@/icons";
 import { AppLayout } from "@/layout";
 import { GetAllOrders } from "@/services/api";
 import { Order } from "@/services/api/order-management/order.types";
@@ -19,26 +21,23 @@ import {
   formatStatusLabel,
   formatStringAmount,
   generateCsvSuffix,
+  isEndpointUnavailable,
   orderStatuses,
+  retryUnlessUnavailable,
   rowsPerPage,
 } from "@/utils";
 import {
   Avatar,
   Box,
-  Button,
   Divider,
   Flex,
   Menu,
-  rem,
   Table,
   Text,
-  TextInput,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
-import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import inputClasses from "@/styles/Input.module.css";
 
 const tableHeaders = [
   "Payment Reference",
@@ -80,7 +79,9 @@ const OrderManagement = () => {
     data: orders,
     isFetching: isFetchingOrders,
     refetch,
+    error: ordersError,
   } = useQuery({
+    retry: retryUnlessUnavailable,
     queryKey: [
       "orders",
       activePage,
@@ -264,7 +265,7 @@ const OrderManagement = () => {
               <Flex
                 align="center"
                 justify="center"
-                bg="#151515"
+                bg="var(--fj-surface-elevated)"
                 w={20}
                 h={20}
                 p="md"
@@ -306,7 +307,7 @@ const OrderManagement = () => {
             </Menu.Target>
 
             <Menu.Dropdown
-              bg="#121212"
+              bg="var(--fj-surface-elevated)"
               style={{ border: "1px solid #1C1C1C", borderRadius: "12px" }}
             >
               {orderStatuses.map((status, index) => (
@@ -336,8 +337,22 @@ const OrderManagement = () => {
     );
   });
 
+  if (isEndpointUnavailable(ordersError)) {
+    return (
+      <AppLayout title="Order Tracking">
+        <PendingBackend
+          feature="Order tracking"
+          endpoints={[
+            "GET /admin/order-management",
+            "PATCH /admin/gift-orders/:id/status",
+          ]}
+        />
+      </AppLayout>
+    );
+  }
+
   return (
-    <AppLayout title="Order Management">
+    <AppLayout title="Order Tracking">
       <Flex direction="column" gap={20}>
         {/* Summary */}
         {/* <ScrollArea scrollbarSize={0}>
@@ -354,7 +369,7 @@ const OrderManagement = () => {
                   key={summary.label}
                   w="auto"
                   miw={240}
-                  bg="#171717E5"
+                  bg="var(--fj-surface)"
                   p="md"
                   radius={16}
                 >
@@ -379,7 +394,7 @@ const OrderManagement = () => {
             align={{ base: "flex-start", md: "center" }}
             justify="space-between"
             gap={10}
-            bg="#0A0A0A"
+            bg="var(--fj-bg)"
             py={10}
             className="sticky top-14 z-10"
             wrap="wrap"
@@ -404,49 +419,12 @@ const OrderManagement = () => {
               />
             </Flex>
 
-            <Flex
-              align="center"
-              justify={{ base: "flex-start", md: "flex-end" }}
-              gap={16}
-              wrap="wrap"
-            >
-              <TextInput
-                placeholder="Search"
-                variant="default"
-                w={{ base: "100%", md: "50%" }}
-                leftSectionPointerEvents="none"
-                classNames={{ input: inputClasses.searchInputAlt }}
-                value={query}
-                onChange={(e: any) => setQuery(e.currentTarget.value)}
-                size="sm"
-                radius="md"
-                leftSection={
-                  <Image
-                    src={IconSearch}
-                    alt="icon"
-                    style={{ width: rem(16), height: rem(16) }}
-                  />
-                }
-              />
-
-              <Button
-                color="#5769E9"
-                radius={8}
-                h={40}
-                className="border border-[#3C4CBD]"
-                onClick={handleDownloadCSV}
-                styles={{ root: { minWidth: "auto" } }}
-                leftSection={
-                  <Image
-                    src={IconDocumentDownload}
-                    alt="icon"
-                    style={{ width: rem(20), height: rem(20) }}
-                  />
-                }
-              >
-                Download as CSV
-              </Button>
-            </Flex>
+            <TableToolbar
+              query={query}
+              onQueryChange={setQuery}
+              searchPlaceholder="Search orders"
+              action={<DownloadCsvButton onClick={handleDownloadCSV} />}
+            />
           </Flex>
         )}
 

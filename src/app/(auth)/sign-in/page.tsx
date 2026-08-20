@@ -6,6 +6,7 @@ import {
   Button,
   Flex,
   PasswordInput,
+  Stack,
   Text,
   TextInput,
 } from "@mantine/core";
@@ -19,6 +20,7 @@ import { loginSchema } from "@/utils";
 import { setExpirationCookie, setToken, setUser } from "@/store/authSlice";
 import { Login } from "@/services/api";
 import { AuthAlert } from "@/components";
+import { IconEmail, IconPassword } from "@/config/icons";
 import { useRouter } from "nextjs-toploader/app";
 
 const SignIn = () => {
@@ -35,9 +37,7 @@ const SignIn = () => {
     },
     validate: yupResolver(loginSchema),
     validateInputOnChange: ["email"],
-    transformValues: (values) => ({
-      ...values,
-    }),
+    transformValues: (values) => ({ ...values }),
   });
 
   const handleSubmit = async (values: any) => {
@@ -48,33 +48,29 @@ const SignIn = () => {
       const { token, permission, fullName, email, PhoneNumber, avatar } =
         res.data;
       const user = { permission, fullName, email, PhoneNumber, avatar };
-      const tokenExpiration = Date.now() + 24 * 60 * 60 * 1000; // Token expiration (24 hours)
+      const tokenExpiration = Date.now() + 24 * 60 * 60 * 1000;
 
-      // Store user data and token in Redux
       dispatch(setUser(user));
       dispatch(setToken(token));
       dispatch(setExpirationCookie(tokenExpiration));
 
-      console.log("User logged in successfully");
-
       setAuthMessage(
         <AuthAlert
           title="Authentication successful"
-          color="#4AA785"
+          color="#1ED69E"
           onClose={() => setAuthMessage(null)}
-        />
+        />,
       );
 
-      // Log user in
       router.push("/dashboard");
     } catch (error) {
       console.log(error);
       setAuthMessage(
         <AuthAlert
           title="Invalid email or password"
-          color="#ED4245"
+          color="#FF5C66"
           onClose={() => setAuthMessage(null)}
-        />
+        />,
       );
     } finally {
       setIsSubmitting(false);
@@ -82,55 +78,97 @@ const SignIn = () => {
   };
 
   return (
-    <Box bg="#1E1E1E" c="#fff" h="100vh">
+    <Box
+      mih="100vh"
+      bg="var(--fj-bg)"
+      c="var(--fj-text-primary)"
+      pos="relative"
+    >
       <Flex
         direction="column"
         align="center"
-        gap={30}
+        justify="center"
+        mih="100vh"
         p="md"
-        m="0 auto"
-        w={{ base: "100%", md: "30%" }}
-        className="relative z-10"
+        pos="relative"
+        style={{ zIndex: 1 }}
       >
-        <Flex pt={60}>
+        <Stack align="center" gap={68} w="100%" maw={440}>
           <Image
             src={Logo}
-            width={180}
-            height={64}
+            width={120}
+            height={52}
             alt="Faajii logo"
+            style={{ height: "auto", width: 120 }}
             priority
           />
-        </Flex>
 
-        <Flex direction="column" align="center">
-          <Text fz={34} fw={700}>
-            Sign in to Continue.
-          </Text>
-        </Flex>
+          <Stack gap={24}>
+            <Stack gap={6} align="center">
+              <Text fz={26} fw={700} lh={1.2}>
+                Sign in to continue
+              </Text>
+              <Text fz={14} c="var(--fj-text-muted)">
+                Use your Faajii admin credentials to access the dashboard.
+              </Text>
+            </Stack>
 
-        <form onSubmit={form.onSubmit(handleSubmit)} style={{ width: "100%" }}>
-          <Flex direction="column" gap={20}>
-            {authMessage}
-
-            <TextInput placeholder="Email" {...form.getInputProps("email")} />
-            <PasswordInput
-              placeholder="Password"
-              rightSection={<></>}
-              {...form.getInputProps("password")}
-            />
-
-            <Button
-              type="submit"
-              radius="xl"
-              mt={10}
-              className={classes.btnWhite}
-              disabled={!form.isValid() || isSubmitting}
-              loading={isSubmitting}
+            <form
+              onSubmit={form.onSubmit(handleSubmit)}
+              style={{ width: "100%" }}
             >
-              Sign In
-            </Button>
-          </Flex>
-        </form>
+              <Stack gap={18}>
+                {authMessage}
+
+                <TextInput
+                  label="Email address"
+                  placeholder="you@faajii.app"
+                  type="email"
+                  autoComplete="email"
+                  leftSection={
+                    <IconEmail
+                      size={18}
+                      color="var(--fj-text-muted)"
+                      variant="Linear"
+                    />
+                  }
+                  {...form.getInputProps("email")}
+                />
+
+                <PasswordInput
+                  label="Password"
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  leftSection={
+                    <IconPassword
+                      size={18}
+                      color="var(--fj-text-muted)"
+                      variant="Linear"
+                    />
+                  }
+                  {...form.getInputProps("password")}
+                />
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  radius="xl"
+                  fullWidth
+                  mt={6}
+                  className={classes.btnWhite}
+                  disabled={!form.isValid() || isSubmitting}
+                  loading={isSubmitting}
+                >
+                  Sign In
+                </Button>
+              </Stack>
+            </form>
+          </Stack>
+
+          <Text fz={12} c="var(--fj-text-muted)" ta="center">
+            Forgot password? · Contact support
+          </Text>
+        </Stack>
       </Flex>
     </Box>
   );

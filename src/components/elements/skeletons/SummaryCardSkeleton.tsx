@@ -4,7 +4,7 @@ export const SummaryCardSkeleton = () => {
   return (
     <>
       {[...Array(4)].map((_, rowIndex) => (
-        <Card key={rowIndex} p={20} miw={190} flex={1} bg="#1E1E1E" radius={16}>
+        <Card key={rowIndex} p={20} miw={190} flex={1} bg="var(--fj-surface)" radius={16}>
           <Flex direction="column" gap={30}>
             <Skeleton width={80} height={16} radius="xl" />
             <Flex direction="column" gap={14}>

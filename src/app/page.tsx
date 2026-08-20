@@ -11,5 +11,5 @@ export default function Home() {
   useEffect(() => {
     router.push("/sign-in");
   }, [router]);
-  return <Box bg="#000" h="100vh"></Box>;
+  return <Box bg="var(--fj-bg)" h="100vh"></Box>;
 }

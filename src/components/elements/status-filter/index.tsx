@@ -10,9 +10,8 @@ import {
   Menu,
   Text,
 } from "@mantine/core";
-import Image from "next/image";
 import { useState } from "react";
-import { IconCaretDown, IconClose } from "@/icons";
+import { IconChevronDown, IconClose } from "@/config/icons";
 import { orderStatuses } from "@/utils";
 
 interface StatusFilterProps {
@@ -60,7 +59,7 @@ export default function StatusFilter({ value, onApply }: StatusFilterProps) {
               </Text>
               <Flex align="center" gap={4}>
                 <Text>{value[0] || "All"}</Text>
-                <Image src={IconCaretDown} width={20} height={20} alt="icon" />
+                <IconChevronDown size={20} color="currentColor" variant="Linear" />
               </Flex>
             </Flex>
           </Button>
@@ -68,7 +67,7 @@ export default function StatusFilter({ value, onApply }: StatusFilterProps) {
       </Menu.Target>
 
       <Menu.Dropdown
-        bg="#141414"
+        bg="var(--fj-surface-elevated)"
         style={{ border: "1px solid #1B1B1B" }}
         miw={300}
       >
@@ -80,7 +79,7 @@ export default function StatusFilter({ value, onApply }: StatusFilterProps) {
               p={0}
               onClick={() => setOpened(false)}
             >
-              <Image src={IconClose} width={20} height={20} alt="icon" />
+              <IconClose size={20} color="currentColor" variant="Linear" />
             </ActionIcon>
           </Flex>
 

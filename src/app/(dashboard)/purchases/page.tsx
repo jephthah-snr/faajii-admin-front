@@ -8,12 +8,10 @@ import {
   Group,
   Loader,
   Modal,
-  Select,
   SimpleGrid,
   Stack,
   Table,
   Text,
-  TextInput,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
@@ -21,6 +19,8 @@ import { useState } from "react";
 import { AppLayout } from "@/layout";
 import { GetPurchase, GetPurchases, GetPurchaseStatistics } from "@/services/api";
 import { PurchaseChannel } from "@/services/api/purchases/purchase.types";
+import { FilterPill, TableToolbar } from "@/components";
+import { capitalizeString } from "@/utils";
 
 function money(amount: number, currency: string) {
   return new Intl.NumberFormat("en-NG", {
@@ -77,8 +77,8 @@ export default function PurchasesPage() {
       subTitle="Every ticket checkout from mobile, web, and external integrations."
     >
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} mb="xl">
-        <Card withBorder radius="lg">
-          <Text c="dimmed" fz="sm">
+        <Card radius="lg">
+          <Text c="var(--fj-text-muted)" fz="sm">
             Tickets issued
           </Text>
           <Text fw={700} fz={28}>
@@ -86,48 +86,51 @@ export default function PurchasesPage() {
           </Text>
         </Card>
         {paidTotals.map((total) => (
-          <Card key={total.currency} withBorder radius="lg">
-            <Text c="dimmed" fz="sm">
+          <Card key={total.currency} radius="lg">
+            <Text c="var(--fj-text-muted)" fz="sm">
               Paid volume · {total.currency}
             </Text>
             <Text fw={700} fz={28}>
               {money(total.amount, total.currency)}
             </Text>
-            <Text c="dimmed" fz="xs">
+            <Text c="var(--fj-text-muted)" fz="xs">
               {total.purchases} successful purchases
             </Text>
           </Card>
         ))}
       </SimpleGrid>
 
-      <Flex gap="md" mb="lg" wrap="wrap">
-        <TextInput
-          placeholder="Search reference, buyer, or event"
-          value={search}
-          onChange={(event) => setSearch(event.currentTarget.value)}
-          w={{ base: "100%", md: 340 }}
-        />
-        <Select
-          placeholder="All statuses"
-          clearable
-          data={["paid", "pending", "failed", "cancelled"]}
-          value={status}
-          onChange={(value) => setStatus(value || undefined)}
-          w={180}
-        />
-        <Select
-          placeholder="All channels"
-          clearable
-          data={["mobile", "web", "integration"]}
-          value={channel}
-          onChange={(value) =>
-            setChannel((value || undefined) as PurchaseChannel | undefined)
-          }
-          w={180}
-        />
-      </Flex>
+      <TableToolbar
+        query={search}
+        onQueryChange={setSearch}
+        searchPlaceholder="Search reference, buyer, or event"
+        action={
+          <Flex gap={10} wrap="wrap">
+            <FilterPill
+              label="Status"
+              value={status ? capitalizeString(status) : "All"}
+              items={["All", "Paid", "Pending", "Failed", "Cancelled"]}
+              onChange={(value) => {
+                const next = String(value).toLowerCase();
+                setStatus(next === "all" ? undefined : next);
+              }}
+            />
+            <FilterPill
+              label="Channel"
+              value={channel ? capitalizeString(channel) : "All"}
+              items={["All", "Mobile", "Web", "Integration"]}
+              onChange={(value) => {
+                const next = String(value).toLowerCase();
+                setChannel(
+                  next === "all" ? undefined : (next as PurchaseChannel),
+                );
+              }}
+            />
+          </Flex>
+        }
+      />
 
-      <Card withBorder radius="lg" padding={0}>
+      <Card radius="lg" padding={0}>
         <Table.ScrollContainer minWidth={1000}>
           <Table verticalSpacing="md" horizontalSpacing="lg" highlightOnHover>
             <Table.Thead>
@@ -157,13 +160,13 @@ export default function PurchasesPage() {
                   </Table.Td>
                   <Table.Td>
                     <Text fw={600}>{purchase.event.name}</Text>
-                    <Text c="dimmed" fz="xs">
+                    <Text c="var(--fj-text-muted)" fz="xs">
                       {purchase.event.eventId}
                     </Text>
                   </Table.Td>
                   <Table.Td>
                     <Text>{purchase.buyer.name}</Text>
-                    <Text c="dimmed" fz="xs">
+                    <Text c="var(--fj-text-muted)" fz="xs">
                       {purchase.buyer.email || purchase.buyer.phone || "Guest"}
                     </Text>
                   </Table.Td>
@@ -196,7 +199,7 @@ export default function PurchasesPage() {
         </Table.ScrollContainer>
         {!purchasesQuery.isLoading && purchases.length === 0 && (
           <Group justify="center" p="xl">
-            <Text c="dimmed">No ticket purchases match these filters.</Text>
+            <Text c="var(--fj-text-muted)">No ticket purchases match these filters.</Text>
           </Group>
         )}
       </Card>

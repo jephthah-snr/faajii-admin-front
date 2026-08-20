@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { ActionIcon, Flex, Text, Loader } from "@mantine/core";
-import Image from "next/image";
-import { IconCheck, IconHighlight } from "@/icons";
+import { IconCheck, IconEdit } from "@/config/icons";
 import inputClasses from "@/styles/Input.module.css";
 
 interface SummaryItemProps {
@@ -22,7 +21,7 @@ interface SummaryItemProps {
 const SummaryItem = ({
   label,
   value,
-  fz = 18,
+  fz = 15,
   flex,
   tt,
   editable = false,
@@ -57,7 +56,13 @@ const SummaryItem = ({
 
   return (
     <Flex direction="column" gap={6} flex={flex}>
-      <Text c="#D9D9D9B2" fz={13}>
+      <Text
+        c="var(--fj-text-muted)"
+        fz={11}
+        fw={600}
+        tt="uppercase"
+        style={{ letterSpacing: "0.05em" }}
+      >
         {label}
       </Text>
 
@@ -77,14 +82,14 @@ const SummaryItem = ({
               disabled={isLoading}
               variant="transparent"
             >
-              <Image src={IconCheck} width={20} height={20} alt="check-icon" />
+              <IconCheck size={20} color="currentColor" variant="Linear" />
             </ActionIcon>
           )}
         </Flex>
       ) : (
         <Flex align="center" gap={8}>
           {typeof value === "string" ? (
-            <Text fw={500} fz={fz} c="#e1e1e1" tt={tt}>
+            <Text fw={600} fz={fz} c="var(--fj-text-primary)" tt={tt}>
               {value}
             </Text>
           ) : (
@@ -96,12 +101,7 @@ const SummaryItem = ({
               onClick={handleEditToggle}
               disabled={isLoading}
             >
-              <Image
-                src={IconHighlight}
-                width={20}
-                height={20}
-                alt="check-icon"
-              />
+              <IconEdit size={16} color="currentColor" variant="Linear" />
             </ActionIcon>
           )}
         </Flex>

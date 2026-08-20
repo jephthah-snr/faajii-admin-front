@@ -1,54 +1,112 @@
-export const transactionEmptyState = {
-  title: "No Transactions Yet",
-  description: "When a transaction is made, you'll see it here",
+import {
+  IconNoContent,
+  IconNoEvents,
+  IconNoMessages,
+  IconNoProfiles,
+  IconNoRecords,
+  IconNoResults,
+  IconNoTickets,
+  IconNoTransactions,
+  IconNoUsers,
+  IconNoWallet,
+  IconOrders,
+  IconVendors,
+  IconWristbands,
+  type Icon,
+} from "@/config/icons";
+
+export interface EmptyStatePreset {
+  title: string;
+  description: string;
+  icon: Icon;
+}
+
+/**
+ * One preset per section, each with a glyph that names what's missing. Pages
+ * spread these into `EmptyState` so the same absence always reads the same way.
+ */
+
+export const transactionEmptyState: EmptyStatePreset = {
+  title: "No transactions yet",
+  description: "Money moving through Faajii will be listed here.",
+  icon: IconNoTransactions,
 };
 
-export const userEmptyState = {
-  title: "No Users Yet",
-  description: "When a user is added, you'll see it here",
+export const userEmptyState: EmptyStatePreset = {
+  title: "No users yet",
+  description: "People who sign up for Faajii will appear here.",
+  icon: IconNoUsers,
 };
 
-export const eventEmptyState = {
-  title: "No Events Yet",
-  description: "When a user creates an event, it'll show up here",
+export const eventEmptyState: EmptyStatePreset = {
+  title: "No events yet",
+  description: "Events created in the app will show up here.",
+  icon: IconNoEvents,
 };
 
-export const giftShopEmptyState = {
-  title: "No Gifts Yet",
-  description: "Create some",
+export const orderEmptyState: EmptyStatePreset = {
+  title: "No orders yet",
+  description: "Orders placed by customers will land here.",
+  icon: IconOrders,
 };
 
-export const salesEmptyState = {
-  title: "No Sales Yet",
-  description: "When a sale is made, you'll see it here",
+export const purchaseEmptyState: EmptyStatePreset = {
+  title: "No ticket purchases",
+  description: "Tickets bought through the app will be listed here.",
+  icon: IconNoTickets,
 };
 
-export const orderEmptyState = {
-  title: "No Orders Yet",
-  description: "As soon as a customer makes an order, you'll see it here.",
+export const vendorEmptyState: EmptyStatePreset = {
+  title: "No vendors yet",
+  description: "Vendors who register on Faajii will appear here.",
+  icon: IconVendors,
 };
 
-export const drinksEmptyState = {
-  title: "No Drinks Yet",
-  description: "Add some",
+export const vibeEmptyState: EmptyStatePreset = {
+  title: "No vibes to review",
+  description: "Photos and videos posted to events will show up here.",
+  icon: IconNoContent,
 };
 
-export const drinkBrandsEmptyState = {
-  title: "No Drink Brands Yet",
-  description: "Add some",
+export const wristbandEmptyState: EmptyStatePreset = {
+  title: "No wristband orders",
+  description: "Custom wristband orders will be listed here.",
+  icon: IconWristbands,
 };
 
-export const partyBundlesEmptyState = {
-  title: "No Party Bundles Yet",
-  description: "Create a party bundle to get started",
+export const hostProfileEmptyState: EmptyStatePreset = {
+  title: "Nothing to review",
+  description: "Host profiles matching this filter will show up here.",
+  icon: IconNoProfiles,
 };
 
-export const adminEmptyState = {
-  title: "No Admins Yet",
-  description: "Add an admin",
+export const walletEmptyState: EmptyStatePreset = {
+  title: "No wallets yet",
+  description:
+    "Wallets appear once users fund an account or open an event purse.",
+  icon: IconNoWallet,
 };
 
-export const paymentTrackingEmptyState = {
-  title: "No Payment Records Yet",
-  description: "When a payment is tracked, you'll see it here",
+export const adminEmptyState: EmptyStatePreset = {
+  title: "No team members yet",
+  description: "Invite an admin to give them access to this dashboard.",
+  icon: IconNoUsers,
+};
+
+export const paymentTrackingEmptyState: EmptyStatePreset = {
+  title: "Nothing to reconcile",
+  description: "Payments needing attention will be queued here.",
+  icon: IconNoRecords,
+};
+
+export const supportEmptyState: EmptyStatePreset = {
+  title: "Nothing in the queue",
+  description: "Support requests raised from the app will land here.",
+  icon: IconNoMessages,
+};
+
+export const searchEmptyState: EmptyStatePreset = {
+  title: "No matches",
+  description: "Try a different search term or clear your filters.",
+  icon: IconNoResults,
 };

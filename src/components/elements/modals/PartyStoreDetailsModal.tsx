@@ -8,7 +8,6 @@ import {
   Center,
   Drawer,
   Flex,
-  rem,
   ScrollArea,
   Text,
   TextInput,
@@ -18,12 +17,12 @@ import { EventSubDetailsSkeleton } from "../skeletons";
 import Image from "next/image";
 import SummaryItem from "../summary-item";
 import StatusBadge from "../status-badge";
-import { IconSearch } from "@/icons";
+import { IconSearch } from "@/config/icons";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useState } from "react";
-import { NoImage } from "@/images";
+import { NoImageS } from "@/images";
 
 interface PartyStoreDetailsModalProps {
   id: string;
@@ -70,7 +69,7 @@ const PartyStoreDetailsModal = ({
                 gap={16}
               >
                 <Image
-                  src={storeDetails?.item?.images?.[0] || NoImage}
+                  src={storeDetails?.item?.images?.[0] || NoImageS}
                   width={170}
                   height={170}
                   className="rounded-lg"
@@ -147,10 +146,10 @@ const PartyStoreDetailsModal = ({
                         size="md"
                         styles={{ input: { borderRadius: "50px" } }}
                         leftSection={
-                          <Image
-                            src={IconSearch}
-                            alt="icon"
-                            style={{ width: rem(16), height: rem(16) }}
+                          <IconSearch
+                            size={16}
+                            color="currentColor"
+                            variant="Linear"
                           />
                         }
                       />
@@ -158,7 +157,11 @@ const PartyStoreDetailsModal = ({
 
                     <Flex direction="column" gap={14}>
                       {storeDetails?.guestOrders?.map((item) => (
-                        <Card key={item?.guestId} bg="#181818" radius={10}>
+                        <Card
+                          key={item?.guestId}
+                          bg="var(--fj-surface)"
+                          radius={10}
+                        >
                           <Flex align="center" justify="space-between" gap={16}>
                             <Flex align="center" gap={14}>
                               <Avatar
@@ -191,7 +194,7 @@ const PartyStoreDetailsModal = ({
                     </Flex>
                   </Flex>
                 ) : (
-                  <Card bg="#181818" radius={10} h={100}>
+                  <Card bg="var(--fj-surface)" radius={10} h={100}>
                     <Center h="100%">
                       <Text fz={13} c="#D9D9D9B2" ta="center">
                         No guests have ordered for this item yet
@@ -207,7 +210,7 @@ const PartyStoreDetailsModal = ({
           <Flex
             justify="flex-end"
             py="md"
-            bg="#000"
+            bg="var(--fj-bg)"
             pos="sticky"
             bottom={0}
             left={0}

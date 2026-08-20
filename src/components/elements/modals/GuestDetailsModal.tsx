@@ -163,7 +163,7 @@ const GuestDetailsModal = ({
                   guestDetails?.purchases?.tickets?.length > 0 ? (
                     <Flex direction="column" gap={20}>
                       {guestDetails?.purchases?.tickets?.map((item) => (
-                        <Card key={item?.orderId} bg="#181818" radius={10}>
+                        <Card key={item?.orderId} bg="var(--fj-surface)" radius={10}>
                           <Flex
                             direction={{ base: "column", md: "row" }}
                             align={{ base: "flex-start", md: "center" }}
@@ -222,7 +222,7 @@ const GuestDetailsModal = ({
 
                             {/* RSVP Status */}
                             <Card
-                              bg="#000000"
+                              bg="var(--fj-bg)"
                               radius={12}
                               w={80}
                               h={80}
@@ -237,7 +237,7 @@ const GuestDetailsModal = ({
                                 </Box>
                                 <Flex
                                   h="100%"
-                                  bg="#10B982"
+                                  bg="var(--fj-success)"
                                   justify="center"
                                   align="center"
                                   className="rounded-b-[8px]"
@@ -259,7 +259,7 @@ const GuestDetailsModal = ({
                       ))}
                     </Flex>
                   ) : (
-                    <Card bg="#181818" radius={10} h={100}>
+                    <Card bg="var(--fj-surface)" radius={10} h={100}>
                       <Center h="100%">
                         <Text fz={13} c="#D9D9D9B2" ta="center">
                           No orders found for this guest
@@ -275,7 +275,7 @@ const GuestDetailsModal = ({
             <Flex
               justify="flex-end"
               py="md"
-              bg="#000"
+              bg="var(--fj-bg)"
               pos="sticky"
               bottom={0}
               left={0}

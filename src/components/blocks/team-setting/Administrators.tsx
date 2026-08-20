@@ -5,7 +5,6 @@ import {
   Flex,
   TextInput,
   Button,
-  rem,
   Table,
   Avatar,
   Text,
@@ -13,16 +12,9 @@ import {
   Menu,
   Tabs,
 } from "@mantine/core";
-import Image from "next/image";
 import inputClasses from "@/styles/Input.module.css";
 import classes from "@/styles/General.module.css";
-import {
-  IconEllipsisH,
-  IconQuestionmark,
-  IconRotate,
-  IconSearch,
-  IconTrash,
-} from "@/icons";
+import { IconMore, IconRefresh, IconSearch, IconSupport, IconTrash } from "@/config/icons";
 import { AddTeamMemberModal, StatusBadge } from "@/components/elements";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import PpTable from "../table";
@@ -55,7 +47,7 @@ const Administrators = () => {
   const [activePage, setActivePage] = useState(1);
   const [query, setQuery] = useState("");
   const [debouncedQuery] = useDebouncedValue(query, 500);
-  const [changeRoleAdmin, setChangeRoleAdmin] = useState<IAdmin | null>(null);
+  const [, setChangeRoleAdmin] = useState<IAdmin | null>(null);
 
   // Fetch admins
   const { data: admins, isFetching: isFetchingAdmins } = useQuery({
@@ -209,11 +201,7 @@ const Administrators = () => {
           <Menu position="bottom-end">
             <Menu.Target>
               <ActionIcon variant="transparent">
-                <Image
-                  src={IconEllipsisH}
-                  alt="icon"
-                  style={{ width: "70%", height: "70%" }}
-                />
+                <IconMore size={18} color="currentColor" variant="Linear" />
               </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
@@ -225,7 +213,7 @@ const Administrators = () => {
               >
                 <Menu.Target>
                   <Menu.Item
-                    leftSection={<Image src={IconRotate} alt="icon" />}
+                    leftSection={<IconRefresh size={18} color="currentColor" variant="Linear" />}
                     c="#CECECF"
                     ta="left"
                   >
@@ -251,7 +239,7 @@ const Administrators = () => {
                 </Menu.Dropdown>
               </Menu>
               <Menu.Item
-                leftSection={<Image src={IconQuestionmark} alt="icon" />}
+                leftSection={<IconSupport size={18} color="currentColor" variant="Linear" />}
                 c="#B99F2B"
                 ta="left"
                 onClick={() => suspendMutation.mutate(String(data.id))}
@@ -259,7 +247,7 @@ const Administrators = () => {
                 Suspend
               </Menu.Item>
               <Menu.Item
-                leftSection={<Image src={IconTrash} alt="icon" />}
+                leftSection={<IconTrash size={18} color="currentColor" variant="Linear" />}
                 c="#A94A55"
                 ta="left"
                 onClick={() => deleteMutation.mutate(String(data.id))}
@@ -281,7 +269,7 @@ const Administrators = () => {
         justify="space-between"
         gap={16}
         wrap="wrap"
-        bg="#0A0A0A"
+        bg="var(--fj-bg)"
         py={14}
         className="sticky top-14 z-10"
       >
@@ -296,11 +284,7 @@ const Administrators = () => {
           size="sm"
           radius="md"
           leftSection={
-            <Image
-              src={IconSearch}
-              alt="icon"
-              style={{ width: rem(16), height: rem(16) }}
-            />
+            <IconSearch size={16} color="currentColor" variant="Linear" />
           }
         />
 

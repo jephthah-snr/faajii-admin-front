@@ -10,7 +10,6 @@ const VendorDetailsSkeleton = () => {
         radius={16}
         p={26}
         bg="transparent"
-        withBorder
       >
         <Flex direction={{ base: "column", md: "row" }} gap={16}>
           <Skeleton w={180} h={140} radius="md" />
@@ -36,7 +35,6 @@ const VendorDetailsSkeleton = () => {
         radius={16}
         p={26}
         bg="transparent"
-        withBorder
       >
         <Flex direction="column" gap={20}>
           <Skeleton w={130} h={30} radius="xl" />

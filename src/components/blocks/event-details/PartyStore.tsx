@@ -1,6 +1,6 @@
 "use client";
 
-import { IconCaretDown, IconEllipsisV, IconSearch } from "@/icons";
+import { IconChevronDown, IconMore, IconSearch } from "@/config/icons";
 import { eventStoreHeaders, getStatusColor, rowsPerPage } from "@/utils";
 import {
   ActionIcon,
@@ -8,7 +8,6 @@ import {
   Button,
   Flex,
   Menu,
-  rem,
   Table,
   Text,
   TextInput,
@@ -16,7 +15,7 @@ import {
 import Image from "next/image";
 import PpTable from "../table";
 import inputClasses from "@/styles/Input.module.css";
-import { NoImage } from "@/images";
+import { NoImageS } from "@/images";
 import {
   ConfirmationModal,
   PartyStoreDetailsModal,
@@ -80,7 +79,7 @@ const EventStore = ({
   const showConfirmation = (
     type: ConfirmationModalTypes,
     title: string,
-    message: string
+    message: string,
   ) => {
     setModalData({ type, title, message });
     openConfirmationModal();
@@ -98,7 +97,7 @@ const EventStore = ({
       showConfirmation(
         "success",
         "Successful",
-        "The item has been archived successfully"
+        "The item has been archived successfully",
       );
       queryClient.invalidateQueries({ queryKey: ["admin-event-party-store"] });
     },
@@ -106,7 +105,7 @@ const EventStore = ({
       showConfirmation(
         "error",
         "Error",
-        error?.response?.data?.message || "Failed to archive item"
+        error?.response?.data?.message || "Failed to archive item",
       );
     },
   });
@@ -118,7 +117,7 @@ const EventStore = ({
       showConfirmation(
         "success",
         "Successful",
-        "The item has been removed successfully"
+        "The item has been removed successfully",
       );
       queryClient.invalidateQueries({ queryKey: ["admin-event-party-store"] });
       close();
@@ -127,7 +126,7 @@ const EventStore = ({
       showConfirmation(
         "error",
         "Error",
-        error?.response?.data?.message || "Failed to remove item"
+        error?.response?.data?.message || "Failed to remove item",
       );
     },
   });
@@ -179,7 +178,7 @@ const EventStore = ({
       <Table.Td>
         <Flex align="center" gap={14}>
           <Image
-            src={item?.images?.[0] || NoImage}
+            src={item?.images?.[0] || NoImageS}
             alt="icon"
             className="rounded-[4px]"
             width={30}
@@ -212,11 +211,7 @@ const EventStore = ({
               aria-label="More"
               onClick={(event) => event.stopPropagation()}
             >
-              <Image
-                src={IconEllipsisV}
-                alt="icon"
-                style={{ width: "70%", height: "70%" }}
-              />
+              <IconMore size={18} color="currentColor" variant="Linear" />
             </ActionIcon>
           </Menu.Target>
 
@@ -243,119 +238,140 @@ const EventStore = ({
       {/* Filter & search */}
       {!isFetching && (
         <>
-        <Flex
-          direction={{ base: "column", sm: "row" }}
-          gap={12}
-          mb={18}
-          wrap="wrap"
-        >
-          {[
-            { label: "Ticket tiers", value: storeSummary.tickets, icon: "🎟️" },
-            { label: "Merchandise", value: storeSummary.merchandise, icon: "👕" },
-            { label: "Units sold", value: storeSummary.unitsSold, icon: "↗" },
-            { label: "Available now", value: storeSummary.unitsAvailable, icon: "◌" },
-          ].map((metric) => (
-            <Box
-              key={metric.label}
-              bg="#171717"
-              p={16}
-              className="rounded-xl border border-[#242424]"
-              miw={150}
-              flex={1}
-            >
-              <Flex justify="space-between" align="flex-start">
-                <Text fz={13} c="#868686">{metric.label}</Text>
-                <Text fz={16}>{metric.icon}</Text>
-              </Flex>
-              <Text mt={8} fz={24} fw={700}>{metric.value.toLocaleString()}</Text>
-            </Box>
-          ))}
-        </Flex>
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          align={{ base: "flex-start", md: "center" }}
-          justify="space-between"
-          my={10}
-          gap={10}
-          py={10}
-          bg="#0A0A0A"
-          className="sticky top-14 z-10"
-        >
-          <Flex align="center" gap={16}>
-            <Box className="rounded-[6px]" p={10} h={40} bg="#292929">
-              <Flex align="center" gap={4} wrap="wrap">
-                <Text fz={{ base: 12, md: 14 }} c="#868686">
-                  Total Items Created:
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            gap={12}
+            mb={18}
+            wrap="wrap"
+          >
+            {[
+              {
+                label: "Ticket tiers",
+                value: storeSummary.tickets,
+                icon: "🎟️",
+              },
+              {
+                label: "Merchandise",
+                value: storeSummary.merchandise,
+                icon: "👕",
+              },
+              { label: "Units sold", value: storeSummary.unitsSold, icon: "↗" },
+              {
+                label: "Available now",
+                value: storeSummary.unitsAvailable,
+                icon: "◌",
+              },
+            ].map((metric) => (
+              <Box
+                key={metric.label}
+                bg="var(--fj-surface-elevated)"
+                p={16}
+                className="rounded-xl border border-[#242424]"
+                miw={150}
+                flex={1}
+              >
+                <Flex justify="space-between" align="flex-start">
+                  <Text fz={13} c="#868686">
+                    {metric.label}
+                  </Text>
+                  <Text fz={16}>{metric.icon}</Text>
+                </Flex>
+                <Text mt={8} fz={24} fw={700}>
+                  {metric.value.toLocaleString()}
                 </Text>
-                <Text fz={{ base: 12, md: 14 }} c="#fff">
-                  {storeData?.length || 0}
-                </Text>
-              </Flex>
-            </Box>
+              </Box>
+            ))}
+          </Flex>
+          <Flex
+            direction={{ base: "column", md: "row" }}
+            align={{ base: "flex-start", md: "center" }}
+            justify="space-between"
+            my={10}
+            gap={10}
+            py={10}
+            bg="var(--fj-bg)"
+            className="sticky top-14 z-10"
+          >
+            <Flex align="center" gap={16}>
+              <Box
+                className="rounded-[6px]"
+                p={10}
+                h={40}
+                bg="var(--fj-surface-card)"
+              >
+                <Flex align="center" gap={4} wrap="wrap">
+                  <Text fz={{ base: 12, md: 14 }} c="#868686">
+                    Total Items Created:
+                  </Text>
+                  <Text fz={{ base: 12, md: 14 }} c="#fff">
+                    {storeData?.length || 0}
+                  </Text>
+                </Flex>
+              </Box>
 
-            <Menu shadow="md">
-              <Menu.Target>
-                <Button
-                  size="sm"
-                  h={40}
-                  style={{ border: "1px solid #181818" }}
-                  color="#0D0D0D"
-                  radius={8}
-                  miw={"fit-content"}
-                >
-                  <Flex align="center" justify="space-between" gap={10}>
-                    <Text fz={{ base: 13, md: 14 }} c="#868686">
-                      Item:
-                    </Text>
+              <Menu shadow="md">
+                <Menu.Target>
+                  <Button
+                    size="sm"
+                    h={40}
+                    style={{ border: "1px solid #181818" }}
+                    color="#0D0D0D"
+                    radius={8}
+                    miw={"fit-content"}
+                  >
+                    <Flex align="center" justify="space-between" gap={10}>
+                      <Text fz={{ base: 13, md: 14 }} c="#868686">
+                        Item:
+                      </Text>
 
-                    <Flex align="center" gap={4}>
-                      <Text fz={{ base: 13, md: 14 }}>{selectedFilter}</Text>
-                      <Image
-                        src={IconCaretDown}
-                        width={20}
-                        height={20}
-                        alt="icon"
-                      />
+                      <Flex align="center" gap={4}>
+                        <Text fz={{ base: 13, md: 14 }}>{selectedFilter}</Text>
+                        <IconChevronDown
+                          size={20}
+                          color="currentColor"
+                          variant="Linear"
+                        />
+                      </Flex>
                     </Flex>
-                  </Flex>
-                </Button>
-              </Menu.Target>
+                  </Button>
+                </Menu.Target>
 
-              <Menu.Dropdown>
-                {["All", "Tickets", "Merchandise", "Gifts", "Products", "Services"].map(
-                  (filter) => (
+                <Menu.Dropdown>
+                  {[
+                    "All",
+                    "Tickets",
+                    "Merchandise",
+                    "Gifts",
+                    "Products",
+                    "Services",
+                  ].map((filter) => (
                     <Menu.Item
                       key={filter}
                       onClick={() => onFilterChange(filter)}
                     >
                       {filter}
                     </Menu.Item>
-                  )
-                )}
-              </Menu.Dropdown>
-            </Menu>
-          </Flex>
+                  ))}
+                </Menu.Dropdown>
+              </Menu>
+            </Flex>
 
-          {/* Search */}
-          <TextInput
-            placeholder="Search"
-            w={{ base: "100%", md: "30%" }}
-            variant="default"
-            leftSectionPointerEvents="none"
-            classNames={{ input: inputClasses.searchInputAlt }}
-            value={query}
-            onChange={(e) => onQueryChange?.(e.currentTarget.value)}
-            size="sm"
-            radius="md"
-            leftSection={
-              <Image
-                src={IconSearch}
-                alt="icon"
-                style={{ width: rem(16), height: rem(16) }}
-              />
-            }
-          />
-        </Flex>
+            {/* Search */}
+            <TextInput
+              placeholder="Search"
+              w={{ base: "100%", md: "30%" }}
+              variant="default"
+              leftSectionPointerEvents="none"
+              classNames={{ input: inputClasses.searchInputAlt }}
+              value={query}
+              onChange={(e) => onQueryChange?.(e.currentTarget.value)}
+              size="sm"
+              radius="md"
+              leftSection={
+                <IconSearch size={16} color="currentColor" variant="Linear" />
+              }
+            />
+          </Flex>
         </>
       )}
 

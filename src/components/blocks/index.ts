@@ -1,10 +1,10 @@
 export { default as Header } from "./header";
 export { default as SideNav } from "./side-nav";
 export { default as SummaryCard } from "./summary-card";
+export { default as StatTile } from "./stat-tile";
 export { default as PpTable } from "./table";
-export { default as AdminDetails } from "./admin-details";
+export { default as TableToolbar } from "./table-toolbar";
 export { default as EmptyState } from "./empty-state";
-export { default as CustomDropzone } from "./dropzone";
 export * from "./event-details";
 export * from "./team-setting";
 export { default as VendorOverviewPanel } from "./vendor-details";

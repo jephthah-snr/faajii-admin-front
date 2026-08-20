@@ -18,8 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import FormatDate from "../format-date";
 import { TransactionDetailsSkeleton } from "../skeletons";
 import { useState } from "react";
-import Image from "next/image";
-import { IconCopy } from "@/icons";
+import { IconCopy } from "@/config/icons";
 
 interface TransactionModalProps {
   opened: boolean;
@@ -69,7 +68,7 @@ const TransactionModal = ({
         <>
           <Flex
             direction="column"
-            bg="#121212"
+            bg="var(--fj-surface-elevated)"
             className="rounded-xl long-dash-border"
             mt={20}
             p={20}
@@ -153,12 +152,7 @@ const TransactionModal = ({
                           position="top"
                         >
                           <ActionIcon variant="transparent" onClick={copy}>
-                            <Image
-                              src={IconCopy}
-                              width={20}
-                              height={20}
-                              alt="icon"
-                            />
+                            <IconCopy size={20} color="currentColor" variant="Linear" />
                           </ActionIcon>
                         </Tooltip>
                       )}
@@ -189,12 +183,7 @@ const TransactionModal = ({
                             position="top"
                           >
                             <ActionIcon variant="transparent" onClick={copy}>
-                              <Image
-                                src={IconCopy}
-                                width={20}
-                                height={20}
-                                alt="icon"
-                              />
+                              <IconCopy size={20} color="currentColor" variant="Linear" />
                             </ActionIcon>
                           </Tooltip>
                         )}
