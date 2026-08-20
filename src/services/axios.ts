@@ -11,12 +11,24 @@ const getBaseUrl = () => {
     environment === "production"
       ? process.env.NEXT_PUBLIC_PROD_BASE_URL
       : process.env.NEXT_PUBLIC_STAGING_BASE_URL;
-  const baseUrl = configuredUrl || process.env.NEXT_PUBLIC_PROD_BASE_URL;
+
+  // `NEXT_PUBLIC_BASE_URL` is the original single-environment variable; it stays
+  // in the chain so an environment that has not been migrated to the split
+  // prod/staging names still resolves.
+  const baseUrl =
+    configuredUrl ||
+    process.env.NEXT_PUBLIC_PROD_BASE_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL;
 
   if (!baseUrl) {
-    throw new Error(
+    // Deliberately not thrown. This runs during module evaluation, and every
+    // service imports this file, so throwing here takes down every page in the
+    // app — including sign-in — instead of just failing the requests that
+    // actually need the API.
+    console.error(
       "Admin API URL is missing. Set NEXT_PUBLIC_PROD_BASE_URL or NEXT_PUBLIC_STAGING_BASE_URL.",
     );
+    return "/v1";
   }
 
   return `${baseUrl.replace(/\/+$/, "")}/v1`;

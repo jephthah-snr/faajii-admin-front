@@ -16,7 +16,11 @@ import inputClasses from "@/styles/Input.module.css";
 import classes from "@/styles/General.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { CreateRoleModal, PendingBackend } from "@/components/elements";
-import { isEndpointUnavailable, retryUnlessUnavailable } from "@/utils";
+import {
+  asList,
+  isEndpointUnavailable,
+  retryUnlessUnavailable,
+} from "@/utils";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -51,9 +55,9 @@ const RolesPermissions = () => {
     },
   );
 
-  const roles: IRole[] = useMemo(() => rolesData?.data || [], [rolesData]);
+  const roles: IRole[] = useMemo(() => asList(rolesData?.data), [rolesData]);
   const permissionGroups = useMemo(
-    () => permissionsData?.data || [],
+    () => asList(permissionsData?.data),
     [permissionsData],
   );
 

@@ -43,7 +43,12 @@ import {
   IconPlay,
   IconSuccess,
 } from "@/config/icons";
-import { formatDateTime, vibeEmptyState } from "@/utils";
+import {
+  asList,
+  formatCount,
+  formatDateTime,
+  vibeEmptyState,
+} from "@/utils";
 
 const statusOptions = ["All", "Active", "Flagged", "Hidden", "Disabled"];
 
@@ -147,7 +152,7 @@ const Metric = ({
       variant="Linear"
     />
     <Text fz={12} c={emphasis ? "var(--fj-danger)" : "var(--fj-text-muted)"}>
-      {value.toLocaleString()}
+      {formatCount(value)}
     </Text>
   </Flex>
 );
@@ -232,7 +237,7 @@ export default function VibesPage() {
     },
   });
 
-  const vibes = vibesQuery.data?.data.data || [];
+  const vibes = asList(vibesQuery.data?.data?.data);
   const pagination = vibesQuery.data?.data.pagination;
 
   function openVibe(vibe: AdminVibe) {

@@ -43,6 +43,7 @@ import {
 import {
   asList,
   capitalizeString,
+  formatCount,
   formatDateTime,
   formatStatusLabel,
   getApiErrorMessage,
@@ -187,12 +188,12 @@ export default function SupportPage() {
                 },
                 {
                   label: "Avg. first reply",
-                  value: `${stats.avgFirstResponseMinutes}m`,
+                  value: `${formatCount(stats.avgFirstResponseMinutes)}m`,
                   color: "#D0BFFF",
                 },
               ].map((metric) => (
                 <StatTile key={metric.label} label={metric.label} value={typeof metric.value === "number"
-                      ? metric.value.toLocaleString()
+                      ? formatCount(metric.value)
                       : metric.value} accent={metric.color} />
               ))}
             </SimpleGrid>

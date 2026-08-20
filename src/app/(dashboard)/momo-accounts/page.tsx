@@ -103,7 +103,7 @@ export default function MomoAccountsPage() {
   const pagination = accountsQuery.data?.data?.pagination;
   const providerOptions: { value: string | null; label: string }[] = [
     { value: null, label: "All" },
-    ...(providersQuery.data?.data || []).map((provider) => ({
+    ...asList(providersQuery.data?.data).map((provider) => ({
       value: String(provider.id),
       label: `${provider.name} (${provider.country})`,
     })),

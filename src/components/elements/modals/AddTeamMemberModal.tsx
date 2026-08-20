@@ -13,7 +13,10 @@ import {
 import { useMemo } from "react";
 import { useForm } from "@mantine/form";
 import { yupResolver } from "mantine-form-yup-resolver";
-import { addTeamMemberSchema } from "@/utils";
+import {
+  addTeamMemberSchema,
+  asList,
+} from "@/utils";
 import { IconCheck, IconChevronDown } from "@/config/icons";
 import StatusBadge from "../status-badge";
 import classes from "@/styles/General.module.css";
@@ -37,7 +40,7 @@ const AddTeamMemberModal = ({ opened, onClose }: AddTeamMemberModalProps) => {
   });
 
   const roles = useMemo(() => {
-    return (rolesData?.data || []).map((r) => ({
+    return asList(rolesData?.data).map((r) => ({
       label: r.name,
       value: r.name.toLowerCase().replace(/\s+/g, ""),
     }));

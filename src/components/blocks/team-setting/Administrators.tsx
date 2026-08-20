@@ -18,7 +18,10 @@ import { IconMore, IconRefresh, IconSearch, IconSupport, IconTrash } from "@/con
 import { AddTeamMemberModal, StatusBadge } from "@/components/elements";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import PpTable from "../table";
-import { rowsPerPage } from "@/utils";
+import {
+  asList,
+  rowsPerPage,
+} from "@/utils";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -57,7 +60,7 @@ const Administrators = () => {
     placeholderData: (prev) => prev,
   });
 
-  const adminData = useMemo(() => admins?.data?.data || [], [admins]);
+  const adminData = useMemo(() => asList(admins?.data?.data), [admins]);
   const totalItems = admins?.data?.pagination?.total || 0;
 
   // Fetch roles for change-role dropdown
@@ -65,7 +68,7 @@ const Administrators = () => {
     queryKey: ["roles"],
     queryFn: GetRoles,
   });
-  const roles = useMemo(() => rolesData?.data || [], [rolesData]);
+  const roles = useMemo(() => asList(rolesData?.data), [rolesData]);
 
   // Suspend mutation
   const suspendMutation = useMutation({

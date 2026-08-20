@@ -2,6 +2,7 @@
 
 import { Box, Flex, Paper, PaperProps, Text } from "@mantine/core";
 import type { Icon } from "@/config/icons";
+import { asList, formatCount } from "@/utils";
 
 export interface StatTileProps extends Omit<PaperProps, "children"> {
   label: string;
@@ -45,7 +46,7 @@ const StatTile = ({
       </Flex>
 
       <Text c={accent} fz={24} fw={800} mt={6} lh={1.2}>
-        {typeof value === "number" ? value.toLocaleString() : value}
+        {typeof value === "number" ? formatCount(value) : value}
       </Text>
 
       {hint && (

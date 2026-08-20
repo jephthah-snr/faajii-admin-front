@@ -208,3 +208,13 @@ export const normalizeAddress = (
 
   return address.formattedAddress || "N/A";
 };
+
+/**
+ * Renders a count. A stats payload can arrive without every field, and calling
+ * `.toLocaleString()` on the missing one throws and blanks the page — so a
+ * non-numeric value reads as zero rather than taking the screen down.
+ */
+export const formatCount = (value: number | null | undefined): string => {
+  const numeric = Number(value);
+  return (Number.isFinite(numeric) ? numeric : 0).toLocaleString();
+};

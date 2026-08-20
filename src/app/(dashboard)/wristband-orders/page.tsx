@@ -35,7 +35,10 @@ import type {
   WristbandPaymentState,
 } from '@/services/api/wristbands/wristband.types';
 import { FilterPill, TableToolbar } from "@/components";
-import { capitalizeString } from "@/utils";
+import {
+  asList,
+  capitalizeString,
+} from "@/utils";
 
 const STATUS_OPTIONS: Array<{value: WristbandOrderStatus; label: string}> = [
   {value: 'pending_payment', label: 'Pending payment'},
@@ -131,7 +134,7 @@ export default function WristbandOrdersPage() {
   });
 
   const statistics = statsQuery.data?.data;
-  const orders = ordersQuery.data?.data.data || [];
+  const orders = asList(ordersQuery.data?.data?.data);
   const canReconcile = detail && ['pending_payment', 'payment_failed'].includes(detail.status);
   const transitionOptions = detail ? NEXT_STATUS[detail.status] || [] : [];
 

@@ -20,7 +20,10 @@ import { AppLayout } from "@/layout";
 import { GetPurchase, GetPurchases, GetPurchaseStatistics } from "@/services/api";
 import { PurchaseChannel } from "@/services/api/purchases/purchase.types";
 import { FilterPill, TableToolbar } from "@/components";
-import { capitalizeString } from "@/utils";
+import {
+  asList,
+  capitalizeString,
+} from "@/utils";
 
 function money(amount: number, currency: string) {
   return new Intl.NumberFormat("en-NG", {
@@ -66,7 +69,7 @@ export default function PurchasesPage() {
     enabled: Boolean(selectedReference),
   });
 
-  const purchases = purchasesQuery.data?.data.data || [];
+  const purchases = asList(purchasesQuery.data?.data?.data);
   const statistics = statisticsQuery.data?.data;
   const paidTotals =
     statistics?.totals.filter((total) => total.status === "paid") || [];

@@ -27,6 +27,7 @@ import {
 } from "@/components";
 import {
   asList,
+  formatCount,
   formatDateTime,
   formatMoney,
   isEndpointUnavailable,
@@ -110,19 +111,19 @@ export default function WalletsPage() {
                 ].map((metric) => (
                   <StatTile key={metric.label} label={metric.label} value={metric.label.includes("today")
                         ? formatMoney(metric.value)
-                        : metric.value.toLocaleString()} accent={metric.color} />
+                        : formatCount(metric.value)} accent={metric.color} />
                 ))}
               </SimpleGrid>
 
               <SimpleGrid cols={{ base: 1, md: 3 }}>
-                {summary.totals.map((total) => (
+                {asList(summary.totals).map((total) => (
                   <Card key={total.currency} radius="lg" p="md">
                     <Group justify="space-between">
                       <Text fz="xs" c="var(--fj-text-muted)">
                         Float held in {total.currency}
                       </Text>
                       <Badge variant="light">
-                        {total.walletCount.toLocaleString()} wallets
+                        {formatCount(total.walletCount)} wallets
                       </Badge>
                     </Group>
                     <Text fz={24} fw={800} mt={6}>

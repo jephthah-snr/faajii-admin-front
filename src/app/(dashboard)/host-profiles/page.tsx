@@ -40,6 +40,7 @@ import {
 import {
   asList,
   capitalizeString,
+  formatCount,
   formatDateTime,
   getApiErrorMessage,
   hostProfileEmptyState,
@@ -159,7 +160,7 @@ export default function HostProfilesPage() {
                   color: "#74C0FC",
                 },
               ].map((metric) => (
-                <StatTile key={metric.label} label={metric.label} value={metric.value.toLocaleString()} accent={metric.color} />
+                <StatTile key={metric.label} label={metric.label} value={formatCount(metric.value)} accent={metric.color} />
               ))}
             </SimpleGrid>
           )}

@@ -15,7 +15,10 @@ import {
 import { useMemo } from "react";
 import { useForm } from "@mantine/form";
 import { yupResolver } from "mantine-form-yup-resolver";
-import { createRoleSchema } from "@/utils";
+import {
+  asList,
+  createRoleSchema,
+} from "@/utils";
 import { IconCheck, IconChevronDown, IconChevronUp } from "@/config/icons";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
@@ -43,7 +46,7 @@ const CreateRoleModal = ({ opened, onClose }: CreateRoleModalProps) => {
   );
 
   const permissionGroups = useMemo(
-    () => permissionsData?.data || [],
+    () => asList(permissionsData?.data),
     [permissionsData],
   );
 

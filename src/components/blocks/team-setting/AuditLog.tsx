@@ -13,6 +13,7 @@ import {
 import PpTable from "../table";
 import { IconCheck, IconChevronDown, IconChevronUp } from "@/config/icons";
 import {
+  asList,
   isEndpointUnavailable,
   retryUnlessUnavailable,
   rowsPerPage,
@@ -60,7 +61,7 @@ const AuditLog = () => {
   });
 
   const roleFilterOptions = useMemo(() => {
-    const roleNames = (rolesData?.data || []).map((r) => r.name);
+    const roleNames = asList(rolesData?.data).map((r) => r.name);
     return ["All", ...roleNames];
   }, [rolesData]);
 
@@ -109,7 +110,7 @@ const AuditLog = () => {
   });
 
   const auditData = useMemo(
-    () => auditLogsData?.data?.data || [],
+    () => asList(auditLogsData?.data?.data),
     [auditLogsData],
   );
   const totalItems = auditLogsData?.data?.pagination?.total || 0;

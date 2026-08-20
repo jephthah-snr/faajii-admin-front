@@ -39,6 +39,7 @@ import {
 } from "@/components";
 import {
   asList,
+  formatCount,
   formatDateTime,
   formatStatusLabel,
   getApiErrorMessage,
@@ -186,7 +187,7 @@ export default function NotificationsPage() {
                   color: "#FF8787",
                 },
               ].map((metric) => (
-                <StatTile key={metric.label} label={metric.label} value={metric.value.toLocaleString()} accent={metric.color} />
+                <StatTile key={metric.label} label={metric.label} value={formatCount(metric.value)} accent={metric.color} />
               ))}
             </SimpleGrid>
           )}
@@ -292,12 +293,12 @@ export default function NotificationsPage() {
                           </Table.Td>
                           <Table.Td>
                             <Text fz="sm">
-                              {broadcast.deliveredCount.toLocaleString()} /{" "}
-                              {broadcast.recipientCount.toLocaleString()}
+                              {formatCount(broadcast.deliveredCount)} /{" "}
+                              {formatCount(broadcast.recipientCount)}
                             </Text>
                             {broadcast.failedCount > 0 && (
                               <Text c="#FF8787" fz="xs">
-                                {broadcast.failedCount.toLocaleString()} failed
+                                {formatCount(broadcast.failedCount)} failed
                               </Text>
                             )}
                           </Table.Td>
