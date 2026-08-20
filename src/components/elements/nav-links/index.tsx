@@ -53,14 +53,19 @@ const NavLinks = ({ icon: IconComponent, label, navLink }: NavLinksProps) => {
               {IconComponent && (
                 <IconComponent
                   size={20}
-                  color="currentColor"
+                  color={isLogout ? "#EF4444" : "currentColor"}
                   // Filled treatment on the active item reads as selected
                   // without needing a second colour.
                   variant={isActive ? "Bold" : "Linear"}
                   style={{ flexShrink: 0 }}
                 />
               )}
-              <Text fz={14} fw={isActive ? 600 : 400} truncate="end">
+              <Text
+                fz={14}
+                fw={isActive ? 600 : 400}
+                truncate="end"
+                c={isLogout ? "#EF4444" : undefined}
+              >
                 {label}
               </Text>
             </Flex>
