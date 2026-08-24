@@ -28,7 +28,7 @@ import inputClasses from "@/styles/Input.module.css";
 import PasswordToggleIcon from "@/components/elements/password-toggle";
 
 /**
- * Brand ramp built around the app's accent (`#FF8A00`, index 6 — Mantine's
+ * Brand ramp built around the app's accent (`#FF8A00`, index 6, Mantine's
  * default `primaryShade` for dark scheme).
  */
 const faajii: [
@@ -333,7 +333,11 @@ const theme = createTheme({
       },
     }),
     Select: Select.extend({
-      defaultProps: { size: "lg", radius: "md", comboboxProps: { shadow: "md" } },
+      defaultProps: {
+        size: "lg",
+        radius: "md",
+        comboboxProps: { shadow: "md" },
+      },
       classNames: {
         root: inputClasses.inputRoot,
         input: inputClasses.textInput,
