@@ -21,20 +21,23 @@
     "@tanstack/react-query": "^5.67.2",
     "axios": "^1.8.2",
     "dayjs": "^1.11.13",
+    "dompurify": "^3.4.14",
     "formik": "^2.4.6",
     "html2canvas": "^1.4.1",
     "iconsax-reactjs": "^0.0.8",
     "js-cookie": "^3.0.5",
-    "jspdf": "^3.0.1",
+    "jspdf": "^4.2.1",
     "libphonenumber-js": "^1.12.24",
     "mantine-form-yup-resolver": "^2.0.0",
     "next": "16.3.1",
     "nextjs-toploader": "^3.8.16",
+    "postcss": "^8.5.26",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-redux": "^9.2.0",
     "recharts": "2",
+    "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "yup": "^1.6.1"
   },
@@ -49,6 +52,9 @@
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "resolutions": {
+    "nanoid": "3.3.18"
   },
   "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
 }
