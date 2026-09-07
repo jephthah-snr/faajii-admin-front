@@ -33,7 +33,7 @@ import {
   CardGridSkeleton,
   EmptyState,
   FilterPill,
-  PendingBackend,
+  SampleDataNotice,
   StatTile,
   TableToolbar,
 } from "@/components";
@@ -47,6 +47,7 @@ import {
   isEndpointUnavailable,
   retryUnlessUnavailable,
 } from "@/utils";
+import { mockHostProfileStats, mockHostProfiles } from "@/mocks";
 
 const statusColor: Record<HostApprovalStatus, string> = {
   pending: "yellow",
@@ -117,9 +118,15 @@ export default function HostProfilesPage() {
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  const stats = statsQuery.data?.data;
-  const profiles = asList(profilesQuery.data?.data?.data);
-  const pagination = profilesQuery.data?.data?.pagination;
+  // The approval queue has no admin route yet — sample profiles below.
+  const isSample = isEndpointUnavailable(profilesQuery.error);
+  const stats = isSample ? mockHostProfileStats : statsQuery.data?.data;
+  const profiles = isSample
+    ? mockHostProfiles
+    : asList(profilesQuery.data?.data?.data);
+  const pagination = isSample
+    ? undefined
+    : profilesQuery.data?.data?.pagination;
 
   const openProfile = (profile: AdminHostProfile) => {
     setSelected(profile);
@@ -132,138 +139,128 @@ export default function HostProfilesPage() {
       title="Host profiles"
       subTitle="Review the identities users host their events under"
     >
-      {isEndpointUnavailable(profilesQuery.error) ? (
-        <PendingBackend
-          feature="Host profiles"
-          endpoints={[
-            "GET /admin/host-profiles",
-            "GET /admin/host-profiles/statistics",
-            "PATCH /admin/host-profiles/:id/approve",
-            "PATCH /admin/host-profiles/:id/reject",
-          ]}
+      <Stack gap="xl">
+        {isSample && <SampleDataNotice integration="host-profiles" />}
+
+        {stats && (
+          <SimpleGrid cols={{ base: 2, md: 4 }}>
+            {[
+              {
+                label: "Awaiting review",
+                value: stats.pendingApproval,
+                color: "#F5C912",
+              },
+              { label: "Approved", value: stats.approved, color: "#63E6BE" },
+              { label: "Rejected", value: stats.rejected, color: "#FF8787" },
+              {
+                label: "Total profiles",
+                value: stats.totalProfiles,
+                color: "#74C0FC",
+              },
+            ].map((metric) => (
+              <StatTile key={metric.label} label={metric.label} value={formatCount(metric.value)} accent={metric.color} />
+            ))}
+          </SimpleGrid>
+        )}
+
+        <TableToolbar
+          query={search}
+          onQueryChange={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+          searchPlaceholder="Search profile or owner"
+          action={
+            <FilterPill
+              label="Review"
+              value={capitalizeString(status)}
+              items={["Pending", "Approved", "Rejected", "All"]}
+              onChange={(value) => {
+                setStatus(
+                  String(value).toLowerCase() as "all" | HostApprovalStatus,
+                );
+                setPage(1);
+              }}
+            />
+          }
         />
-      ) : (
-        <Stack gap="xl">
-          {stats && (
-            <SimpleGrid cols={{ base: 2, md: 4 }}>
-              {[
-                {
-                  label: "Awaiting review",
-                  value: stats.pendingApproval,
-                  color: "#F5C912",
-                },
-                { label: "Approved", value: stats.approved, color: "#63E6BE" },
-                { label: "Rejected", value: stats.rejected, color: "#FF8787" },
-                {
-                  label: "Total profiles",
-                  value: stats.totalProfiles,
-                  color: "#74C0FC",
-                },
-              ].map((metric) => (
-                <StatTile key={metric.label} label={metric.label} value={formatCount(metric.value)} accent={metric.color} />
-              ))}
-            </SimpleGrid>
-          )}
 
-          <TableToolbar
-            query={search}
-            onQueryChange={(value) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            searchPlaceholder="Search profile or owner"
-            action={
-              <FilterPill
-                label="Review"
-                value={capitalizeString(status)}
-                items={["Pending", "Approved", "Rejected", "All"]}
-                onChange={(value) => {
-                  setStatus(
-                    String(value).toLowerCase() as "all" | HostApprovalStatus,
-                  );
-                  setPage(1);
-                }}
-              />
-            }
-          />
-
-          {profilesQuery.isFetching ? (
-            <CardGridSkeleton count={6} />
-          ) : profiles.length === 0 ? (
-            <EmptyState {...hostProfileEmptyState} />
-          ) : (
-            <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
-              {profiles.map((profile) => (
-                <Card
-                  key={profile.id}
-                  radius="lg"
-                  className="cursor-pointer"
-                  onClick={() => openProfile(profile)}
-                >
-                  <Group justify="space-between" align="flex-start">
-                    <Group>
-                      <Avatar
-                        src={profile.avatar}
-                        name={profile.name}
-                        size="lg"
-                      />
-                      <Stack gap={2}>
-                        <Text fw={700} lineClamp={1}>
-                          {profile.name}
-                        </Text>
-                        <Text c="var(--fj-text-muted)" fz="sm" lineClamp={1}>
-                          {profile.ownerName || `User #${profile.userId}`}
-                        </Text>
-                      </Stack>
-                    </Group>
-                    <Badge
-                      variant="light"
-                      color={statusColor[profile.approvalStatus]}
-                    >
-                      {profile.approvalStatus}
-                    </Badge>
+        {profilesQuery.isFetching && !isSample ? (
+          <CardGridSkeleton count={6} />
+        ) : profiles.length === 0 ? (
+          <EmptyState {...hostProfileEmptyState} />
+        ) : (
+          <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
+            {profiles.map((profile) => (
+              <Card
+                key={profile.id}
+                radius="lg"
+                className="cursor-pointer"
+                onClick={() => openProfile(profile)}
+              >
+                <Group justify="space-between" align="flex-start">
+                  <Group>
+                    <Avatar
+                      src={profile.avatar}
+                      name={profile.name}
+                      size="lg"
+                    />
+                    <Stack gap={2}>
+                      <Text fw={700} lineClamp={1}>
+                        {profile.name}
+                      </Text>
+                      <Text c="var(--fj-text-muted)" fz="sm" lineClamp={1}>
+                        {profile.ownerName || `User #${profile.userId}`}
+                      </Text>
+                    </Stack>
                   </Group>
+                  <Badge
+                    variant="light"
+                    color={statusColor[profile.approvalStatus]}
+                  >
+                    {profile.approvalStatus}
+                  </Badge>
+                </Group>
 
-                  <Text mt="md" lineClamp={2} fz="sm" c="var(--fj-text-muted)">
-                    {profile.description || "No description"}
+                <Text mt="md" lineClamp={2} fz="sm" c="var(--fj-text-muted)">
+                  {profile.description || "No description"}
+                </Text>
+
+                <Group justify="space-between" mt="lg">
+                  <Badge variant="light" tt="capitalize">
+                    {profile.type === "user_profile" ? "Personal" : "Custom"}
+                  </Badge>
+                  <Text fz="xs" c="var(--fj-text-muted)">
+                    {profile.eventsHosted} events hosted
                   </Text>
+                </Group>
+              </Card>
+            ))}
+          </SimpleGrid>
+        )}
 
-                  <Group justify="space-between" mt="lg">
-                    <Badge variant="light" tt="capitalize">
-                      {profile.type === "user_profile" ? "Personal" : "Custom"}
-                    </Badge>
-                    <Text fz="xs" c="var(--fj-text-muted)">
-                      {profile.eventsHosted} events hosted
-                    </Text>
-                  </Group>
-                </Card>
-              ))}
-            </SimpleGrid>
-          )}
-
-          {pagination && pagination.totalPages > 1 && (
-            <Group justify="center">
-              <Button
-                variant="light"
-                disabled={page === 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                Previous
-              </Button>
-              <Text>
-                Page {page} of {pagination.totalPages}
-              </Text>
-              <Button
-                variant="light"
-                disabled={page === pagination.totalPages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-              </Button>
-            </Group>
-          )}
-        </Stack>
+        {pagination && pagination.totalPages > 1 && (
+          <Group justify="center">
+            <Button
+              variant="light"
+              disabled={page === 1}
+              onClick={() => setPage((current) => current - 1)}
+            >
+              Previous
+            </Button>
+            <Text>
+              Page {page} of {pagination.totalPages}
+            </Text>
+            <Button
+              variant="light"
+              disabled={page === pagination.totalPages}
+              onClick={() => setPage((current) => current + 1)}
+            >
+              Next
+            </Button>
+        </Group>
       )}
+      </Stack>
 
       <Modal
         opened={opened}

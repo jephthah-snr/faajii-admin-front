@@ -6,8 +6,8 @@ import {
   FormatDate,
   OrderDetailsModal,
   OrderStatusModal,
-  PendingBackend,
   PpTable,
+  SampleDataNotice,
   StatusBadge,
   StatusFilter,
   TableToolbar,
@@ -36,6 +36,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { mockOrders } from "@/mocks";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 
@@ -101,8 +102,12 @@ const OrderManagement = () => {
       ),
   });
   //const orderMetrics = orders?.data.metrics;
-  const ordersData = orders?.data.list || [];
-  const totalItems = orders?.data.pagination?.total;
+  // Neither the list nor the status update is served yet — sample rows below.
+  const isSample = isEndpointUnavailable(ordersError);
+  const ordersData = isSample ? mockOrders : orders?.data.list || [];
+  const totalItems = isSample
+    ? mockOrders.length
+    : orders?.data.pagination?.total;
 
   /* const ordersSummary = [
     {
@@ -337,23 +342,11 @@ const OrderManagement = () => {
     );
   });
 
-  if (isEndpointUnavailable(ordersError)) {
-    return (
-      <AppLayout title="Order Tracking">
-        <PendingBackend
-          feature="Order tracking"
-          endpoints={[
-            "GET /admin/order-management",
-            "PATCH /admin/gift-orders/:id/status",
-          ]}
-        />
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout title="Order Tracking">
       <Flex direction="column" gap={20}>
+        {isSample && <SampleDataNotice integration="order-management" />}
+
         {/* Summary */}
         {/* <ScrollArea scrollbarSize={0}>
           {isFetchingOrders ? (
@@ -388,7 +381,7 @@ const OrderManagement = () => {
         </ScrollArea> */}
 
         {/* Filter & Search */}
-        {!isFetchingOrders && (
+        {(!isFetchingOrders || isSample) && (
           <Flex
             direction={{ base: "column", md: "row" }}
             align={{ base: "flex-start", md: "center" }}
@@ -434,7 +427,7 @@ const OrderManagement = () => {
           totalItems={totalItems}
           activePage={activePage}
           setActivePage={setActivePage}
-          isLoading={isFetchingOrders}
+          isLoading={isFetchingOrders && !isSample}
           rowsPerPage={rowsPerPage}
         />
       </Flex>

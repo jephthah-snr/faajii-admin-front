@@ -3,8 +3,8 @@
 import {
   DownloadCsvButton,
   FormatDate,
-  PendingBackend,
   PpTable,
+  SampleDataNotice,
   StatusBadge,
   PaymentTrackingModal,
 } from "@/components";
@@ -25,6 +25,7 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { Badge, Box, Flex, Table, Text } from "@mantine/core";
+import { mockPaymentTrackings } from "@/mocks";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -78,8 +79,14 @@ const PaymentTrackingPage = () => {
       ),
   });
 
-  const paymentData = asList(paymentTrackings?.data?.data);
-  const totalItems = paymentTrackings?.data?.pagination?.total || 0;
+  // The reconciliation queue is unserved today — sample rows keep it reviewable.
+  const isSample = isEndpointUnavailable(paymentTrackingsError);
+  const paymentData = isSample
+    ? mockPaymentTrackings
+    : asList(paymentTrackings?.data?.data);
+  const totalItems = isSample
+    ? mockPaymentTrackings.length
+    : paymentTrackings?.data?.pagination?.total || 0;
 
   const [isDownloadingCSV, setIsDownloadingCSV] = useState(false);
 
@@ -271,29 +278,10 @@ const PaymentTrackingPage = () => {
     );
   });
 
-  if (isEndpointUnavailable(paymentTrackingsError)) {
-    return (
-      <AppLayout title="Reconciliation">
-        <PendingBackend
-          feature="Payment reconciliation"
-          endpoints={[
-            "GET /admin/payment-tracking",
-            "GET /admin/payment-tracking/stats",
-            "GET /admin/payment-tracking/:id",
-            "POST /admin/payment-tracking/:reference/confirm",
-            "POST /admin/payment-tracking/:reference/assign-ticket",
-            "POST /admin/payment-tracking/:reference/escalate",
-            "POST /admin/payment-tracking/:id/resend-rsvp",
-            "POST /admin/payment-tracking/:id/resend-webhook",
-            "POST /admin/payment-tracking/:id/waive-and-resend",
-          ]}
-        />
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout title="Reconciliation">
+      {isSample && <SampleDataNotice integration="payment-tracking" mb="lg" />}
+
       <Box>
         <PpTable
           headers={tableHeaders}
@@ -303,7 +291,7 @@ const PaymentTrackingPage = () => {
           setActivePage={setActivePage}
           rowsPerPage={rowsPerPage}
           hasActions
-          isLoading={isFetching}
+          isLoading={isFetching && !isSample}
           emptyState={paymentTrackingEmptyState}
           filters={paymentTrackingFilters}
           query={query}

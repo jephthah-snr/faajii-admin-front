@@ -9,3 +9,5 @@ export { default as EventSponsors } from "./Sponsors";
 export { default as EventCheckIns } from "./CheckIns";
 export { default as EventDiscountCodes } from "./DiscountCodes";
 export { default as EventWallet } from "./Wallet";
+export { default as EventPromoters } from "./Promoters";
+export { default as EventReach } from "./Reach";

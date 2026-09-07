@@ -34,7 +34,7 @@ const MantineSetup = ({ children }: MantineSetupProps) => {
             <DatesProvider settings={{ firstDayOfWeek: 0 }}>
               <Notifications position="top-right" />
               <QueryClientProvider client={queryClient}>
-                <NextTopLoader height={3} color="#5769E9" showSpinner={false} />
+                <NextTopLoader height={3} color="#ff8a00" showSpinner={false} />
                 {children}
               </QueryClientProvider>
             </DatesProvider>

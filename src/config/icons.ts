@@ -20,6 +20,8 @@ export {
   Box1 as IconOrders,
   Element3 as IconWristbands,
   Gift as IconGiftLinks,
+  MedalStar as IconPromoters,
+  Radar as IconReach,
   ArrangeHorizontal as IconTransactions,
   Receipt21 as IconReconciliation,
   Wallet3 as IconWallets,
@@ -97,6 +99,7 @@ export {
   Award as IconNoSponsors,
   Personalcard as IconNoProfiles,
   Send2 as IconNoMessages,
+  Radar2 as IconNoReach,
 
   // Directional
   ArrowLeft2 as IconArrowLeft,

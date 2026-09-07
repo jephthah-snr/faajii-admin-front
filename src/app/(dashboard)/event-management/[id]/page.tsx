@@ -26,6 +26,8 @@ import {
   EventBudget,
   EventDiscountCodes,
   EventOverview,
+  EventPromoters,
+  EventReach,
   EventSponsors,
   EventStore,
   EventTasks,
@@ -272,6 +274,8 @@ export default function EventDetailsPage() {
           <Tabs.Tab value="tasks">Tasks</Tabs.Tab>
           <Tabs.Tab value="sponsors">Sponsors</Tabs.Tab>
           <Tabs.Tab value="discounts">Discounts</Tabs.Tab>
+          <Tabs.Tab value="promoters">Promoters</Tabs.Tab>
+          <Tabs.Tab value="reach">Reach</Tabs.Tab>
           <Tabs.Tab value="transactions">
             Transactions ({transactions.length})
           </Tabs.Tab>
@@ -353,6 +357,14 @@ export default function EventDetailsPage() {
           <EventDiscountCodes eventId={id} />
         </Tabs.Panel>
 
+
+        <Tabs.Panel value="promoters">
+          <EventPromoters eventId={id} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="reach">
+          <EventReach eventId={id} />
+        </Tabs.Panel>
 
         <Tabs.Panel value="transactions">
           <PpTable

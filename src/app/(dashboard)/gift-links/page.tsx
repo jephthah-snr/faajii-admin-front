@@ -22,7 +22,7 @@ import {
   GiftLinkStatus,
   GiftLinkType,
 } from "@/services/api/gift-links/gift-links.types";
-import { PendingBackend, PpTable, TableSkeleton } from "@/components";
+import { PpTable, SampleDataNotice, TableSkeleton } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -34,6 +34,7 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { IconGiftLinks } from "@/config/icons";
+import { mockGiftLinkDetail, mockGiftLinks } from "@/mocks";
 
 const statusColor: Record<GiftLinkStatus, string> = {
   active: "teal",
@@ -109,9 +110,15 @@ export default function GiftLinksPage() {
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  const links = asList(linksQuery.data?.data?.data);
-  const totalItems = linksQuery.data?.data?.pagination?.total || 0;
-  const detail = detailQuery.data?.data;
+  // Gift links have no backend at all yet — sample rows keep the UI reviewable.
+  const isSample = isEndpointUnavailable(linksQuery.error);
+  const links = isSample ? mockGiftLinks : asList(linksQuery.data?.data?.data);
+  const totalItems = isSample
+    ? mockGiftLinks.length
+    : linksQuery.data?.data?.pagination?.total || 0;
+  const detail = isSample
+    ? mockGiftLinkDetail(selectedId)
+    : detailQuery.data?.data;
 
   const openLink = (id: string) => {
     setSelectedId(id);
@@ -159,39 +166,30 @@ export default function GiftLinksPage() {
       title="Gift links"
       subTitle="Secret Santa and birthday pages users share to receive gifts"
     >
-      {isEndpointUnavailable(linksQuery.error) ? (
-        <PendingBackend
-          feature="Gift links"
-          endpoints={[
-            "GET /admin/gift-links",
-            "GET /admin/gift-links/:id",
-            "PATCH /admin/gift-links/:id/status",
-          ]}
-        />
-      ) : (
-        <PpTable
-          headers={tableHeaders}
-          rowData={rows}
-          totalItems={totalItems}
-          activePage={page}
-          setActivePage={setPage}
-          rowsPerPage={rowsPerPage}
-          isLoading={linksQuery.isFetching}
-          hasActions
-          filters={giftLinkFilters}
-          onFilterChange={(next) => {
-            setFilters(next);
-            setPage(1);
-          }}
-          query={search}
-          handleQuery={(value) => {
-            setSearch(value);
-            setPage(1);
-          }}
-          searchPlaceholder="Search title, slug or owner"
-          emptyState={giftLinkEmptyState}
-        />
-      )}
+      {isSample && <SampleDataNotice integration="gift-links" mb="lg" />}
+
+      <PpTable
+        headers={tableHeaders}
+        rowData={rows}
+        totalItems={totalItems}
+        activePage={page}
+        setActivePage={setPage}
+        rowsPerPage={rowsPerPage}
+        isLoading={linksQuery.isFetching}
+        hasActions
+        filters={giftLinkFilters}
+        onFilterChange={(next) => {
+          setFilters(next);
+          setPage(1);
+        }}
+        query={search}
+        handleQuery={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        searchPlaceholder="Search title, slug or owner"
+        emptyState={giftLinkEmptyState}
+      />
 
       <Modal
         opened={opened}
@@ -200,7 +198,7 @@ export default function GiftLinksPage() {
         size="lg"
         centered
       >
-        {detailQuery.isFetching ? (
+        {detailQuery.isFetching && !isSample ? (
           <TableSkeleton />
         ) : detail ? (
           <Stack gap="md">

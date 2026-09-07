@@ -32,8 +32,8 @@ import {
   SupportStatus,
 } from "@/services/api/support/support.types";
 import {
-  PendingBackend,
   PpTable,
+  SampleDataNotice,
   StatTile,
   TableSkeleton,
 } from "@/components";
@@ -49,6 +49,11 @@ import {
   supportEmptyState,
   supportFilters,
 } from "@/utils";
+import {
+  mockSupportStats,
+  mockSupportTicketDetail,
+  mockSupportTickets,
+} from "@/mocks";
 
 const statusColor: Record<SupportStatus, string> = {
   open: "blue",
@@ -153,10 +158,18 @@ export default function SupportPage() {
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  const stats = statsQuery.data?.data;
-  const tickets = asList(ticketsQuery.data?.data?.data);
-  const totalItems = ticketsQuery.data?.data?.pagination?.total || 0;
-  const detail = detailQuery.data?.data;
+  // The ticket model does not exist server-side yet, so this runs on samples.
+  const isSample = isEndpointUnavailable(ticketsQuery.error);
+  const stats = isSample ? mockSupportStats : statsQuery.data?.data;
+  const tickets = isSample
+    ? mockSupportTickets
+    : asList(ticketsQuery.data?.data?.data);
+  const totalItems = isSample
+    ? mockSupportTickets.length
+    : ticketsQuery.data?.data?.pagination?.total || 0;
+  const detail = isSample
+    ? mockSupportTicketDetail(selectedId)
+    : detailQuery.data?.data;
 
   const openTicket = (id: number) => {
     setSelectedId(id);
@@ -226,75 +239,64 @@ export default function SupportPage() {
       title="Support"
       subTitle="Complaints and requests raised from the Faajii app"
     >
-      {isEndpointUnavailable(ticketsQuery.error) ? (
-        <PendingBackend
-          feature="Support desk"
-          endpoints={[
-            "GET /admin/support/tickets",
-            "GET /admin/support/tickets/:id",
-            "POST /admin/support/tickets/:id/messages",
-            "PATCH /admin/support/tickets/:id",
-            "GET /admin/support/statistics",
-          ]}
-        />
-      ) : (
-        <Stack gap="xl">
-          {stats && (
-            <SimpleGrid cols={{ base: 2, md: 5 }}>
-              {[
-                { label: "Open", value: stats.open, color: "#74C0FC" },
-                {
-                  label: "Awaiting user",
-                  value: stats.pending,
-                  color: "#F5C912",
-                },
-                {
-                  label: "Resolved today",
-                  value: stats.resolvedToday,
-                  color: "#63E6BE",
-                },
-                {
-                  label: "Unassigned",
-                  value: stats.unassigned,
-                  color: "#FF8787",
-                },
-                {
-                  label: "Avg. first reply",
-                  value: `${formatCount(stats.avgFirstResponseMinutes)}m`,
-                  color: "#D0BFFF",
-                },
-              ].map((metric) => (
-                <StatTile key={metric.label} label={metric.label} value={typeof metric.value === "number"
-                      ? formatCount(metric.value)
-                      : metric.value} accent={metric.color} />
-              ))}
-            </SimpleGrid>
-          )}
+      <Stack gap="xl">
+        {isSample && <SampleDataNotice integration="support" />}
 
-          <PpTable
-            headers={tableHeaders}
-            rowData={rows}
-            totalItems={totalItems}
-            activePage={page}
-            setActivePage={setPage}
-            rowsPerPage={rowsPerPage}
-            isLoading={ticketsQuery.isFetching}
-            hasActions
-            filters={supportFilters}
-            onFilterChange={(next) => {
-              setFilters(next);
-              setPage(1);
-            }}
-            query={search}
-            handleQuery={(value) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            searchPlaceholder="Search subject, reference or user"
-            emptyState={supportEmptyState}
-          />
-        </Stack>
-      )}
+        {stats && (
+          <SimpleGrid cols={{ base: 2, md: 5 }}>
+            {[
+              { label: "Open", value: stats.open, color: "#74C0FC" },
+              {
+                label: "Awaiting user",
+                value: stats.pending,
+                color: "#F5C912",
+              },
+              {
+                label: "Resolved today",
+                value: stats.resolvedToday,
+                color: "#63E6BE",
+              },
+              {
+                label: "Unassigned",
+                value: stats.unassigned,
+                color: "#FF8787",
+              },
+              {
+                label: "Avg. first reply",
+                value: `${formatCount(stats.avgFirstResponseMinutes)}m`,
+                color: "#D0BFFF",
+              },
+            ].map((metric) => (
+              <StatTile key={metric.label} label={metric.label} value={typeof metric.value === "number"
+                    ? formatCount(metric.value)
+                    : metric.value} accent={metric.color} />
+            ))}
+          </SimpleGrid>
+        )}
+
+        <PpTable
+          headers={tableHeaders}
+          rowData={rows}
+          totalItems={totalItems}
+          activePage={page}
+          setActivePage={setPage}
+          rowsPerPage={rowsPerPage}
+          isLoading={ticketsQuery.isFetching}
+          hasActions
+          filters={supportFilters}
+          onFilterChange={(next) => {
+            setFilters(next);
+            setPage(1);
+          }}
+          query={search}
+          handleQuery={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+          searchPlaceholder="Search subject, reference or user"
+        emptyState={supportEmptyState}
+      />
+      </Stack>
 
       <Modal
         opened={opened}
@@ -303,7 +305,7 @@ export default function SupportPage() {
         size="lg"
         centered
       >
-        {detailQuery.isFetching ? (
+        {detailQuery.isFetching && !isSample ? (
           <TableSkeleton />
         ) : detail ? (
           <Stack gap="md">

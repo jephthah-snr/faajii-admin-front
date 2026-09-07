@@ -14,7 +14,7 @@ import { GetEventWallet } from "@/services/api";
 import EmptyState from "../../blocks/empty-state";
 import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
-import PendingBackend from "../../elements/pending-backend";
+import SampleDataNotice from "../../elements/sample-data-notice";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
   formatDateTime,
@@ -23,6 +23,7 @@ import {
   retryUnlessUnavailable,
 } from "@/utils";
 import { IconNoTransactions } from "@/config/icons";
+import { mockEventWallet } from "@/mocks";
 
 const tableHeaders = [
   "Reference",
@@ -58,18 +59,12 @@ const Wallet = ({ eventId }: { eventId: string }) => {
     retry: retryUnlessUnavailable,
   });
 
-  if (isEndpointUnavailable(error)) {
-    return (
-      <PendingBackend
-        feature="Event purse"
-        endpoints={["GET /admin/events/:id/wallet"]}
-      />
-    );
-  }
+  // No admin purse route yet — the tab previews with a sample purse.
+  const isSample = isEndpointUnavailable(error);
 
-  if (isFetching) return <TableSkeleton />;
+  if (isFetching && !isSample) return <TableSkeleton />;
 
-  const wallet = data?.data;
+  const wallet = isSample ? mockEventWallet : data?.data;
 
   if (!wallet) {
     return (
@@ -117,6 +112,8 @@ const Wallet = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
+      {isSample && <SampleDataNotice integration="event-wallet" compact />}
+
       <SimpleGrid cols={{ base: 2, md: 4 }}>
         {[
           { label: "Balance", value: wallet.balance, color: "#63E6BE" },

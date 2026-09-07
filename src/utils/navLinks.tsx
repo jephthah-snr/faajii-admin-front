@@ -9,7 +9,9 @@ import {
   IconMomo,
   IconNotifications,
   IconOrders,
+  IconPromoters,
   IconPurchases,
+  IconReach,
   IconReconciliation,
   IconSupport,
   IconTeamSettings,
@@ -59,6 +61,8 @@ export const navSections: NavSection[] = [
     title: "Events",
     links: [
       { label: "Events", navLink: "/event-management", icon: IconEvents },
+      { label: "Promoters", navLink: "/promoters", icon: IconPromoters },
+      { label: "Event Reach", navLink: "/event-reach", icon: IconReach },
     ],
   },
   {

@@ -1,5 +1,7 @@
 import {
   IconNoContent,
+  IconNoReach,
+  IconPromoters,
   IconNoEvents,
   IconNoMessages,
   IconNoProfiles,
@@ -103,6 +105,27 @@ export const supportEmptyState: EmptyStatePreset = {
   title: "Nothing in the queue",
   description: "Support requests raised from the app will land here.",
   icon: IconNoMessages,
+};
+
+export const promoterEmptyState: EmptyStatePreset = {
+  title: "No promoters yet",
+  description:
+    "Users who switch on a promoter profile and apply to events appear here.",
+  icon: IconPromoters,
+};
+
+export const promotionEmptyState: EmptyStatePreset = {
+  title: "No promoters on this event",
+  description:
+    "Promoter requests, offers and live promotions for this event land here.",
+  icon: IconPromoters,
+};
+
+export const publicationEmptyState: EmptyStatePreset = {
+  title: "No reach campaigns",
+  description:
+    "Paid push and email publications hosts buy to reach interested users will be listed here.",
+  icon: IconNoReach,
 };
 
 export const searchEmptyState: EmptyStatePreset = {

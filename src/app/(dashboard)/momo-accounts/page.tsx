@@ -13,7 +13,7 @@ import {
   SetMomoAccountEnabled,
 } from "@/services/api";
 import { MomoAccountStatus } from "@/services/api/finance/finance.types";
-import { PendingBackend, PpTable } from "@/components";
+import { PpTable, SampleDataNotice } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -25,6 +25,7 @@ import {
   type FilterItem,
 } from "@/utils";
 import { IconMomo } from "@/config/icons";
+import { mockMomoAccounts } from "@/mocks";
 
 const statusColor: Record<MomoAccountStatus, string> = {
   active: "teal",
@@ -133,8 +134,14 @@ export default function MomoAccountsPage() {
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  const accounts = asList(accountsQuery.data?.data?.data);
-  const totalItems = accountsQuery.data?.data?.pagination?.total || 0;
+  // Not deployed yet — the table runs on sample rows so the UI stays reviewable.
+  const isSample = isEndpointUnavailable(accountsQuery.error);
+  const accounts = isSample
+    ? mockMomoAccounts
+    : asList(accountsQuery.data?.data?.data);
+  const totalItems = isSample
+    ? mockMomoAccounts.length
+    : accountsQuery.data?.data?.pagination?.total || 0;
 
   const rows = accounts.map((account) => (
     <Table.Tr key={account.id}>
@@ -184,38 +191,30 @@ export default function MomoAccountsPage() {
       title="MoMo accounts"
       subTitle="Mobile money accounts linked for funding and payouts"
     >
-      {isEndpointUnavailable(accountsQuery.error) ? (
-        <PendingBackend
-          feature="MoMo accounts"
-          endpoints={[
-            "GET /admin/momo/accounts",
-            "PATCH /admin/momo/accounts/:id",
-          ]}
-        />
-      ) : (
-        <PpTable
-          headers={tableHeaders}
-          rowData={rows}
-          totalItems={totalItems}
-          activePage={page}
-          setActivePage={setPage}
-          rowsPerPage={rowsPerPage}
-          isLoading={accountsQuery.isFetching}
-          hasActions
-          filters={momoFilters}
-          onFilterChange={(next) => {
-            setFilters(next);
-            setPage(1);
-          }}
-          query={search}
-          handleQuery={(value) => {
-            setSearch(value);
-            setPage(1);
-          }}
-          searchPlaceholder="Search user, name or number"
-          emptyState={momoEmptyState}
-        />
-      )}
+      {isSample && <SampleDataNotice integration="momo-accounts" mb="lg" />}
+
+      <PpTable
+        headers={tableHeaders}
+        rowData={rows}
+        totalItems={totalItems}
+        activePage={page}
+        setActivePage={setPage}
+        rowsPerPage={rowsPerPage}
+        isLoading={accountsQuery.isFetching}
+        hasActions
+        filters={momoFilters}
+        onFilterChange={(next) => {
+          setFilters(next);
+          setPage(1);
+        }}
+        query={search}
+        handleQuery={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
+        searchPlaceholder="Search user, name or number"
+        emptyState={momoEmptyState}
+      />
     </AppLayout>
   );
 }

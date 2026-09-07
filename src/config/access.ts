@@ -25,6 +25,8 @@ export interface RouteAccess {
 
 export const routeAccess: RouteAccess[] = [
   { path: "/dashboard", roles: "*" },
+  // Reached from the dashboard avatar; useful to every role.
+  { path: "/pending-backend", roles: "*" },
 
   // Community
   { path: "/user-management", roles: ["super", "admin", "support"] },
@@ -34,6 +36,10 @@ export const routeAccess: RouteAccess[] = [
   // Events — check-ins, budget, tasks, sponsors and discount codes live as
   // tabs inside an event, so they inherit this rule.
   { path: "/event-management", roles: ["super", "admin", "support"] },
+  // Promoter commission and paid reach are event spend, so finance sees them
+  // alongside the event team.
+  { path: "/promoters", roles: ["super", "admin", "finance", "support"] },
+  { path: "/event-reach", roles: ["super", "admin", "finance", "support"] },
 
   // Commerce
   { path: "/purchases", roles: ["super", "admin", "finance", "support"] },

@@ -19,7 +19,7 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { DatePicker } from "@mantine/dates";
-import { PendingBackend, StatusBadge } from "@/components/elements";
+import { SampleDataNotice, StatusBadge } from "@/components/elements";
 import { useMemo, useState } from "react";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
@@ -27,6 +27,7 @@ import dayjs from "dayjs";
 import { useQuery } from "@tanstack/react-query";
 import { GetAuditLogs, GetRoles } from "@/services/api/admin";
 import { IAuditLogFilters } from "@/services/api/admin/admin.types";
+import { mockAuditLogs, mockRoles } from "@/mocks";
 
 const tableHeaders = [
   "Reference ID",
@@ -61,7 +62,9 @@ const AuditLog = () => {
   });
 
   const roleFilterOptions = useMemo(() => {
-    const roleNames = asList(rolesData?.data).map((r) => r.name);
+    const roles = asList(rolesData?.data);
+    // Roles 404 alongside the log itself, so the filter falls back to samples.
+    const roleNames = (roles.length > 0 ? roles : mockRoles).map((r) => r.name);
     return ["All", ...roleNames];
   }, [rolesData]);
 
@@ -109,11 +112,15 @@ const AuditLog = () => {
     retry: retryUnlessUnavailable,
   });
 
+  // Admin actions are not recorded server-side yet — sample entries below.
+  const isSample = isEndpointUnavailable(auditLogsError);
   const auditData = useMemo(
-    () => asList(auditLogsData?.data?.data),
-    [auditLogsData],
+    () => (isSample ? mockAuditLogs : asList(auditLogsData?.data?.data)),
+    [auditLogsData, isSample],
   );
-  const totalItems = auditLogsData?.data?.pagination?.total || 0;
+  const totalItems = isSample
+    ? mockAuditLogs.length
+    : auditLogsData?.data?.pagination?.total || 0;
 
   const rows = auditData?.map((data) => {
     return (
@@ -163,17 +170,10 @@ const AuditLog = () => {
     setOpenedPicker(false);
   };
 
-  if (isEndpointUnavailable(auditLogsError)) {
-    return (
-      <PendingBackend
-        feature="Audit log"
-        endpoints={["GET /admin/audit-logs"]}
-      />
-    );
-  }
-
   return (
     <Flex direction="column" gap={20}>
+      {isSample && <SampleDataNotice integration="audit-log" compact />}
+
       <Box bg="var(--fj-bg)" py={10} className="sticky top-14 z-10">
         <ScrollArea.Autosize scrollbarSize={0}>
           <Flex align="center" gap={10}>
@@ -307,7 +307,7 @@ const AuditLog = () => {
         totalItems={totalItems}
         activePage={activePage}
         setActivePage={setActivePage}
-        isLoading={isFetchingLogs}
+        isLoading={isFetchingLogs && !isSample}
         rowsPerPage={rowsPerPage}
         addOnStyle="noRowBorders, lightHeaderBorder"
         mt={-10}

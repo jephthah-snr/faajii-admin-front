@@ -15,7 +15,7 @@ import {
 import inputClasses from "@/styles/Input.module.css";
 import classes from "@/styles/General.module.css";
 import { useDisclosure } from "@mantine/hooks";
-import { CreateRoleModal, PendingBackend } from "@/components/elements";
+import { CreateRoleModal, SampleDataNotice } from "@/components/elements";
 import {
   asList,
   isEndpointUnavailable,
@@ -30,6 +30,7 @@ import {
 } from "@/services/api/admin";
 import { IRole } from "@/services/api/admin/admin.types";
 import { notifications } from "@mantine/notifications";
+import { mockPermissionGroups, mockRoles } from "@/mocks";
 
 const RolesPermissions = () => {
   const queryClient = useQueryClient();
@@ -55,10 +56,15 @@ const RolesPermissions = () => {
     },
   );
 
-  const roles: IRole[] = useMemo(() => asList(rolesData?.data), [rolesData]);
+  // Roles and permissions are unserved today — the matrix previews on samples.
+  const isSample = isEndpointUnavailable(rolesError);
+  const roles: IRole[] = useMemo(
+    () => (isSample ? mockRoles : asList(rolesData?.data)),
+    [rolesData, isSample],
+  );
   const permissionGroups = useMemo(
-    () => asList(permissionsData?.data),
-    [permissionsData],
+    () => (isSample ? mockPermissionGroups : asList(permissionsData?.data)),
+    [permissionsData, isSample],
   );
 
   // Build permission state: { [permissionKey]: { [roleId]: boolean } }
@@ -144,24 +150,10 @@ const RolesPermissions = () => {
 
   const isLoading = isFetchingRoles || isFetchingPermissions;
 
-  if (isEndpointUnavailable(rolesError)) {
-    return (
-      <PendingBackend
-        feature="Roles & permissions"
-        endpoints={[
-          "GET /admin/roles",
-          "POST /admin/roles",
-          "PUT /admin/roles/:id",
-          "DELETE /admin/roles/:id",
-          "PUT /admin/roles/:id/permissions",
-          "GET /admin/permissions",
-        ]}
-      />
-    );
-  }
-
   return (
     <Box>
+      {isSample && <SampleDataNotice integration="roles-permissions" compact />}
+
       {/* Search + Create role */}
       <Flex
         align={{ base: "flex-start", md: "center" }}
@@ -199,7 +191,7 @@ const RolesPermissions = () => {
 
       {/* Roles & permissions table */}
       <Box>
-        {isLoading ? (
+        {isLoading && !isSample ? (
           <Flex justify="center" py={40}>
             <Loader size="sm" />
           </Flex>

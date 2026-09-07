@@ -13,8 +13,9 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { GetEventSponsors, RemoveEventSponsor } from "@/services/api";
-import { ListSkeleton, PendingBackend } from "@/components/elements";
+import { ListSkeleton, SampleDataNotice } from "@/components/elements";
 import EmptyState from "../empty-state";
+import { mockEventSponsors } from "@/mocks";
 import { IconNoSponsors, IconTrash, IconWebsite } from "@/config/icons";
 import {
   asList,
@@ -53,22 +54,14 @@ const Sponsors = ({ eventId, variant = "full" }: SponsorsProps) => {
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  if (isEndpointUnavailable(error)) {
-    return (
-      <PendingBackend
-        feature="Sponsors"
-        mt={0}
-        endpoints={[
-          "GET /admin/events/:id/sponsors",
-          "DELETE /admin/events/:id/sponsors/:sponsorId",
-        ]}
-      />
-    );
+  // No admin sponsor route yet — the panel previews with sample sponsors.
+  const isSample = isEndpointUnavailable(error);
+
+  if (isFetching && !isSample) {
+    return <ListSkeleton count={compact ? 3 : 5} />;
   }
 
-  if (isFetching) return <ListSkeleton count={compact ? 3 : 5} />;
-
-  const sponsors = asList(data?.data);
+  const sponsors = isSample ? mockEventSponsors : asList(data?.data);
 
   if (sponsors.length === 0) {
     return (
@@ -84,6 +77,10 @@ const Sponsors = ({ eventId, variant = "full" }: SponsorsProps) => {
   return (
     <ScrollArea.Autosize mah={compact ? 200 : undefined} scrollbarSize={4}>
       <Stack gap={12}>
+        {isSample && !compact && (
+          <SampleDataNotice integration="event-sponsors" compact />
+        )}
+
         {sponsors.map((sponsor) => (
           <Flex key={sponsor.id} align="center" gap={10} wrap="nowrap">
             <Avatar

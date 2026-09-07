@@ -218,3 +218,33 @@ export const formatCount = (value: number | null | undefined): string => {
   const numeric = Number(value);
   return (Number.isFinite(numeric) ? numeric : 0).toLocaleString();
 };
+
+/**
+ * Renders a `{ XOF: 315000, NGN: 12000 }` currency map as one line. Promoter
+ * earnings and campaign spend both arrive keyed by currency because a promoter
+ * can sell for events in more than one market.
+ */
+export const formatCurrencyTotals = (
+  totals: Record<string, number> | null | undefined,
+  fallback = "—",
+): string => {
+  const entries = Object.entries(totals || {}).filter(
+    ([, amount]) => Number(amount) !== 0,
+  );
+  if (entries.length === 0) return fallback;
+  return entries
+    .map(([currency, amount]) => formatMoney(amount, currency))
+    .join(" · ");
+};
+
+/** "5% per ticket" / "₦2,500 per ticket" — null when no offer has been made. */
+export const formatCommission = (
+  type: "percentage" | "flat" | null | undefined,
+  value: number | null | undefined,
+  currency?: string | null,
+): string | null => {
+  if (value == null || !type) return null;
+  return type === "percentage"
+    ? `${value}% per ticket`
+    : `${formatMoney(value, currency || "NGN")} per ticket`;
+};

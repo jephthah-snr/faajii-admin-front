@@ -14,10 +14,11 @@ import { useQuery } from "@tanstack/react-query";
 import { GetEventBudget } from "@/services/api";
 import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
-import PendingBackend from "../../elements/pending-backend";
+import SampleDataNotice from "../../elements/sample-data-notice";
 import { TableSkeleton } from "../../elements/skeletons";
 import { formatMoney, isEndpointUnavailable, retryUnlessUnavailable } from "@/utils";
 import { IconAmount } from "@/config/icons";
+import { mockEventBudget } from "@/mocks";
 
 const tableHeaders = [
   "Line item",
@@ -43,16 +44,9 @@ const Budget = ({ eventId }: { eventId: string }) => {
     retry: retryUnlessUnavailable,
   });
 
-  if (isEndpointUnavailable(error)) {
-    return (
-      <PendingBackend
-        feature="Event budget"
-        endpoints={["GET /admin/events/:id/budget"]}
-      />
-    );
-  }
-
-  const budget = data?.data;
+  // No admin budget route yet — the tab previews with a sample budget.
+  const isSample = isEndpointUnavailable(error);
+  const budget = isSample ? mockEventBudget : data?.data;
   const items = budget?.items || [];
   const currency = budget?.currency || "NGN";
   const totalBudgeted = budget?.totalBudgeted || 0;
@@ -94,10 +88,12 @@ const Budget = ({ eventId }: { eventId: string }) => {
     );
   });
 
-  if (isFetching) return <TableSkeleton />;
+  if (isFetching && !isSample) return <TableSkeleton />;
 
   return (
     <Stack gap="xl">
+      {isSample && <SampleDataNotice integration="event-budget" compact />}
+
       <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
         {[
           { label: "Budgeted", value: totalBudgeted, color: "#74C0FC" },
@@ -130,7 +126,7 @@ const Budget = ({ eventId }: { eventId: string }) => {
         headers={tableHeaders}
         rowData={rows}
         showPagination={false}
-        isLoading={isFetching}
+        isLoading={isFetching && !isSample}
         emptyState={budgetEmptyState}
       />
     </Stack>

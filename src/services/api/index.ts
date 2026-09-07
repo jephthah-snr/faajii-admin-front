@@ -9,6 +9,8 @@ export * from "./vendor-management";
 // Events
 export * from "./event";
 export * from "./event-ops";
+export * from "./promoters";
+export * from "./publications";
 
 // Commerce
 export * from "./purchases";

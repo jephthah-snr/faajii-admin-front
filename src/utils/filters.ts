@@ -401,3 +401,45 @@ export const checkInFilters: FilterItem[] = [
     transform: (v) => (v === "Checked in" ? "yes" : "no"),
   },
 ];
+
+export const promoterFilters: FilterItem[] = [
+  {
+    title: "Profile",
+    apiKey: "status",
+    default: "All",
+    items: ["All", "Active", "Inactive"],
+    transform: (v) => v?.toLowerCase(),
+  },
+  {
+    title: "Promotions",
+    apiKey: "promotionStatus",
+    default: "All",
+    items: ["All", "Pending", "Offered", "Active", "Declined", "Expired"],
+    transform: (v) => v?.toLowerCase(),
+  },
+];
+
+export const publicationFilters: FilterItem[] = [
+  {
+    title: "Channel",
+    apiKey: "channel",
+    default: "All",
+    items: ["All", "Push", "Email"],
+    transform: (v) => v?.toLowerCase(),
+  },
+  {
+    title: "Status",
+    apiKey: "status",
+    default: "All",
+    items: [
+      "All",
+      "Awaiting payment",
+      "Paid",
+      "Sending",
+      "Completed",
+      "Failed",
+    ],
+    transform: (v) =>
+      v === "Awaiting payment" ? "pending_payment" : v?.toLowerCase(),
+  },
+];

@@ -19,6 +19,7 @@ import {
 } from "@/config/icons";
 import { AppLayout } from "@/layout";
 import {
+  Anchor,
   Avatar,
   Box,
   Card,
@@ -31,7 +32,9 @@ import {
   Stack,
   Table,
   Text,
+  Tooltip,
 } from "@mantine/core";
+import Link from "next/link";
 import { useState } from "react";
 import { LineChart } from "@mantine/charts";
 import { useQuery } from "@tanstack/react-query";
@@ -210,10 +213,16 @@ const Dashboard = () => {
     <AppLayout
       title={
         <>
-          <Avatar
-            src={loggedInUser?.avatar}
-            name={getFirstName(loggedInUser?.fullName || "User")}
-          />
+          {/* The avatar doubles as the way into the pending-integrations page. */}
+          <Tooltip label="Pending integrations" position="bottom">
+            <Anchor component={Link} href="/pending-backend" display="flex">
+              <Avatar
+                src={loggedInUser?.avatar}
+                name={getFirstName(loggedInUser?.fullName || "User")}
+                style={{ cursor: "pointer" }}
+              />
+            </Anchor>
+          </Tooltip>
           <Text c="var(--fj-text-primary)" fz={18}>
             Hello{" "}
             <span className="font-bold">

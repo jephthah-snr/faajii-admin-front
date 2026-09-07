@@ -17,8 +17,9 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { GetAdminEventPlanners, RevokeEventCoPlanner } from "@/services/api";
-import { CardGridSkeleton, PendingBackend } from "@/components/elements";
+import { CardGridSkeleton, SampleDataNotice } from "@/components/elements";
 import EmptyState from "../empty-state";
+import { mockEventPlanners } from "@/mocks";
 import {
   IconMore,
   IconNoUsers,
@@ -77,18 +78,12 @@ const CoPlanners = ({ eventId }: { eventId: string }) => {
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  if (isEndpointUnavailable(error)) {
-    return (
-      <PendingBackend
-        feature="Co-planners"
-        endpoints={["GET /admin/events/:id/planners"]}
-      />
-    );
-  }
+  // Revoking access has no admin route yet — sample co-planners below.
+  const isSample = isEndpointUnavailable(error);
 
-  if (isFetching) return <CardGridSkeleton count={3} />;
+  if (isFetching && !isSample) return <CardGridSkeleton count={3} />;
 
-  const planners = asList(data?.data);
+  const planners = isSample ? mockEventPlanners : asList(data?.data);
 
   if (planners.length === 0) {
     return (
@@ -101,7 +96,10 @@ const CoPlanners = ({ eventId }: { eventId: string }) => {
   }
 
   return (
-    <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }} spacing={16}>
+    <Stack gap={16}>
+      {isSample && <SampleDataNotice integration="event-coplanners" compact />}
+
+      <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }} spacing={16}>
       {planners.map((planner) => {
         const granted = planner.permissions.filter(
           (permission) => permission.access,
@@ -233,8 +231,9 @@ const CoPlanners = ({ eventId }: { eventId: string }) => {
             </Text>
           </Card>
         );
-      })}
-    </SimpleGrid>
+        })}
+      </SimpleGrid>
+    </Stack>
   );
 };
 

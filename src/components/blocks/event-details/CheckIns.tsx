@@ -21,7 +21,7 @@ import {
 } from "@/services/api";
 import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
-import PendingBackend from "../../elements/pending-backend";
+import SampleDataNotice from "../../elements/sample-data-notice";
 import {
   asList,
   checkInFilters,
@@ -32,6 +32,7 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { IconCalendarTick } from "@/config/icons";
+import { mockCheckIns, mockCheckInSummary } from "@/mocks";
 
 const tableHeaders = [
   "Guest",
@@ -109,22 +110,15 @@ const CheckIns = ({ eventId }: { eventId: string }) => {
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  if (isEndpointUnavailable(listQuery.error)) {
-    return (
-      <PendingBackend
-        feature="Check-ins"
-        endpoints={[
-          "GET /admin/events/:id/check-ins",
-          "GET /admin/events/:id/check-ins/summary",
-          "PATCH /admin/events/:id/check-ins/:guestId",
-        ]}
-      />
-    );
-  }
-
-  const summary = summaryQuery.data?.data;
-  const records = asList(listQuery.data?.data?.data);
-  const totalItems = listQuery.data?.data?.pagination?.total || 0;
+  // Door control has no admin route yet — the tab previews on sample scans.
+  const isSample = isEndpointUnavailable(listQuery.error);
+  const summary = isSample ? mockCheckInSummary : summaryQuery.data?.data;
+  const records = isSample
+    ? mockCheckIns
+    : asList(listQuery.data?.data?.data);
+  const totalItems = isSample
+    ? mockCheckIns.length
+    : listQuery.data?.data?.pagination?.total || 0;
 
   const rows = records.map((record) => (
     <Table.Tr key={record.id}>
@@ -173,6 +167,8 @@ const CheckIns = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
+      {isSample && <SampleDataNotice integration="event-check-ins" compact />}
+
       <SimpleGrid cols={{ base: 2, md: 4 }}>
         {[
           {
@@ -222,7 +218,7 @@ const CheckIns = ({ eventId }: { eventId: string }) => {
         activePage={page}
         setActivePage={setPage}
         rowsPerPage={rowsPerPage}
-        isLoading={listQuery.isFetching}
+        isLoading={listQuery.isFetching && !isSample}
         hasActions
         filters={checkInFilters}
         onFilterChange={(next) => {

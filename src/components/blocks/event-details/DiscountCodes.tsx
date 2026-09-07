@@ -17,7 +17,7 @@ import {
 } from "@/services/api";
 import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
-import PendingBackend from "../../elements/pending-backend";
+import SampleDataNotice from "../../elements/sample-data-notice";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
   asList,
@@ -28,6 +28,7 @@ import {
   retryUnlessUnavailable,
 } from "@/utils";
 import { IconNoTickets } from "@/config/icons";
+import { mockDiscountCodes } from "@/mocks";
 
 const tableHeaders = [
   "Code",
@@ -77,19 +78,9 @@ const DiscountCodes = ({
       notifications.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  if (isEndpointUnavailable(error)) {
-    return (
-      <PendingBackend
-        feature="Discount codes"
-        endpoints={[
-          "GET /admin/events/:id/discount-codes",
-          "PATCH /admin/events/:id/discount-codes/:codeId",
-        ]}
-      />
-    );
-  }
-
-  const codes = asList(data?.data);
+  // No admin discount-code route yet — sample codes keep the tab reviewable.
+  const isSample = isEndpointUnavailable(error);
+  const codes = isSample ? mockDiscountCodes : asList(data?.data);
   const totalRedemptions = codes.reduce(
     (sum, code) => sum + (code.usedCount || 0),
     0,
@@ -144,10 +135,14 @@ const DiscountCodes = ({
     );
   });
 
-  if (isFetching) return <TableSkeleton />;
+  if (isFetching && !isSample) return <TableSkeleton />;
 
   return (
     <Stack gap="xl">
+      {isSample && (
+        <SampleDataNotice integration="event-discount-codes" compact />
+      )}
+
       <SimpleGrid cols={{ base: 2, md: 3 }}>
         {[
           { label: "Codes issued", value: codes.length, color: "#74C0FC" },
@@ -166,7 +161,7 @@ const DiscountCodes = ({
         headers={tableHeaders}
         rowData={rows}
         showPagination={false}
-        isLoading={isFetching}
+        isLoading={isFetching && !isSample}
         emptyState={discountCodeEmptyState}
       />
     </Stack>

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GetEventTasks } from "@/services/api";
 import { TaskStatus } from "@/services/api/event-ops/event-ops.types";
 import PpTable from "../../blocks/table";
-import PendingBackend from "../../elements/pending-backend";
+import SampleDataNotice from "../../elements/sample-data-notice";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
   asList,
@@ -15,6 +15,7 @@ import {
   retryUnlessUnavailable,
 } from "@/utils";
 import { IconNoTasks } from "@/config/icons";
+import { mockEventTasks } from "@/mocks";
 
 const tableHeaders = [
   "Task",
@@ -47,16 +48,9 @@ const Tasks = ({ eventId }: { eventId: string }) => {
     retry: retryUnlessUnavailable,
   });
 
-  if (isEndpointUnavailable(error)) {
-    return (
-      <PendingBackend
-        feature="Task tracker"
-        endpoints={["GET /admin/events/:id/tasks"]}
-      />
-    );
-  }
-
-  const tasks = asList(data?.data);
+  // No admin task route yet — the tab previews with a sample task list.
+  const isSample = isEndpointUnavailable(error);
+  const tasks = isSample ? mockEventTasks : asList(data?.data);
 
   const counts = tasks.reduce<Record<string, number>>((acc, task) => {
     acc[task.status] = (acc[task.status] || 0) + 1;
@@ -84,10 +78,12 @@ const Tasks = ({ eventId }: { eventId: string }) => {
     </Table.Tr>
   ));
 
-  if (isFetching) return <TableSkeleton />;
+  if (isFetching && !isSample) return <TableSkeleton />;
 
   return (
     <Stack gap="xl">
+      {isSample && <SampleDataNotice integration="event-tasks" compact />}
+
       <SimpleGrid cols={{ base: 2, md: 5 }}>
         {(Object.keys(statusColor) as TaskStatus[]).map((status) => (
           <Card key={status} radius="lg" bg="var(--fj-surface-elevated)" p="md">
@@ -105,7 +101,7 @@ const Tasks = ({ eventId }: { eventId: string }) => {
         headers={tableHeaders}
         rowData={rows}
         showPagination={false}
-        isLoading={isFetching}
+        isLoading={isFetching && !isSample}
         emptyState={taskEmptyState}
       />
     </Stack>

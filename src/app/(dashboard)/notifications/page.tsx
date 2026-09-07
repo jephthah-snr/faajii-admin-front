@@ -29,7 +29,7 @@ import {
   BroadcastAudience,
   BroadcastStatus,
 } from "@/services/api/notifications/notifications.types";
-import { PendingBackend, PpTable, StatTile } from "@/components";
+import { PpTable, SampleDataNotice, StatTile } from "@/components";
 import {
   asList,
   formatCount,
@@ -41,6 +41,11 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { IconNotifications, IconUsers } from "@/config/icons";
+import {
+  mockBroadcasts,
+  mockPushDevices,
+  mockPushTokenStats,
+} from "@/mocks";
 
 const statusColor: Record<BroadcastStatus, string> = {
   draft: "gray",
@@ -160,10 +165,21 @@ export default function NotificationsPage() {
       toast.show({ color: "red", message: getApiErrorMessage(err) }),
   });
 
-  const deviceStats = deviceStatsQuery.data?.data;
-  const broadcasts = asList(broadcastsQuery.data?.data?.data);
-  const devices = asList(devicesQuery.data?.data?.data);
-  const totalBroadcasts = broadcastsQuery.data?.data?.pagination?.total || 0;
+  // Neither half of this screen has a route yet, so both run on samples.
+  const devicesAreSample = isEndpointUnavailable(deviceStatsQuery.error);
+  const broadcastsAreSample = isEndpointUnavailable(broadcastsQuery.error);
+  const deviceStats = devicesAreSample
+    ? mockPushTokenStats
+    : deviceStatsQuery.data?.data;
+  const devices = devicesAreSample
+    ? mockPushDevices
+    : asList(devicesQuery.data?.data?.data);
+  const broadcasts = broadcastsAreSample
+    ? mockBroadcasts
+    : asList(broadcastsQuery.data?.data?.data);
+  const totalBroadcasts = broadcastsAreSample
+    ? mockBroadcasts.length
+    : broadcastsQuery.data?.data?.pagination?.total || 0;
   const canSend = title.trim().length > 0 && message.trim().length > 0;
 
   const deviceRows = devices.map((device) => (
@@ -251,88 +267,77 @@ export default function NotificationsPage() {
       title="Notifications"
       subTitle="Push reach and broadcasts to the Faajii app"
       action={
-        <Button onClick={open} disabled={isEndpointUnavailable(broadcastsQuery.error)}>
+        <Button onClick={open} disabled={broadcastsAreSample}>
           New broadcast
         </Button>
       }
     >
-      {isEndpointUnavailable(deviceStatsQuery.error) ? (
-        <PendingBackend
-          feature="Push notification devices"
-          endpoints={[
-            "GET /admin/notifications/devices",
-            "GET /admin/notifications/devices/statistics",
-          ]}
-        />
-      ) : (
-        <Stack gap="xl">
-          {deviceStats && (
-            <SimpleGrid cols={{ base: 2, md: 5 }}>
-              {[
-                {
-                  label: "Registered devices",
-                  value: deviceStats.totalDevices,
-                  color: "#74C0FC",
-                },
-                {
-                  label: "Reachable now",
-                  value: deviceStats.activeDevices,
-                  color: "#63E6BE",
-                },
-                { label: "iOS", value: deviceStats.ios, color: "#D0BFFF" },
-                {
-                  label: "Android",
-                  value: deviceStats.android,
-                  color: "#F5C912",
-                },
-                {
-                  label: "Stale (30d+)",
-                  value: deviceStats.staleDevices,
-                  color: "#FF8787",
-                },
-              ].map((metric) => (
-                <StatTile key={metric.label} label={metric.label} value={formatCount(metric.value)} accent={metric.color} />
-              ))}
-            </SimpleGrid>
-          )}
+      <Stack gap="xl">
+        {(devicesAreSample || broadcastsAreSample) && (
+          <SampleDataNotice
+            integration={
+              devicesAreSample
+                ? "notification-devices"
+                : "notification-broadcasts"
+            }
+          />
+        )}
 
-          <Stack gap="sm">
-            <Text fw={700}>Registered devices</Text>
-            <PpTable
-              headers={deviceHeaders}
-              rowData={deviceRows}
-              showPagination={false}
-              isLoading={devicesQuery.isFetching}
-              emptyState={deviceEmptyState}
-            />
-          </Stack>
+        {deviceStats && (
+          <SimpleGrid cols={{ base: 2, md: 5 }}>
+            {[
+              {
+                label: "Registered devices",
+                value: deviceStats.totalDevices,
+                color: "#74C0FC",
+              },
+              {
+                label: "Reachable now",
+                value: deviceStats.activeDevices,
+                color: "#63E6BE",
+              },
+              { label: "iOS", value: deviceStats.ios, color: "#D0BFFF" },
+              {
+                label: "Android",
+                value: deviceStats.android,
+                color: "#F5C912",
+              },
+              {
+                label: "Stale (30d+)",
+                value: deviceStats.staleDevices,
+                color: "#FF8787",
+              },
+            ].map((metric) => (
+              <StatTile key={metric.label} label={metric.label} value={formatCount(metric.value)} accent={metric.color} />
+            ))}
+          </SimpleGrid>
+        )}
 
-          {isEndpointUnavailable(broadcastsQuery.error) ? (
-            <PendingBackend
-              feature="Notification broadcasts"
-              endpoints={[
-                "GET /admin/notifications/broadcasts",
-                "POST /admin/notifications/broadcasts",
-                "PATCH /admin/notifications/broadcasts/:id/cancel",
-              ]}
-            />
-          ) : (
-            <Stack gap="sm">
-              <Text fw={700}>Broadcasts</Text>
-              <PpTable
-                headers={broadcastHeaders}
-                rowData={broadcastRows}
-                totalItems={totalBroadcasts}
-                activePage={page}
-                setActivePage={setPage}
-                rowsPerPage={rowsPerPage}
-                isLoading={broadcastsQuery.isFetching}
-                emptyState={broadcastEmptyState}
-              />
-            </Stack>
-          )}
+        <Stack gap="sm">
+          <Text fw={700}>Registered devices</Text>
+          <PpTable
+            headers={deviceHeaders}
+            rowData={deviceRows}
+            showPagination={false}
+            isLoading={devicesQuery.isFetching && !devicesAreSample}
+            emptyState={deviceEmptyState}
+          />
         </Stack>
-      )}
+
+        <Stack gap="sm">
+          <Text fw={700}>Broadcasts</Text>
+          <PpTable
+            headers={broadcastHeaders}
+            rowData={broadcastRows}
+            totalItems={totalBroadcasts}
+            activePage={page}
+            setActivePage={setPage}
+            rowsPerPage={rowsPerPage}
+            isLoading={broadcastsQuery.isFetching && !broadcastsAreSample}
+            emptyState={broadcastEmptyState}
+          />
+        </Stack>
+      </Stack>
 
       <Modal opened={opened} onClose={close} title="New broadcast" centered>
         <Stack gap="md">

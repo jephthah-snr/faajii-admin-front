@@ -6,9 +6,12 @@ unauthenticated request returning **401** means the route exists; **404** means
 it is not served. The probe was validated against known-good routes first
 (`/v1/user/me` → 401, `/v1/home/feed` → 200, a nonsense path → 404).
 
-The admin renders a `PendingBackend` notice — naming the exact routes — wherever
-a module's endpoints answer 404, so an unfinished integration reads as "awaiting
-backend" rather than a broken page.
+Wherever a module's endpoints answer 404 the admin renders the screen on sample
+data (`src/mocks`) behind a `SampleDataNotice` banner, so an unfinished
+integration can still be reviewed and signed off instead of showing a broken or
+empty page. `/pending-backend` lists every such module with the routes it needs;
+that page and the banners both read from `src/config/pending-integrations.ts`,
+which is the machine-readable twin of this document.
 
 ## 1. Built admin modules the backend does not serve
 
@@ -88,6 +91,52 @@ already used by the live `/admin/events/:id/guests`, `/tickets`, `/planners`,
 | Discount codes | `GET /v1/events/:id/discount-codes` | `GET /admin/events/:id/discount-codes`<br>`PATCH /admin/events/:id/discount-codes/:codeId` |
 | Event purse | `POST /v1/event/:id/wallet/fund`, `/wallet/send` | `GET /admin/events/:id/wallet` |
 | Co-planners | `GET /v1/event/:id/co-planners` | `DELETE /admin/events/:id/planners/:coPlannerId` (list already live) |
+
+### Promoters (`/promoters`, plus the Promoters tab on an event)
+
+Promoters are live in the app (`src/modules/promoter` in `faajii-mobile-core`):
+a user switches a promoter profile on, applies to an event, the host answers
+with a commission offer, and each ticket sold on the promoter's tracked code
+credits their promoter wallet. Both sides read this under their own token —
+`/v1/promoter/*` for the promoter, `/v1/promoter/events/:id/promotions` for the
+host. There is no platform-wide view.
+
+```
+GET   /admin/promoters
+GET   /admin/promoters/statistics
+GET   /admin/promoters/:id            # profile + promotions + wallet ledger
+PATCH /admin/promoters/:id/status     # deactivate / reactivate a profile
+GET   /admin/events/:id/promotions    # the host's screen, admin-scoped
+```
+
+The admin list wants, per promoter: profile state, live and pending
+promotions, tickets sold, gross generated for hosts, commission earned and
+wallet balance — the last three keyed by currency (`{ "XOF": 315000 }`), since
+a promoter can sell into more than one market. `GET /admin/promoters/:id`
+returns the promotions and the wallet ledger (commission credits and
+withdrawals) inline, the way `/admin/gift-links/:id` returns well-wishers.
+
+### Event reach (`/event-reach`, plus the Reach tab on an event)
+
+Paid publications — `POST /v1/event/:id/publications` in the app — let a host
+push or email their event to people the platform already knows are interested:
+an abandoned checkout, a saved event, a viewed event, then a discovery fill.
+It is revenue and it is outbound messaging, so the admin needs sight of what
+was bought, what landed and what failed.
+
+```
+GET   /admin/publications
+GET   /admin/publications/statistics
+GET   /admin/publications/:reference          # campaign + recipients + breakdown
+GET   /admin/events/:id/publications
+GET   /admin/events/:id/publications/activity # the interest pool for one event
+```
+
+Shapes mirror the host-side payloads (`PublicationCampaign`,
+`PublicationRecipient`, `PublicationBreakdownRow`, `EventActivitySummary` in
+`src/modules/events/services/publicationsApi.ts`), plus the event and host each
+campaign belongs to — the admin list is cross-event, so a row has to name whose
+event it is.
 
 ### Host profiles (`/host-profiles`)
 
