@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Progress, SimpleGrid, Stack, Table, Text } from "@mantine/core";
+import { Badge, Progress, Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventPublications, GetEventReachActivity } from "@/services/api";
 import type {
@@ -8,8 +8,7 @@ import type {
   PublicationStatus,
 } from "@/services/api/publications/publication.types";
 import PpTable from "../table";
-import StatTile from "../stat-tile";
-import SampleDataNotice from "../../elements/sample-data-notice";
+import StatBar from "../stat-bar";
 import {
   asList,
   formatCount,
@@ -131,31 +130,21 @@ const Reach = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
-      {isSample && <SampleDataNotice integration="event-reach-tab" compact />}
-
-      <SimpleGrid cols={{ base: 2, md: 4 }}>
-        <StatTile
-          label="Viewed the event"
-          value={formatCount(activity?.view)}
-          accent="#74C0FC"
-        />
-        <StatTile
-          label="Saved it"
-          value={formatCount(activity?.bookmark)}
-          accent="#D0BFFF"
-        />
-        <StatTile
-          label="Almost paid"
-          value={formatCount(activity?.abandoned_checkout)}
-          accent="#F5C912"
-          hint="Started a checkout and dropped out"
-        />
-        <StatTile
-          label="Reachable audience"
-          value={formatCount(activity?.totalInterested)}
-          accent="#63E6BE"
-        />
-      </SimpleGrid>
+      <StatBar
+        items={[
+          { label: "Viewed the event", value: activity?.view ?? 0 },
+          { label: "Saved it", value: activity?.bookmark ?? 0 },
+          {
+            label: "Almost paid",
+            value: activity?.abandoned_checkout ?? 0,
+            hint: "Started a checkout and dropped out",
+          },
+          {
+            label: "Reachable audience",
+            value: activity?.totalInterested ?? 0,
+          },
+        ]}
+      />
 
       <Stack gap="sm">
         <Text fw={700}>Campaigns</Text>

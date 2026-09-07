@@ -2,6 +2,7 @@ export { default as Header } from "./header";
 export { default as SideNav } from "./side-nav";
 export { default as SummaryCard } from "./summary-card";
 export { default as StatTile } from "./stat-tile";
+export { default as StatBar } from "./stat-bar";
 export { default as PpTable } from "./table";
 export { default as TableToolbar } from "./table-toolbar";
 export { default as EmptyState } from "./empty-state";

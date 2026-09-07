@@ -13,7 +13,7 @@ import {
   SetMomoAccountEnabled,
 } from "@/services/api";
 import { MomoAccountStatus } from "@/services/api/finance/finance.types";
-import { PpTable, SampleDataNotice } from "@/components";
+import { PpTable } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -191,7 +191,6 @@ export default function MomoAccountsPage() {
       title="MoMo accounts"
       subTitle="Mobile money accounts linked for funding and payouts"
     >
-      {isSample && <SampleDataNotice integration="momo-accounts" mb="lg" />}
 
       <PpTable
         headers={tableHeaders}

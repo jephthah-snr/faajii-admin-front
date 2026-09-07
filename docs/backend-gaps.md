@@ -7,11 +7,11 @@ it is not served. The probe was validated against known-good routes first
 (`/v1/user/me` → 401, `/v1/home/feed` → 200, a nonsense path → 404).
 
 Wherever a module's endpoints answer 404 the admin renders the screen on sample
-data (`src/mocks`) behind a `SampleDataNotice` banner, so an unfinished
-integration can still be reviewed and signed off instead of showing a broken or
-empty page. `/pending-backend` lists every such module with the routes it needs;
-that page and the banners both read from `src/config/pending-integrations.ts`,
-which is the machine-readable twin of this document.
+data (`src/mocks`), so an unfinished integration can still be reviewed and
+signed off instead of showing a broken or empty page. `/pending-backend` is the
+single record of which screens those are, with the routes each one needs; it
+reads from `src/config/pending-integrations.ts`, the machine-readable twin of
+this document.
 
 ## 1. Built admin modules the backend does not serve
 
@@ -111,8 +111,9 @@ GET   /admin/events/:id/promotions    # the host's screen, admin-scoped
 
 The admin list wants, per promoter: profile state, live and pending
 promotions, tickets sold, gross generated for hosts, commission earned and
-wallet balance — the last three keyed by currency (`{ "XOF": 315000 }`), since
-a promoter can sell into more than one market. `GET /admin/promoters/:id`
+wallet balance. **Promoter money is FCFA (XOF) only** — commission is settled in
+one currency platform-wide regardless of the market an event sells in, so those
+fields are plain numbers, not per-currency maps. `GET /admin/promoters/:id`
 returns the promotions and the wallet ledger (commission credits and
 withdrawals) inline, the way `/admin/gift-links/:id` returns well-wishers.
 
@@ -137,6 +138,11 @@ Shapes mirror the host-side payloads (`PublicationCampaign`,
 `src/modules/events/services/publicationsApi.ts`), plus the event and host each
 campaign belongs to — the admin list is cross-event, so a row has to name whose
 event it is.
+
+`GET /admin/publications/statistics` returns `spend` **per market**
+(`{countryCode, currency, amount, campaigns}` — BJ, CI, NG), not one summed
+figure: the markets do not share a currency. The screen shows one region at a
+time, Benin by default.
 
 ### Host profiles (`/host-profiles`)
 

@@ -13,8 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GetEventWallet } from "@/services/api";
 import EmptyState from "../../blocks/empty-state";
 import PpTable from "../../blocks/table";
-import StatTile from "../../blocks/stat-tile";
-import SampleDataNotice from "../../elements/sample-data-notice";
+import StatBar from "../../blocks/stat-bar";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
   formatDateTime,
@@ -112,33 +111,29 @@ const Wallet = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
-      {isSample && <SampleDataNotice integration="event-wallet" compact />}
+      <Group justify="space-between" align="center">
+        <Text c="var(--fj-text-muted)" fz="sm">
+          Owner: {wallet.ownerName || `User #${wallet.userId}`}
+        </Text>
+        <Badge variant="light" color={wallet.isActive ? "teal" : "red"}>
+          {wallet.isActive ? "Purse active" : "Purse frozen"}
+        </Badge>
+      </Group>
 
-      <SimpleGrid cols={{ base: 2, md: 4 }}>
-        {[
-          { label: "Balance", value: wallet.balance, color: "#63E6BE" },
-          { label: "Total funded", value: wallet.totalFunded, color: "#74C0FC" },
-          { label: "Total spent", value: wallet.totalSpent, color: "#F5C912" },
-        ].map((metric) => (
-          <StatTile key={metric.label} label={metric.label} value={formatMoney(metric.value, currency)} accent={metric.color} />
-        ))}
-        <Card radius="lg" bg="var(--fj-surface-elevated)" p="md">
-          <Text fz="xs" c="var(--fj-text-muted)">
-            Purse status
-          </Text>
-          <Badge
-            mt={8}
-            size="lg"
-            variant="light"
-            color={wallet.isActive ? "teal" : "red"}
-          >
-            {wallet.isActive ? "Active" : "Frozen"}
-          </Badge>
-          <Text c="var(--fj-text-muted)" fz="xs" mt={8}>
-            Owner: {wallet.ownerName || `User #${wallet.userId}`}
-          </Text>
-        </Card>
-      </SimpleGrid>
+      <StatBar
+        minCellWidth={170}
+        items={[
+          { label: "Balance", value: formatMoney(wallet.balance, currency) },
+          {
+            label: "Total funded",
+            value: formatMoney(wallet.totalFunded, currency),
+          },
+          {
+            label: "Total spent",
+            value: formatMoney(wallet.totalSpent, currency),
+          },
+        ]}
+      />
 
       <Stack gap="sm">
         <Text fw={700} fz="lg">

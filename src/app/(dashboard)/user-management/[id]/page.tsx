@@ -632,24 +632,20 @@ const UserDetails = () => {
                         <StatTile
                           label="Events created"
                           value={quickStats?.EventsCreated || 0}
-                          accent="var(--fj-viz-1)"
                         />
                         <StatTile
                           label="Events co-planned"
                           value={quickStats?.eventsCoPlanned || 0}
-                          accent="var(--fj-viz-2)"
                         />
                         <StatTile
                           label="RSVPs received"
                           value={quickStats?.rsvpEvents || 0}
-                          accent="var(--fj-viz-3)"
                         />
                         <StatTile
                           label="Total spent"
                           value={`₦${formatStringAmount(
                             quickStats?.totalAmountSpent || 0,
                           )}`}
-                          accent="var(--fj-viz-4)"
                         />
                         <StatTile
                           label="Gifts sent"

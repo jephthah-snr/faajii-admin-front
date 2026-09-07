@@ -13,7 +13,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { GetEventSponsors, RemoveEventSponsor } from "@/services/api";
-import { ListSkeleton, SampleDataNotice } from "@/components/elements";
+import { ListSkeleton } from "@/components/elements";
 import EmptyState from "../empty-state";
 import { mockEventSponsors } from "@/mocks";
 import { IconNoSponsors, IconTrash, IconWebsite } from "@/config/icons";
@@ -77,9 +77,6 @@ const Sponsors = ({ eventId, variant = "full" }: SponsorsProps) => {
   return (
     <ScrollArea.Autosize mah={compact ? 200 : undefined} scrollbarSize={4}>
       <Stack gap={12}>
-        {isSample && !compact && (
-          <SampleDataNotice integration="event-sponsors" compact />
-        )}
 
         {sponsors.map((sponsor) => (
           <Flex key={sponsor.id} align="center" gap={10} wrap="nowrap">

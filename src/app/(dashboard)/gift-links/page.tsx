@@ -22,7 +22,7 @@ import {
   GiftLinkStatus,
   GiftLinkType,
 } from "@/services/api/gift-links/gift-links.types";
-import { PpTable, SampleDataNotice, TableSkeleton } from "@/components";
+import { PpTable, TableSkeleton } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -166,7 +166,6 @@ export default function GiftLinksPage() {
       title="Gift links"
       subTitle="Secret Santa and birthday pages users share to receive gifts"
     >
-      {isSample && <SampleDataNotice integration="gift-links" mb="lg" />}
 
       <PpTable
         headers={tableHeaders}

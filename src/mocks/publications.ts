@@ -252,8 +252,9 @@ export const mockPublicationStatistics: PublicationStatistics = {
   delivered: 942_610,
   failed: 12_884,
   spend: [
-    { currency: "XOF", amount: 14_820_000, campaigns: 806 },
-    { currency: "NGN", amount: 5_310_000, campaigns: 478 },
+    { countryCode: "BJ", currency: "XOF", amount: 9_140_000, campaigns: 512 },
+    { countryCode: "CI", currency: "XOF", amount: 5_680_000, campaigns: 294 },
+    { countryCode: "NG", currency: "NGN", amount: 5_310_000, campaigns: 478 },
   ],
   byChannel: [
     { channel: "push", campaigns: 902, delivered: 704_118 },

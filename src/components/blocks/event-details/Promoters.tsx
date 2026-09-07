@@ -1,17 +1,16 @@
 "use client";
 
-import { Avatar, Badge, Group, SimpleGrid, Stack, Table, Text } from "@mantine/core";
+import { Avatar, Badge, Group, Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventPromotions } from "@/services/api";
 import type { PromotionStatus } from "@/services/api/promoters/promoter.types";
 import PpTable from "../table";
-import StatTile from "../stat-tile";
-import SampleDataNotice from "../../elements/sample-data-notice";
+import StatBar from "../stat-bar";
 import {
   asList,
   formatCommission,
   formatCount,
-  formatCurrencyTotals,
+  formatFcfa,
   formatDateTime,
   formatStatusLabel,
   isEndpointUnavailable,
@@ -69,20 +68,13 @@ const Promoters = ({ eventId }: { eventId: string }) => {
     0,
   );
 
-  /** Sums the per-promotion currency maps into one platform-wide total. */
-  const totalBy = (key: "grossByCurrency" | "earnedByCurrency") =>
-    promotions.reduce<Record<string, number>>((totals, promotion) => {
-      Object.entries(promotion[key] || {}).forEach(([currency, amount]) => {
-        totals[currency] = (totals[currency] || 0) + Number(amount || 0);
-      });
-      return totals;
-    }, {});
+  const totalBy = (key: "gross" | "earned") =>
+    promotions.reduce((total, promotion) => total + (promotion[key] || 0), 0);
 
   const rows = promotions.map((promotion) => {
     const commission = formatCommission(
       promotion.commissionType,
       promotion.commissionValue,
-      promotion.currency,
     );
 
     return (
@@ -116,10 +108,8 @@ const Promoters = ({ eventId }: { eventId: string }) => {
           {promotion.promoterCode || "—"}
         </Table.Td>
         <Table.Td>{formatCount(promotion.ticketsSold)}</Table.Td>
-        <Table.Td fw={650}>
-          {formatCurrencyTotals(promotion.grossByCurrency)}
-        </Table.Td>
-        <Table.Td>{formatCurrencyTotals(promotion.earnedByCurrency)}</Table.Td>
+        <Table.Td fw={650}>{formatFcfa(promotion.gross)}</Table.Td>
+        <Table.Td>{formatFcfa(promotion.earned)}</Table.Td>
         <Table.Td>{formatDateTime(promotion.created_at)}</Table.Td>
       </Table.Tr>
     );
@@ -127,32 +117,26 @@ const Promoters = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
-      {isSample && <SampleDataNotice integration="event-promoters" compact />}
-
-      <SimpleGrid cols={{ base: 2, md: 4 }}>
-        <StatTile
-          label="Awaiting an offer"
-          value={formatCount(awaitingOffer)}
-          accent="#F5C912"
-          hint={`${formatCount(offered)} offered, not accepted`}
-        />
-        <StatTile
-          label="Promoting now"
-          value={formatCount(live)}
-          accent="#63E6BE"
-        />
-        <StatTile
-          label="Tickets sold"
-          value={formatCount(ticketsSold)}
-          accent="#74C0FC"
-          hint={`${formatCurrencyTotals(totalBy("grossByCurrency"))} generated`}
-        />
-        <StatTile
-          label="Commission earned"
-          value={formatCurrencyTotals(totalBy("earnedByCurrency"))}
-          accent="#D0BFFF"
-        />
-      </SimpleGrid>
+      <StatBar
+        minCellWidth={160}
+        items={[
+          {
+            label: "Awaiting an offer",
+            value: awaitingOffer,
+            hint: `${formatCount(offered)} offered, not accepted`,
+          },
+          { label: "Promoting now", value: live },
+          {
+            label: "Tickets sold",
+            value: ticketsSold,
+            hint: `${formatFcfa(totalBy("gross"))} generated`,
+          },
+          {
+            label: "Commission earned",
+            value: formatFcfa(totalBy("earned")),
+          },
+        ]}
+      />
 
       <PpTable
         headers={tableHeaders}

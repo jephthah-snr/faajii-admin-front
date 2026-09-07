@@ -8,9 +8,8 @@
  *     on the top-left of the border
  *
  * The label is a sibling *above* the input in Mantine's DOM, so it is absolutely
- * positioned out of the flow and revealed with `:focus-within` (focused) or
- * `:has(:not(:placeholder-shown))` (filled) — matching the app's `focused ||
- * forceShowLabel` condition without needing per-call-site state.
+ * positioned out of the flow and revealed on `:focus-within` alone — it names
+ * the field you are editing, then gets out of the way.
  */
 
 .inputRoot {
@@ -91,11 +90,10 @@
     transform 140ms ease;
 }
 
-/* Focused, or holding a value. */
-.inputRoot:focus-within .floatingLabel,
-.inputRoot:has(input:not(:placeholder-shown)) .floatingLabel,
-.inputRoot:has(textarea:not(:placeholder-shown)) .floatingLabel,
-.inputRoot:has(input[value]:not([value=""])) .floatingLabel {
+/* Focus only. A label that stays up on a filled field is a permanent tab over
+   the border for every field on screen; the placeholder has already done its
+   job by then, and the value speaks for itself. */
+.inputRoot:focus-within .floatingLabel {
   opacity: 1;
   transform: translateY(0);
 }

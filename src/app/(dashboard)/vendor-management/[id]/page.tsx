@@ -289,9 +289,11 @@ const VendorDetailsPage = () => {
             <Text c="#F8F8F8E5" fz={14}>
               {data?.event?.name}
             </Text>
-            <Text c="#FFFFFF80" fz={12}>
-              {data?.event?.description}
-            </Text>
+            <Box maw={200}>
+              <Text c="#FFFFFF80" fz={12} truncate="end">
+                {data?.event?.description}
+              </Text>
+            </Box>
           </Flex>
         </Table.Td>
         <Table.Td>
@@ -529,10 +531,18 @@ const VendorDetailsPage = () => {
                     {vendorTransactions?.map((transaction) => (
                       <Table.Tr key={transaction.id}>
                         <Table.Td fw={600}>{transaction.reference}</Table.Td>
-                        <Table.Td>{transaction.event?.name || "Direct payout"}</Table.Td>
                         <Table.Td>
-                          <Text>{transaction.narration || transaction.category}</Text>
-                          <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">
+                          {transaction.event?.name || "Direct payout"}
+                        </Table.Td>
+                        <Table.Td>
+                          <Text>
+                            {transaction.narration || transaction.category}
+                          </Text>
+                          <Text
+                            c="var(--fj-text-muted)"
+                            fz="xs"
+                            tt="capitalize"
+                          >
                             {transaction.type}
                           </Text>
                         </Table.Td>

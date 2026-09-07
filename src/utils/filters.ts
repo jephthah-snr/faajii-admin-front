@@ -443,3 +443,20 @@ export const publicationFilters: FilterItem[] = [
       v === "Awaiting payment" ? "pending_payment" : v?.toLowerCase(),
   },
 ];
+
+export const hostProfileFilters: FilterItem[] = [
+  {
+    title: "Review",
+    apiKey: "approvalStatus",
+    default: "All",
+    items: ["All", "Pending", "Approved", "Rejected"],
+    transform: (v) => v?.toLowerCase(),
+  },
+  {
+    title: "Type",
+    apiKey: "type",
+    default: "All",
+    items: ["All", "Custom", "Personal"],
+    transform: (v) => (v === "Personal" ? "user_profile" : "custom"),
+  },
+];

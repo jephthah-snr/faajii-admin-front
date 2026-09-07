@@ -181,6 +181,7 @@ const theme = createTheme({
     bg: "var(--fj-bg)",
     surface: "var(--fj-surface)",
     surfaceCard: "var(--fj-surface-card)",
+    surfaceMuted: "var(--fj-surface-muted)",
     surfaceElevated: "var(--fj-surface-elevated)",
     border: "var(--fj-border)",
     borderSubtle: "var(--fj-border-subtle)",
@@ -368,6 +369,15 @@ const theme = createTheme({
     }),
     Badge: Badge.extend({
       defaultProps: { radius: "sm", variant: "light" },
+      /**
+       * A badge names a status, so a table column squeezing it to "Pendi…"
+       * defeats the point. Mantine truncates the label by default; here it
+       * keeps its full width and the column gives way instead.
+       */
+      styles: {
+        root: { maxWidth: "none" },
+        label: { overflow: "visible", textOverflow: "clip" },
+      },
     }),
     Progress: Progress.extend({
       defaultProps: { radius: "xl", size: "sm" },

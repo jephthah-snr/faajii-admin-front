@@ -22,7 +22,7 @@ import {
   GetPurchaseStatistics,
 } from "@/services/api";
 import { PurchaseChannel } from "@/services/api/purchases/purchase.types";
-import { PpTable } from "@/components";
+import { PpTable, StatBar } from "@/components";
 import {
   asList,
   purchaseEmptyState,
@@ -143,29 +143,21 @@ export default function PurchasesPage() {
       title="Purchases"
       subTitle="Every ticket checkout from mobile, web, and external integrations."
     >
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} mb="xl">
-        <Card radius="lg">
-          <Text c="var(--fj-text-muted)" fz="sm">
-            Tickets issued
-          </Text>
-          <Text fw={700} fz={28}>
-            {statistics?.totalTickets || 0}
-          </Text>
-        </Card>
-        {paidTotals.map((total) => (
-          <Card key={total.currency} radius="lg">
-            <Text c="var(--fj-text-muted)" fz="sm">
-              Paid volume · {total.currency}
-            </Text>
-            <Text fw={700} fz={28}>
-              {money(total.amount, total.currency)}
-            </Text>
-            <Text c="var(--fj-text-muted)" fz="xs">
-              {total.purchases} successful purchases
-            </Text>
-          </Card>
-        ))}
-      </SimpleGrid>
+      <StatBar
+        mb="xl"
+        minCellWidth={175}
+        items={[
+          {
+            label: "Tickets issued",
+            value: statistics?.totalTickets || 0,
+          },
+          ...paidTotals.map((total) => ({
+            label: `Paid volume · ${total.currency}`,
+            value: money(total.amount, total.currency),
+            hint: `${total.purchases} successful purchases`,
+          })),
+        ]}
+      />
 
       <PpTable
         headers={tableHeaders}
@@ -209,24 +201,29 @@ export default function PurchasesPage() {
             const purchase = purchaseDetailQuery.data.data;
             return (
               <Stack gap="lg">
-                <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
-                  <Evidence
-                    label="Payment received"
-                    ok={Boolean(purchase.paymentEvidence?.received)}
-                  />
-                  <Evidence
-                    label="Tickets issued"
-                    ok={purchase.fulfillmentEvidence?.status === "issued"}
-                  />
-                  <Evidence
-                    label="Wallet credited"
-                    ok={purchase.walletCredit?.status === "success"}
-                  />
-                  <Evidence
-                    label="Market consistent"
-                    ok={Boolean(purchase.market?.consistent)}
-                  />
-                </SimpleGrid>
+                <Card withBorder>
+                  <Text fz="xs" c="dimmed" mb="xs">
+                    Checks
+                  </Text>
+                  <Group gap="sm">
+                    <Evidence
+                      label="Payment received"
+                      ok={Boolean(purchase.paymentEvidence?.received)}
+                    />
+                    <Evidence
+                      label="Tickets issued"
+                      ok={purchase.fulfillmentEvidence?.status === "issued"}
+                    />
+                    <Evidence
+                      label="Wallet credited"
+                      ok={purchase.walletCredit?.status === "success"}
+                    />
+                    <Evidence
+                      label="Market consistent"
+                      ok={Boolean(purchase.market?.consistent)}
+                    />
+                  </Group>
+                </Card>
 
                 <Card withBorder>
                   <SimpleGrid cols={{ base: 1, sm: 2 }}>
@@ -355,14 +352,21 @@ export default function PurchasesPage() {
   );
 }
 
+/**
+ * One pass/fail check on a checkout. These read as a row of chips rather than
+ * four cards: the answer is a single word, and four boxes made a yes/no look
+ * like a metric.
+ */
 function Evidence({ label, ok }: { label: string; ok: boolean }) {
   return (
-    <Card withBorder>
-      <Text fz="xs" c="dimmed">
-        {label}
-      </Text>
-      <Badge color={ok ? "teal" : "red"}>{ok ? "Yes" : "No"}</Badge>
-    </Card>
+    <Badge
+      size="lg"
+      variant="light"
+      color={ok ? "teal" : "red"}
+      leftSection={ok ? "✓" : "✕"}
+    >
+      {label}
+    </Badge>
   );
 }
 

@@ -16,7 +16,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
 import { GetFinanceSummary, GetWallets } from "@/services/api";
 import { WalletScope } from "@/services/api/finance/finance.types";
-import { PpTable, SampleDataNotice, StatTile } from "@/components";
+import { PpTable, StatBar } from "@/components";
 import {
   asList,
   formatCount,
@@ -126,38 +126,29 @@ export default function WalletsPage() {
       subTitle="User wallets and event purses across the platform"
     >
       <Stack gap="xl">
-        {isSample && <SampleDataNotice integration="wallets" />}
-
         {summary && (
           <Stack gap="md">
-            <SimpleGrid cols={{ base: 2, md: 4 }}>
-              {[
+            <StatBar
+              items={[
                 {
                   label: "Funded today",
-                  value: summary.fundingToday,
-                  color: "#63E6BE",
+                  value: formatMoney(summary.fundingToday),
                 },
                 {
                   label: "Paid out today",
-                  value: summary.payoutsToday,
-                  color: "#F5C912",
+                  value: formatMoney(summary.payoutsToday),
                 },
                 {
                   label: "Pending settlements",
-                  value: summary.pendingSettlements,
-                  color: "#74C0FC",
+                  value: formatCount(summary.pendingSettlements),
                 },
                 {
                   label: "Failed transfers",
-                  value: summary.failedTransfers,
-                  color: "#FF8787",
+                  value: formatCount(summary.failedTransfers),
                 },
-              ].map((metric) => (
-                <StatTile key={metric.label} label={metric.label} value={metric.label.includes("today")
-                      ? formatMoney(metric.value)
-                      : formatCount(metric.value)} accent={metric.color} />
-              ))}
-            </SimpleGrid>
+              ]}
+              minCellWidth={170}
+            />
 
             <SimpleGrid cols={{ base: 1, md: 3 }}>
               {asList(summary.totals).map((total) => (

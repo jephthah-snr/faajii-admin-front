@@ -4,7 +4,6 @@ import {
   DownloadCsvButton,
   FormatDate,
   PpTable,
-  SampleDataNotice,
   StatusBadge,
   PaymentTrackingModal,
 } from "@/components";
@@ -280,7 +279,6 @@ const PaymentTrackingPage = () => {
 
   return (
     <AppLayout title="Reconciliation">
-      {isSample && <SampleDataNotice integration="payment-tracking" mb="lg" />}
 
       <Box>
         <PpTable

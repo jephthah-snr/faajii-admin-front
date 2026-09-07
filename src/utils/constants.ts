@@ -34,3 +34,16 @@ export const eventStoreHeaders = [
   "Status",
   "Action",
 ];
+
+/**
+ * The markets Faajii sells reach in. Benin leads because it is where the app
+ * started and where most campaigns are bought; each market bills in its own
+ * currency, so revenue is only ever read one region at a time.
+ */
+export const reachRegions = [
+  { code: "BJ", label: "Benin", currency: "XOF" },
+  { code: "CI", label: "Côte d'Ivoire", currency: "XOF" },
+  { code: "NG", label: "Nigeria", currency: "NGN" },
+];
+
+export const defaultReachRegion = "BJ";

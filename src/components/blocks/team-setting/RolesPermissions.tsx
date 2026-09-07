@@ -15,7 +15,7 @@ import {
 import inputClasses from "@/styles/Input.module.css";
 import classes from "@/styles/General.module.css";
 import { useDisclosure } from "@mantine/hooks";
-import { CreateRoleModal, SampleDataNotice } from "@/components/elements";
+import { CreateRoleModal } from "@/components/elements";
 import {
   asList,
   isEndpointUnavailable,
@@ -152,7 +152,6 @@ const RolesPermissions = () => {
 
   return (
     <Box>
-      {isSample && <SampleDataNotice integration="roles-permissions" compact />}
 
       {/* Search + Create role */}
       <Flex

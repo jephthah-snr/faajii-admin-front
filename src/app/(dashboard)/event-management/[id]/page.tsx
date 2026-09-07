@@ -3,7 +3,6 @@
 import {
   Badge,
   Group,
-  SimpleGrid,
   Stack,
   Table,
   Tabs,
@@ -33,7 +32,7 @@ import {
   EventTasks,
   EventWallet,
   PpTable,
-  StatTile,
+  StatBar,
 } from "@/components";
 import {
   formatDateTime as formatDate,
@@ -294,17 +293,28 @@ export default function EventDetailsPage() {
         </Tabs.Panel>
 
         <Tabs.Panel value="guests">
-          <SimpleGrid cols={{ base: 2, md: 5 }} mb="lg">
-            {[
-              { label: "Tickets issued", value: ticketTracking?.summary?.issued || 0, color: "#F5C912" },
-              { label: "Active", value: ticketTracking?.summary?.active || 0, color: "#74C0FC" },
-              { label: "Checked in", value: ticketTracking?.summary?.used || 0, color: "#63E6BE" },
-              { label: "Cancelled", value: ticketTracking?.summary?.cancelled || 0, color: "#FF8787" },
-              { label: "Ticket holders", value: ticketTracking?.summary?.uniqueHolders || 0, color: "#D0BFFF" },
-            ].map((metric) => (
-              <StatTile key={metric.label} label={metric.label} value={metric.value.toLocaleString()} accent={metric.color} />
-            ))}
-          </SimpleGrid>
+          <StatBar
+            mb="lg"
+            items={[
+              {
+                label: "Tickets issued",
+                value: ticketTracking?.summary?.issued || 0,
+              },
+              { label: "Active", value: ticketTracking?.summary?.active || 0 },
+              {
+                label: "Checked in",
+                value: ticketTracking?.summary?.used || 0,
+              },
+              {
+                label: "Cancelled",
+                value: ticketTracking?.summary?.cancelled || 0,
+              },
+              {
+                label: "Ticket holders",
+                value: ticketTracking?.summary?.uniqueHolders || 0,
+              },
+            ]}
+          />
 
           <Text fw={700} fz="lg" mb="sm">Guest directory</Text>
           <PpTable

@@ -7,7 +7,6 @@ import {
   OrderDetailsModal,
   OrderStatusModal,
   PpTable,
-  SampleDataNotice,
   StatusBadge,
   StatusFilter,
   TableToolbar,
@@ -345,7 +344,6 @@ const OrderManagement = () => {
   return (
     <AppLayout title="Order Tracking">
       <Flex direction="column" gap={20}>
-        {isSample && <SampleDataNotice integration="order-management" />}
 
         {/* Summary */}
         {/* <ScrollArea scrollbarSize={0}>

@@ -2,32 +2,27 @@
 
 import {
   Badge,
-  Card,
   Group,
-  Modal,
   Progress,
-  SimpleGrid,
+  Select,
   Stack,
   Table,
   Text,
 } from "@mantine/core";
-import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { useDebouncedValue } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
+import { GetPublicationStatistics, GetPublications } from "@/services/api";
 import {
-  GetPublication,
-  GetPublicationStatistics,
-  GetPublications,
-} from "@/services/api";
-import {
-  AdminPublication,
   PublicationChannel,
   PublicationStatus,
 } from "@/services/api/publications/publication.types";
-import { PpTable, SampleDataNotice, StatTile } from "@/components";
+import { PpTable, StatBar } from "@/components";
 import {
   asList,
+  defaultReachRegion,
   formatCount,
   formatDateTime,
   formatMoney,
@@ -35,17 +30,11 @@ import {
   isEndpointUnavailable,
   publicationEmptyState,
   publicationFilters,
-  reachAudienceLabel,
-  reachDeliveryByAudience,
+  reachRegions,
   retryUnlessUnavailable,
   rowsPerPage,
 } from "@/utils";
-import { IconNoUsers } from "@/config/icons";
-import {
-  mockPublicationDetail,
-  mockPublicationStatistics,
-  mockPublications,
-} from "@/mocks";
+import { mockPublicationStatistics, mockPublications } from "@/mocks";
 
 const statusColor: Record<PublicationStatus, string> = {
   pending_payment: "yellow",
@@ -71,28 +60,21 @@ const tableHeaders = [
   "Created",
 ];
 
-const recipientHeaders = ["Recipient", "Audience", "Status", "Sent"];
-
-const recipientEmptyState = {
-  title: "No recipients recorded",
-  description:
-    "Recipients are logged once the campaign is paid for and sending starts.",
-  icon: IconNoUsers,
-};
-
 /**
  * Event reach — the paid push/email publications hosts buy to put an event in
  * front of people the platform already knows are interested (they abandoned a
- * checkout, saved it, or viewed it), topped up with a discovery fill. This is
- * the platform-wide view of what was bought, what landed, and what it earned.
+ * checkout, saved it, or viewed it), topped up with a discovery fill. A row
+ * opens the campaign's own page, where the audience and the recipient list get
+ * a tab each.
  */
 export default function EventReachPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 400);
   const [filters, setFilters] = useState<Record<string, string>>({});
-  const [selected, setSelected] = useState<AdminPublication | null>(null);
-  const [opened, { open, close }] = useDisclosure(false);
+  /** Revenue is read one market at a time — see `reachRegions`. */
+  const [region, setRegion] = useState(defaultReachRegion);
 
   const channel = filters.channel as PublicationChannel | undefined;
   const status = filters.status as PublicationStatus | undefined;
@@ -116,13 +98,6 @@ export default function EventReachPage() {
     retry: retryUnlessUnavailable,
   });
 
-  const detailQuery = useQuery({
-    queryKey: ["admin-publication", selected?.reference],
-    queryFn: () => GetPublication(selected!.reference),
-    enabled: Boolean(selected) && opened,
-    retry: retryUnlessUnavailable,
-  });
-
   // Admin-scoped publication routes are not deployed yet — sample data below.
   const isSample = isEndpointUnavailable(campaignsQuery.error);
   const stats = isSample ? mockPublicationStatistics : statsQuery.data?.data;
@@ -132,15 +107,18 @@ export default function EventReachPage() {
   const totalItems = isSample
     ? mockPublications.length
     : campaignsQuery.data?.data?.pagination?.total || 0;
-  const detail = isSample
-    ? mockPublicationDetail(selected?.reference)
-    : detailQuery.data?.data;
-  const campaign = detail?.campaign ?? selected;
 
-  const openCampaign = (row: AdminPublication) => {
-    setSelected(row);
-    open();
-  };
+  const channelSplit = asList(stats?.byChannel)
+    .map(
+      (row) => `${formatCount(row.delivered)} on ${channelLabel[row.channel]}`,
+    )
+    .join(" · ");
+
+  const activeRegion =
+    reachRegions.find((entry) => entry.code === region) || reachRegions[0];
+  const regionSpend = asList(stats?.spend).find(
+    (total) => total.countryCode === region,
+  );
 
   const rows = campaigns.map((row) => {
     const attempted = row.sentCount + row.failedCount;
@@ -153,7 +131,7 @@ export default function EventReachPage() {
       <Table.Tr
         key={row.reference}
         className="cursor-pointer"
-        onClick={() => openCampaign(row)}
+        onClick={() => router.push(`/event-reach/${row.reference}`)}
       >
         <Table.Td maw={280}>
           <Text fw={650} lineClamp={1}>
@@ -185,7 +163,7 @@ export default function EventReachPage() {
             </Text>
           )}
         </Table.Td>
-        <Table.Td>
+        <Table.Td miw={150}>
           <Text fz="sm">
             {formatCount(row.sentCount)} sent
             {attempted === 0 ? " · not started" : ""}
@@ -216,103 +194,62 @@ export default function EventReachPage() {
     );
   });
 
-  const recipientRows = asList(detail?.recipients).map((recipient) => (
-    <Table.Tr key={recipient.id}>
-      <Table.Td>
-        <Text fw={600}>{recipient.name || `User #${recipient.userId}`}</Text>
-        <Text c="var(--fj-text-muted)" fz="xs">
-          {recipient.email || "No email"}
-        </Text>
-      </Table.Td>
-      <Table.Td>
-        <Badge variant="light">
-          {reachAudienceLabel(recipient.selectionReason)}
-        </Badge>
-      </Table.Td>
-      <Table.Td>
-        <Badge
-          variant="light"
-          color={
-            recipient.status === "sent"
-              ? "teal"
-              : recipient.status === "failed"
-                ? "red"
-                : "gray"
-          }
-        >
-          {formatStatusLabel(recipient.status)}
-        </Badge>
-        {recipient.failureReason && (
-          <Text c="#FF8787" fz="xs" mt={4} lineClamp={1}>
-            {recipient.failureReason}
-          </Text>
-        )}
-      </Table.Td>
-      <Table.Td>{formatDateTime(recipient.sentAt, "—")}</Table.Td>
-    </Table.Tr>
-  ));
-
-  const deliveryByAudience = reachDeliveryByAudience(detail?.breakdown);
-
   return (
     <AppLayout
       title="Event Reach"
       subTitle="Paid push and email publications hosts buy to reach interested users"
     >
       <Stack gap="xl">
-        {isSample && <SampleDataNotice integration="event-reach" />}
-
         {stats && (
-          <SimpleGrid cols={{ base: 2, md: 4 }}>
-            <StatTile
-              label="Campaigns"
-              value={formatCount(stats.totalCampaigns)}
-              accent="#74C0FC"
-              hint={`${formatCount(stats.pendingPayment)} awaiting payment`}
-            />
-            <StatTile
-              label="People reached"
-              value={formatCount(stats.delivered)}
-              accent="#63E6BE"
-            />
-            <StatTile
-              label="Failed sends"
-              value={formatCount(stats.failed)}
-              accent="#FF8787"
-            />
-            <StatTile
-              label="Reach revenue"
-              value={
-                asList(stats.spend)
-                  .map((total) => formatMoney(total.amount, total.currency))
-                  .join(" · ") || "—"
-              }
-              accent="#F5C912"
-            />
-          </SimpleGrid>
-        )}
+          <Stack gap="sm">
+            <Group justify="flex-end" gap={8} align="center">
+              <Text fz={12} c="var(--fj-text-muted)">
+                Revenue region
+              </Text>
+              <Select
+                size="xs"
+                w={190}
+                allowDeselect={false}
+                aria-label="Revenue region"
+                value={region}
+                onChange={(value) => setRegion(value || defaultReachRegion)}
+                data={reachRegions.map((entry) => ({
+                  value: entry.code,
+                  label: `${entry.label} (${entry.currency})`,
+                }))}
+              />
+            </Group>
 
-        {stats && asList(stats.byChannel).length > 0 && (
-          <SimpleGrid cols={{ base: 1, md: 2 }}>
-            {asList(stats.byChannel).map((row) => (
-              <Card key={row.channel} radius="lg" p="md">
-                <Group justify="space-between">
-                  <Text fz="xs" c="var(--fj-text-muted)">
-                    {channelLabel[row.channel]} campaigns
-                  </Text>
-                  <Badge variant="light">
-                    {formatCount(row.campaigns)} sent
-                  </Badge>
-                </Group>
-                <Text fz={24} fw={800} mt={6}>
-                  {formatCount(row.delivered)}
-                </Text>
-                <Text c="var(--fj-text-muted)" fz="xs" mt={4}>
-                  people reached on this channel
-                </Text>
-              </Card>
-            ))}
-          </SimpleGrid>
+            <StatBar
+              minCellWidth={175}
+              items={[
+                {
+                  label: "Campaigns",
+                  value: stats.totalCampaigns,
+                  hint: `${formatCount(stats.pendingPayment)} awaiting payment`,
+                },
+                {
+                  label: "People reached",
+                  value: stats.delivered,
+                  hint: channelSplit || undefined,
+                },
+                {
+                  label: "Failed sends",
+                  value: stats.failed,
+                  hint: "Bad tokens and bounced addresses",
+                },
+                {
+                  label: `Reach revenue · ${activeRegion.label}`,
+                  value: regionSpend
+                    ? formatMoney(regionSpend.amount, regionSpend.currency)
+                    : formatMoney(0, activeRegion.currency),
+                  hint: `${formatCount(
+                    regionSpend?.campaigns,
+                  )} campaigns in this market`,
+                },
+              ]}
+            />
+          </Stack>
         )}
 
         <PpTable
@@ -322,7 +259,7 @@ export default function EventReachPage() {
           activePage={page}
           setActivePage={setPage}
           rowsPerPage={rowsPerPage}
-          isLoading={campaignsQuery.isFetching}
+          isLoading={campaignsQuery.isFetching && !isSample}
           hasActions
           filters={publicationFilters}
           onFilterChange={(next) => {
@@ -334,158 +271,10 @@ export default function EventReachPage() {
             setSearch(value);
             setPage(1);
           }}
-        searchPlaceholder="Search campaign, reference or event"
-        emptyState={publicationEmptyState}
-      />
+          searchPlaceholder="Search campaign, reference or event"
+          emptyState={publicationEmptyState}
+        />
       </Stack>
-
-      <Modal
-        opened={opened}
-        onClose={close}
-        title={campaign?.title || "Campaign"}
-        size="xl"
-        centered
-      >
-        {campaign && (
-          <Stack gap="lg">
-            <Group justify="space-between" align="flex-start">
-              <Stack gap={2}>
-                <Text fw={700} fz="lg">
-                  {campaign.event?.name || "Event removed"}
-                </Text>
-                <Text c="var(--fj-text-muted)" fz="sm">
-                  {campaign.owner?.name || "Unknown host"} ·{" "}
-                  {campaign.owner?.email || "No email"}
-                </Text>
-                <Text c="var(--fj-text-muted)" fz="xs" ff="monospace">
-                  {campaign.reference}
-                </Text>
-              </Stack>
-              <Badge variant="light" color={statusColor[campaign.status]}>
-                {formatStatusLabel(campaign.status)}
-              </Badge>
-            </Group>
-
-            <Card radius="md" p="sm">
-              <Text fz="xs" c="var(--fj-text-muted)">
-                Message sent
-              </Text>
-              <Text fw={650} mt={4}>
-                {campaign.title}
-              </Text>
-              <Text fz="sm">{campaign.message}</Text>
-            </Card>
-
-            <SimpleGrid cols={{ base: 2, md: 4 }}>
-              <StatTile
-                label="Requested reach"
-                value={formatCount(campaign.userRequestedReach)}
-                accent="#74C0FC"
-              />
-              <StatTile
-                label="Deliverable reach"
-                value={formatCount(campaign.deliverableReach)}
-                accent="#D0BFFF"
-              />
-              <StatTile
-                label="Delivered"
-                value={formatCount(campaign.sentCount)}
-                accent="#63E6BE"
-                hint={
-                  campaign.failedCount > 0
-                    ? `${formatCount(campaign.failedCount)} failed`
-                    : undefined
-                }
-              />
-              <StatTile
-                label="Amount paid"
-                value={formatMoney(campaign.totalAmount, campaign.currency)}
-                accent="#F5C912"
-                hint={`${formatMoney(campaign.unitPrice, campaign.currency)} per person`}
-              />
-            </SimpleGrid>
-
-            {campaign.failureReason && (
-              <Card radius="md" p="sm" bg="rgba(255,135,135,0.08)">
-                <Text fz="xs" c="var(--fj-text-muted)">
-                  Failure reason
-                </Text>
-                <Text fz="sm" c="#FF8787">
-                  {campaign.failureReason}
-                </Text>
-              </Card>
-            )}
-
-            {campaign.breakdown && (
-              <Stack gap="sm">
-                <Text fw={700}>Audience bought</Text>
-                <SimpleGrid cols={{ base: 2, md: 4 }}>
-                  {(
-                    [
-                      "abandoned_checkout",
-                      "bookmark",
-                      "interested_view",
-                      "discovery_fill",
-                    ] as const
-                  ).map((reason) => (
-                    <Card key={reason} radius="md" p="sm">
-                      <Text fz="xs" c="var(--fj-text-muted)">
-                        {reachAudienceLabel(reason)}
-                      </Text>
-                      <Text fw={700} fz={20}>
-                        {formatCount(campaign.breakdown?.[reason])}
-                      </Text>
-                    </Card>
-                  ))}
-                </SimpleGrid>
-              </Stack>
-            )}
-
-            {deliveryByAudience.length > 0 && (
-              <Stack gap="sm">
-                <Text fw={700}>Delivery by audience</Text>
-                {deliveryByAudience.map((entry) => (
-                  <Group key={entry.reason} justify="space-between">
-                    <Text fz="sm">{reachAudienceLabel(entry.reason)}</Text>
-                    <Text fz="sm" c="var(--fj-text-muted)">
-                      {[
-                        entry.sent > 0 && `${formatCount(entry.sent)} sent`,
-                        entry.failed > 0 &&
-                          `${formatCount(entry.failed)} failed`,
-                        entry.pending > 0 &&
-                          `${formatCount(entry.pending)} pending`,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </Text>
-                  </Group>
-                ))}
-              </Stack>
-            )}
-
-            <Stack gap="sm">
-              <Text fw={700}>Recipients</Text>
-              <PpTable
-                headers={recipientHeaders}
-                rowData={recipientRows}
-                showPagination={false}
-                isLoading={detailQuery.isFetching && !isSample}
-                emptyState={recipientEmptyState}
-                skeletonRows={4}
-              />
-            </Stack>
-
-            <Group gap="lg">
-              <Text c="var(--fj-text-muted)" fz="xs">
-                Paid {formatDateTime(campaign.paidAt, "not yet")}
-              </Text>
-              <Text c="var(--fj-text-muted)" fz="xs">
-                Completed {formatDateTime(campaign.completedAt, "not yet")}
-              </Text>
-            </Group>
-          </Stack>
-        )}
-      </Modal>
     </AppLayout>
   );
 }

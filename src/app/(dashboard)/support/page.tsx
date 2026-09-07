@@ -8,7 +8,6 @@ import {
   Group,
   Modal,
   Select,
-  SimpleGrid,
   Stack,
   Table,
   Text,
@@ -33,8 +32,7 @@ import {
 } from "@/services/api/support/support.types";
 import {
   PpTable,
-  SampleDataNotice,
-  StatTile,
+  StatBar,
   TableSkeleton,
 } from "@/components";
 import {
@@ -240,38 +238,24 @@ export default function SupportPage() {
       subTitle="Complaints and requests raised from the Faajii app"
     >
       <Stack gap="xl">
-        {isSample && <SampleDataNotice integration="support" />}
-
         {stats && (
-          <SimpleGrid cols={{ base: 2, md: 5 }}>
-            {[
-              { label: "Open", value: stats.open, color: "#74C0FC" },
-              {
-                label: "Awaiting user",
-                value: stats.pending,
-                color: "#F5C912",
-              },
-              {
-                label: "Resolved today",
-                value: stats.resolvedToday,
-                color: "#63E6BE",
-              },
+          <StatBar
+            items={[
+              { label: "Open", value: stats.open },
+              { label: "Awaiting user", value: stats.pending },
+              { label: "Resolved today", value: stats.resolvedToday },
               {
                 label: "Unassigned",
                 value: stats.unassigned,
-                color: "#FF8787",
+                hint: stats.unassigned > 0 ? "Needs an owner" : "All assigned",
               },
               {
                 label: "Avg. first reply",
                 value: `${formatCount(stats.avgFirstResponseMinutes)}m`,
-                color: "#D0BFFF",
+                hint: "Trailing 7 days",
               },
-            ].map((metric) => (
-              <StatTile key={metric.label} label={metric.label} value={typeof metric.value === "number"
-                    ? formatCount(metric.value)
-                    : metric.value} accent={metric.color} />
-            ))}
-          </SimpleGrid>
+            ]}
+          />
         )}
 
         <PpTable

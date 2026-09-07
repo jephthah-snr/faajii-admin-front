@@ -8,7 +8,15 @@
  * The admin side is the platform-wide view of that: who is promoting, what
  * they have sold, what the platform owes them, and whether a profile needs
  * pulling.
+ *
+ * Every promoter figure on this screen is FCFA. Commission is settled in one
+ * currency platform-wide regardless of the market an event sells in, so the
+ * amounts here are plain numbers rather than per-currency maps — there is
+ * nothing to disambiguate.
  */
+
+/** The one settlement currency for promoter commission and payouts. */
+export const PROMOTER_CURRENCY = "XOF";
 
 /** The six states a promotion moves through, as returned by the API. */
 export type PromotionStatus =
@@ -21,7 +29,6 @@ export type PromotionStatus =
 
 export type CommissionType = "percentage" | "flat";
 
-/** Promoter wallets are held per settlement currency, like event purses. */
 export type PromoterWalletEntryType = "credit" | "debit";
 
 export type PromoterWalletEntryStatus =
@@ -30,12 +37,9 @@ export type PromoterWalletEntryStatus =
   | "failed"
   | "reversed";
 
-/** `{ XOF: 315000 }` — one entry per currency the promoter has earned in. */
-export type CurrencyTotals = Record<string, number>;
-
 export interface PromoterWallet {
   id: number;
-  currency: string;
+  /** FCFA — see `PROMOTER_CURRENCY`. */
   balance: number;
 }
 
@@ -59,8 +63,8 @@ export interface AdminPromotion {
   id: number;
   status: PromotionStatus;
   commissionType: CommissionType | null;
+  /** A percentage, or a flat FCFA amount per ticket. */
   commissionValue: number | null;
-  currency: string | null;
   /** Issued only once the promoter accepts the offer. */
   promoterCode: string | null;
   rsvpLink: string | null;
@@ -68,9 +72,9 @@ export interface AdminPromotion {
   promoter: PromoterRef | null;
   ticketsSold: number;
   /** Gross the event owner took through this promoter, before commission. */
-  grossByCurrency: CurrencyTotals;
-  /** What the promoter earned on it. */
-  earnedByCurrency: CurrencyTotals;
+  gross: number;
+  /** What the promoter earned on it, in FCFA. */
+  earned: number;
   created_at: string;
 }
 
@@ -92,9 +96,9 @@ export interface AdminPromoter {
   activePromotions: number;
   pendingRequests: number;
   ticketsSold: number;
-  grossByCurrency: CurrencyTotals;
-  earnedByCurrency: CurrencyTotals;
-  walletBalanceByCurrency: CurrencyTotals;
+  gross: number;
+  earned: number;
+  walletBalance: number;
   created_at: string;
 }
 
@@ -106,7 +110,6 @@ export interface AdminPromoterWalletEntry {
   type: PromoterWalletEntryType;
   status: PromoterWalletEntryStatus;
   amount: number;
-  currency: string;
   reference: string;
   narration: string | null;
   created_at: string;
@@ -126,11 +129,11 @@ export interface PromoterStatistics {
   pendingRequests: number;
   ticketsSold: number;
   /** Generated for event owners through promoter links. */
-  grossByCurrency: CurrencyTotals;
+  gross: number;
   /** Commission earned by promoters. */
-  commissionByCurrency: CurrencyTotals;
+  commission: number;
   /** Sitting in promoter wallets, not yet withdrawn. */
-  unpaidByCurrency: CurrencyTotals;
+  unpaid: number;
 }
 
 export interface PromoterFilters {

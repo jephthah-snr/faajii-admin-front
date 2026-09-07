@@ -220,31 +220,26 @@ export const formatCount = (value: number | null | undefined): string => {
 };
 
 /**
- * Renders a `{ XOF: 315000, NGN: 12000 }` currency map as one line. Promoter
- * earnings and campaign spend both arrive keyed by currency because a promoter
- * can sell for events in more than one market.
+ * "315,000 FCFA". Promoter commission and payouts settle in one currency
+ * platform-wide, so those figures are written the way the region writes them
+ * rather than through the multi-currency formatter.
  */
-export const formatCurrencyTotals = (
-  totals: Record<string, number> | null | undefined,
+export const formatFcfa = (
+  amount: number | string | null | undefined,
   fallback = "—",
 ): string => {
-  const entries = Object.entries(totals || {}).filter(
-    ([, amount]) => Number(amount) !== 0,
-  );
-  if (entries.length === 0) return fallback;
-  return entries
-    .map(([currency, amount]) => formatMoney(amount, currency))
-    .join(" · ");
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return fallback;
+  return `${value.toLocaleString()} FCFA`;
 };
 
-/** "5% per ticket" / "₦2,500 per ticket" — null when no offer has been made. */
+/** "5% per ticket" / "1,500 FCFA per ticket" — null when no offer exists. */
 export const formatCommission = (
   type: "percentage" | "flat" | null | undefined,
   value: number | null | undefined,
-  currency?: string | null,
 ): string | null => {
   if (value == null || !type) return null;
   return type === "percentage"
     ? `${value}% per ticket`
-    : `${formatMoney(value, currency || "NGN")} per ticket`;
+    : `${formatFcfa(value)} per ticket`;
 };

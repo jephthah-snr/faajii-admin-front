@@ -1,11 +1,9 @@
 "use client";
 
 import {
-  Card,
   Flex,
   Group,
   Progress,
-  SimpleGrid,
   Stack,
   Table,
   Text,
@@ -13,8 +11,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { GetEventBudget } from "@/services/api";
 import PpTable from "../../blocks/table";
-import StatTile from "../../blocks/stat-tile";
-import SampleDataNotice from "../../elements/sample-data-notice";
+import StatBar from "../../blocks/stat-bar";
 import { TableSkeleton } from "../../elements/skeletons";
 import { formatMoney, isEndpointUnavailable, retryUnlessUnavailable } from "@/utils";
 import { IconAmount } from "@/config/icons";
@@ -92,35 +89,28 @@ const Budget = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
-      {isSample && <SampleDataNotice integration="event-budget" compact />}
-
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }}>
-        {[
-          { label: "Budgeted", value: totalBudgeted, color: "#74C0FC" },
-          { label: "Spent", value: totalSpent, color: "#F5C912" },
-          {
-            label: "Remaining",
-            value: remaining,
-            color: remaining < 0 ? "#FF8787" : "#63E6BE",
-          },
-        ].map((metric) => (
-          <StatTile key={metric.label} label={metric.label} value={formatMoney(metric.value, currency)} accent={metric.color} />
-        ))}
-        <Card radius="lg" bg="var(--fj-surface-elevated)" p="md">
-          <Text fz="xs" c="var(--fj-text-muted)">
-            Spend rate
-          </Text>
-          <Text fz={24} fw={800} c="#D0BFFF" mt={4}>
-            {spendRate.toFixed(0)}%
-          </Text>
-          <Progress
-            value={Math.min(spendRate, 100)}
-            color={spendRate > 100 ? "red" : "violet"}
-            mt={8}
-            radius="xl"
-          />
-        </Card>
-      </SimpleGrid>
+      <Stack gap="sm">
+        <StatBar
+          minCellWidth={170}
+          items={[
+            { label: "Budgeted", value: formatMoney(totalBudgeted, currency) },
+            {
+              label: "Spent",
+              value: formatMoney(totalSpent, currency),
+              hint: `${spendRate.toFixed(0)}% of budget`,
+            },
+            {
+              label: "Remaining",
+              value: formatMoney(remaining, currency),
+              hint: remaining < 0 ? "Over budget" : undefined,
+            },
+          ]}
+        />
+        <Progress
+          value={Math.min(spendRate, 100)}
+          color={spendRate > 100 ? "red" : undefined}
+        />
+      </Stack>
 
       <PpTable
         headers={tableHeaders}

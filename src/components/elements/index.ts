@@ -24,7 +24,6 @@ export { default as DateFilter } from "./date-filter";
 export { default as AuthAlert } from "./auth-alert";
 export { default as SummaryItem } from "./summary-item";
 export { default as StatusFilter } from "./status-filter";
-export { default as SampleDataNotice } from "./sample-data-notice";
 export { default as PasswordToggleIcon } from "./password-toggle";
 export { default as FilterPill } from "./filter-pill";
 

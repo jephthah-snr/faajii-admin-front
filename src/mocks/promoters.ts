@@ -24,9 +24,9 @@ export const mockPromoters: AdminPromoter[] = [
     activePromotions: 4,
     pendingRequests: 1,
     ticketsSold: 318,
-    grossByCurrency: { XOF: 6_360_000 },
-    earnedByCurrency: { XOF: 636_000 },
-    walletBalanceByCurrency: { XOF: 186_000 },
+    gross: 6_360_000,
+    earned: 636_000,
+    walletBalance: 186_000,
     created_at: "2026-02-14T10:02:00Z",
   },
   {
@@ -45,9 +45,9 @@ export const mockPromoters: AdminPromoter[] = [
     activePromotions: 3,
     pendingRequests: 2,
     ticketsSold: 204,
-    grossByCurrency: { XOF: 3_570_000 },
-    earnedByCurrency: { XOF: 285_600 },
-    walletBalanceByCurrency: { XOF: 42_600 },
+    gross: 3_570_000,
+    earned: 285_600,
+    walletBalance: 42_600,
     created_at: "2026-03-30T16:41:00Z",
   },
   {
@@ -66,9 +66,9 @@ export const mockPromoters: AdminPromoter[] = [
     activePromotions: 2,
     pendingRequests: 0,
     ticketsSold: 141,
-    grossByCurrency: { NGN: 4_230_000 },
-    earnedByCurrency: { NGN: 423_000 },
-    walletBalanceByCurrency: { NGN: 0 },
+    gross: 4_230_000,
+    earned: 423_000,
+    walletBalance: 0,
     created_at: "2026-05-09T08:20:00Z",
   },
   {
@@ -87,9 +87,9 @@ export const mockPromoters: AdminPromoter[] = [
     activePromotions: 1,
     pendingRequests: 3,
     ticketsSold: 96,
-    grossByCurrency: { XOF: 1_440_000 },
-    earnedByCurrency: { XOF: 144_000 },
-    walletBalanceByCurrency: { XOF: 96_000 },
+    gross: 1_440_000,
+    earned: 144_000,
+    walletBalance: 96_000,
     created_at: "2026-06-21T13:15:00Z",
   },
   {
@@ -108,9 +108,9 @@ export const mockPromoters: AdminPromoter[] = [
     activePromotions: 0,
     pendingRequests: 0,
     ticketsSold: 22,
-    grossByCurrency: { NGN: 330_000 },
-    earnedByCurrency: { NGN: 33_000 },
-    walletBalanceByCurrency: { NGN: 33_000 },
+    gross: 330_000,
+    earned: 33_000,
+    walletBalance: 33_000,
     created_at: "2026-07-30T21:44:00Z",
   },
   {
@@ -129,9 +129,9 @@ export const mockPromoters: AdminPromoter[] = [
     activePromotions: 1,
     pendingRequests: 0,
     ticketsSold: 8,
-    grossByCurrency: { XOF: 240_000 },
-    earnedByCurrency: { XOF: 12_000 },
-    walletBalanceByCurrency: { XOF: 12_000 },
+    gross: 240_000,
+    earned: 12_000,
+    walletBalance: 12_000,
     created_at: "2026-08-25T09:05:00Z",
   },
 ];
@@ -142,18 +142,16 @@ export const mockPromoterStatistics: PromoterStatistics = {
   activePromotions: 176,
   pendingRequests: 43,
   ticketsSold: 12_884,
-  grossByCurrency: { XOF: 186_400_000, NGN: 74_200_000 },
-  commissionByCurrency: { XOF: 18_640_000, NGN: 7_420_000 },
-  unpaidByCurrency: { XOF: 4_120_000, NGN: 1_385_000 },
+  gross: 186_400_000,
+  commission: 18_640_000,
+  unpaid: 4_120_000,
 };
 
 /** Promotions for one promoter, seeded from their headline totals. */
 export const mockPromoterPromotions = (
   promoter: AdminPromoter,
 ): AdminPromotion[] => {
-  const currency = Object.keys(promoter.grossByCurrency)[0] || "XOF";
-  const gross = Object.values(promoter.grossByCurrency)[0] || 0;
-  const earned = Object.values(promoter.earnedByCurrency)[0] || 0;
+  const { gross, earned } = promoter;
   const promoterRef = {
     id: promoter.id,
     userId: promoter.userId,
@@ -167,7 +165,6 @@ export const mockPromoterPromotions = (
       status: "active",
       commissionType: "percentage",
       commissionValue: 10,
-      currency,
       promoterCode: `${promoter.name.split(" ")[0].toUpperCase()}10`,
       rsvpLink: "https://www.faajii.com/e/cotonou-beach-countdown?p=FATOU10",
       event: {
@@ -179,8 +176,8 @@ export const mockPromoterPromotions = (
       },
       promoter: promoterRef,
       ticketsSold: Math.round(promoter.ticketsSold * 0.6),
-      grossByCurrency: { [currency]: Math.round(gross * 0.6) },
-      earnedByCurrency: { [currency]: Math.round(earned * 0.6) },
+      gross: Math.round(gross * 0.6),
+      earned: Math.round(earned * 0.6),
       created_at: "2026-08-02T10:00:00Z",
     },
     {
@@ -188,7 +185,6 @@ export const mockPromoterPromotions = (
       status: "active",
       commissionType: "flat",
       commissionValue: 1_500,
-      currency,
       promoterCode: `${promoter.name.split(" ")[0].toUpperCase()}-VIP`,
       rsvpLink: "https://www.faajii.com/e/sanogo-label-night?p=VIP",
       event: {
@@ -200,8 +196,8 @@ export const mockPromoterPromotions = (
       },
       promoter: promoterRef,
       ticketsSold: Math.round(promoter.ticketsSold * 0.3),
-      grossByCurrency: { [currency]: Math.round(gross * 0.3) },
-      earnedByCurrency: { [currency]: Math.round(earned * 0.3) },
+      gross: Math.round(gross * 0.3),
+      earned: Math.round(earned * 0.3),
       created_at: "2026-08-18T15:30:00Z",
     },
     {
@@ -209,7 +205,6 @@ export const mockPromoterPromotions = (
       status: "offered",
       commissionType: "percentage",
       commissionValue: 7.5,
-      currency,
       promoterCode: null,
       rsvpLink: null,
       event: {
@@ -221,8 +216,8 @@ export const mockPromoterPromotions = (
       },
       promoter: promoterRef,
       ticketsSold: 0,
-      grossByCurrency: {},
-      earnedByCurrency: {},
+      gross: 0,
+      earned: 0,
       created_at: "2026-09-05T11:12:00Z",
     },
     {
@@ -230,7 +225,6 @@ export const mockPromoterPromotions = (
       status: "pending",
       commissionType: null,
       commissionValue: null,
-      currency: null,
       promoterCode: null,
       rsvpLink: null,
       event: {
@@ -242,8 +236,8 @@ export const mockPromoterPromotions = (
       },
       promoter: promoterRef,
       ticketsSold: 0,
-      grossByCurrency: {},
-      earnedByCurrency: {},
+      gross: 0,
+      earned: 0,
       created_at: "2026-09-06T19:48:00Z",
     },
     {
@@ -251,7 +245,6 @@ export const mockPromoterPromotions = (
       status: "declined",
       commissionType: "percentage",
       commissionValue: 5,
-      currency,
       promoterCode: null,
       rsvpLink: null,
       event: {
@@ -263,8 +256,8 @@ export const mockPromoterPromotions = (
       },
       promoter: promoterRef,
       ticketsSold: 0,
-      grossByCurrency: {},
-      earnedByCurrency: {},
+      gross: 0,
+      earned: 0,
       created_at: "2026-07-22T08:36:00Z",
     },
   ];
@@ -275,13 +268,11 @@ export const mockPromoterDetail = (
 ): AdminPromoterDetail => {
   const promoter =
     mockPromoters.find((row) => row.id === id) || mockPromoters[0];
-  const currency = Object.keys(promoter.grossByCurrency)[0] || "XOF";
-  const earned = Object.values(promoter.earnedByCurrency)[0] || 0;
-  const balance = Object.values(promoter.walletBalanceByCurrency)[0] || 0;
+  const { earned, walletBalance } = promoter;
 
   return {
     ...promoter,
-    wallets: [{ id: promoter.id + 900, currency, balance }],
+    wallets: [{ id: promoter.id + 900, balance: walletBalance }],
     promotions: mockPromoterPromotions(promoter),
     walletTransactions: [
       {
@@ -292,7 +283,6 @@ export const mockPromoterDetail = (
         type: "credit",
         status: "success",
         amount: Math.round(earned * 0.25),
-        currency,
         reference: "FJ-PRM-33021",
         narration: "Commission — 12 tickets",
         created_at: "2026-09-06T20:14:00Z",
@@ -305,7 +295,6 @@ export const mockPromoterDetail = (
         type: "credit",
         status: "success",
         amount: Math.round(earned * 0.18),
-        currency,
         reference: "FJ-PRM-32988",
         narration: "Commission — 9 tickets",
         created_at: "2026-09-04T18:02:00Z",
@@ -318,7 +307,6 @@ export const mockPromoterDetail = (
         type: "debit",
         status: "success",
         amount: Math.round(earned * 0.3),
-        currency,
         reference: "FJ-PRM-WD-8821",
         narration: "Withdrawal to MTN Benin ••08",
         created_at: "2026-09-03T09:40:00Z",
@@ -330,8 +318,7 @@ export const mockPromoterDetail = (
         eventName: null,
         type: "debit",
         status: "pending",
-        amount: Math.round(balance * 0.5),
-        currency,
+        amount: Math.round(walletBalance * 0.5),
         reference: "FJ-PRM-WD-8903",
         narration: "Withdrawal to Moov Africa ••51",
         created_at: "2026-09-07T07:22:00Z",
@@ -347,7 +334,6 @@ export const mockEventPromotions: AdminPromotion[] = [
     status: "active",
     commissionType: "percentage",
     commissionValue: 10,
-    currency: "XOF",
     promoterCode: "FATOU10",
     rsvpLink: "https://www.faajii.com/e/cotonou-beach-countdown?p=FATOU10",
     event: {
@@ -359,8 +345,8 @@ export const mockEventPromotions: AdminPromotion[] = [
     },
     promoter: { id: 301, userId: 2291, name: "Fatou Diallo", avatar: null },
     ticketsSold: 186,
-    grossByCurrency: { XOF: 3_720_000 },
-    earnedByCurrency: { XOF: 372_000 },
+    gross: 3_720_000,
+    earned: 372_000,
     created_at: "2026-08-02T10:00:00Z",
   },
   {
@@ -368,7 +354,6 @@ export const mockEventPromotions: AdminPromotion[] = [
     status: "active",
     commissionType: "flat",
     commissionValue: 1_500,
-    currency: "XOF",
     promoterCode: "IBRA-VIP",
     rsvpLink: "https://www.faajii.com/e/cotonou-beach-countdown?p=IBRA-VIP",
     event: {
@@ -380,8 +365,8 @@ export const mockEventPromotions: AdminPromotion[] = [
     },
     promoter: { id: 302, userId: 7781, name: "Ibrahim Sanogo", avatar: null },
     ticketsSold: 74,
-    grossByCurrency: { XOF: 1_480_000 },
-    earnedByCurrency: { XOF: 111_000 },
+    gross: 1_480_000,
+    earned: 111_000,
     created_at: "2026-08-11T12:20:00Z",
   },
   {
@@ -389,7 +374,6 @@ export const mockEventPromotions: AdminPromotion[] = [
     status: "offered",
     commissionType: "percentage",
     commissionValue: 8,
-    currency: "XOF",
     promoterCode: null,
     rsvpLink: null,
     event: {
@@ -406,8 +390,8 @@ export const mockEventPromotions: AdminPromotion[] = [
       avatar: null,
     },
     ticketsSold: 0,
-    grossByCurrency: {},
-    earnedByCurrency: {},
+    gross: 0,
+    earned: 0,
     created_at: "2026-09-05T11:12:00Z",
   },
   {
@@ -415,7 +399,6 @@ export const mockEventPromotions: AdminPromotion[] = [
     status: "pending",
     commissionType: null,
     commissionValue: null,
-    currency: null,
     promoterCode: null,
     rsvpLink: null,
     event: {
@@ -427,8 +410,8 @@ export const mockEventPromotions: AdminPromotion[] = [
     },
     promoter: { id: 306, userId: 5102, name: "Rachelle Sowe", avatar: null },
     ticketsSold: 0,
-    grossByCurrency: {},
-    earnedByCurrency: {},
+    gross: 0,
+    earned: 0,
     created_at: "2026-09-06T19:48:00Z",
   },
   {
@@ -436,7 +419,6 @@ export const mockEventPromotions: AdminPromotion[] = [
     status: "expired",
     commissionType: "percentage",
     commissionValue: 5,
-    currency: "XOF",
     promoterCode: null,
     rsvpLink: null,
     event: {
@@ -448,8 +430,8 @@ export const mockEventPromotions: AdminPromotion[] = [
     },
     promoter: { id: 305, userId: 6633, name: "Chinedu Okafor", avatar: null },
     ticketsSold: 0,
-    grossByCurrency: {},
-    earnedByCurrency: {},
+    gross: 0,
+    earned: 0,
     created_at: "2026-07-28T14:55:00Z",
   },
 ];

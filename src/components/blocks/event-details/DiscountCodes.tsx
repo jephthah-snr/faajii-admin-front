@@ -17,7 +17,6 @@ import {
 } from "@/services/api";
 import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
-import SampleDataNotice from "../../elements/sample-data-notice";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
   asList,
@@ -139,10 +138,6 @@ const DiscountCodes = ({
 
   return (
     <Stack gap="xl">
-      {isSample && (
-        <SampleDataNotice integration="event-discount-codes" compact />
-      )}
-
       <SimpleGrid cols={{ base: 2, md: 3 }}>
         {[
           { label: "Codes issued", value: codes.length, color: "#74C0FC" },
@@ -153,7 +148,7 @@ const DiscountCodes = ({
             color: "#F5C912",
           },
         ].map((metric) => (
-          <StatTile key={metric.label} label={metric.label} value={metric.value.toLocaleString()} accent={metric.color} />
+          <StatTile key={metric.label} label={metric.label} value={metric.value.toLocaleString()} />
         ))}
       </SimpleGrid>
 

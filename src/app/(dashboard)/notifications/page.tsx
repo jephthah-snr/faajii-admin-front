@@ -5,7 +5,6 @@ import {
   Button,
   Modal,
   Select,
-  SimpleGrid,
   Stack,
   Table,
   Text,
@@ -29,7 +28,7 @@ import {
   BroadcastAudience,
   BroadcastStatus,
 } from "@/services/api/notifications/notifications.types";
-import { PpTable, SampleDataNotice, StatTile } from "@/components";
+import { PpTable, StatBar } from "@/components";
 import {
   asList,
   formatCount,
@@ -273,44 +272,22 @@ export default function NotificationsPage() {
       }
     >
       <Stack gap="xl">
-        {(devicesAreSample || broadcastsAreSample) && (
-          <SampleDataNotice
-            integration={
-              devicesAreSample
-                ? "notification-devices"
-                : "notification-broadcasts"
-            }
-          />
-        )}
-
         {deviceStats && (
-          <SimpleGrid cols={{ base: 2, md: 5 }}>
-            {[
+          <StatBar
+            items={[
               {
                 label: "Registered devices",
                 value: deviceStats.totalDevices,
-                color: "#74C0FC",
               },
               {
                 label: "Reachable now",
                 value: deviceStats.activeDevices,
-                color: "#63E6BE",
+                hint: `${formatCount(deviceStats.staleDevices)} stale (30d+)`,
               },
-              { label: "iOS", value: deviceStats.ios, color: "#D0BFFF" },
-              {
-                label: "Android",
-                value: deviceStats.android,
-                color: "#F5C912",
-              },
-              {
-                label: "Stale (30d+)",
-                value: deviceStats.staleDevices,
-                color: "#FF8787",
-              },
-            ].map((metric) => (
-              <StatTile key={metric.label} label={metric.label} value={formatCount(metric.value)} accent={metric.color} />
-            ))}
-          </SimpleGrid>
+              { label: "iOS", value: deviceStats.ios },
+              { label: "Android", value: deviceStats.android },
+            ]}
+          />
         )}
 
         <Stack gap="sm">

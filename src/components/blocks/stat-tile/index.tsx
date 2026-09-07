@@ -2,13 +2,11 @@
 
 import { Box, Flex, Paper, PaperProps, Text } from "@mantine/core";
 import type { Icon } from "@/config/icons";
-import { asList, formatCount } from "@/utils";
+import { formatCount } from "@/utils";
 
 export interface StatTileProps extends Omit<PaperProps, "children"> {
   label: string;
   value: string | number;
-  /** Figure colour — pass a `--fj-viz-*` token to keep rows harmonious. */
-  accent?: string;
   hint?: string;
   icon?: Icon;
   children?: React.ReactNode;
@@ -18,11 +16,18 @@ export interface StatTileProps extends Omit<PaperProps, "children"> {
  * The small metric tile used in stat rows above a table. Deliberately quieter
  * than `SummaryCard`: it sits *inside* a page rather than heading it, so it
  * recedes to `surface-elevated` instead of lifting.
+ *
+ * Figures are not colour-coded. A row of tiles in five different colours reads
+ * as five unrelated things and implies a good/bad judgement the numbers do not
+ * carry; the label says what it is, and the eye can compare the values.
+ * Anything that genuinely needs attention says so in words, in `hint`.
+ *
+ * Rows cap at three tiles — past that use `StatBar`, which keeps a long set of
+ * metrics on one line instead of a wall of boxes.
  */
 const StatTile = ({
   label,
   value,
-  accent = "var(--fj-text-primary)",
   hint,
   icon: IconComponent,
   children,
@@ -41,11 +46,15 @@ const StatTile = ({
           {label}
         </Text>
         {IconComponent && (
-          <IconComponent size={16} color={accent} variant="Bulk" />
+          <IconComponent
+            size={16}
+            color="var(--fj-text-muted)"
+            variant="Bulk"
+          />
         )}
       </Flex>
 
-      <Text c={accent} fz={24} fw={800} mt={6} lh={1.2}>
+      <Text c="var(--fj-text-primary)" fz={24} fw={800} mt={6} lh={1.2}>
         {typeof value === "number" ? formatCount(value) : value}
       </Text>
 

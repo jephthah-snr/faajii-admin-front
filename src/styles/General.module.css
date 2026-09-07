@@ -71,7 +71,7 @@
 /* --------------------------------------------------------------------- Cards */
 
 .surfaceCard {
-  background-color: var(--fj-surface);
+  background-color: var(--fj-surface-elevated);
   border: 1px solid var(--fj-border);
   border-radius: var(--fj-radius-card);
 }

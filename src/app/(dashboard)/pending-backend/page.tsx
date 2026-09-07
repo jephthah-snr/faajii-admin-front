@@ -47,11 +47,11 @@ export default function PendingBackendPage() {
               <Text fw={700}>Why these screens show sample data</Text>
               <Text c="var(--fj-text-secondary)" fz={13} lh={1.55}>
                 Each module below is finished on the admin side. Where its
-                endpoints answer 404, the screen falls back to illustrative rows
-                and shows a banner saying so, rather than an empty table — so
-                layout, states and copy can be reviewed now and the screen lights
-                up the moment the route lands. Nothing on those screens reflects
-                live activity.
+                endpoints answer 404, the screen renders sample rows instead of
+                an empty table, so layout, states and copy can be reviewed now
+                and the screen lights up the moment the route lands. Treat any
+                figure on the screens listed here as illustrative — this page is
+                the record of which ones are not yet live.
               </Text>
             </Stack>
           </Flex>
@@ -61,17 +61,14 @@ export default function PendingBackendPage() {
           <StatTile
             label="Modules waiting"
             value={formatCount(pendingIntegrations.length)}
-            accent="#F5C912"
           />
           <StatTile
             label="Endpoints outstanding"
             value={formatCount(endpointCount)}
-            accent="#FF8787"
           />
           <StatTile
             label="Areas affected"
             value={formatCount(grouped.length)}
-            accent="#74C0FC"
           />
         </SimpleGrid>
 
@@ -125,7 +122,13 @@ export default function PendingBackendPage() {
                     {integration.note}
                   </Text>
 
-                  <Text fz={11} fw={700} c="var(--fj-text-muted)" mt="md" mb={6}>
+                  <Text
+                    fz={11}
+                    fw={700}
+                    c="var(--fj-text-muted)"
+                    mt="md"
+                    mb={6}
+                  >
                     {integration.endpoints.length === 1
                       ? "Endpoint required"
                       : `${integration.endpoints.length} endpoints required`}

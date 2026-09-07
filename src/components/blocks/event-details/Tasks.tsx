@@ -1,11 +1,11 @@
 "use client";
 
-import { Badge, Card, SimpleGrid, Stack, Table, Text } from "@mantine/core";
+import { Badge, Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventTasks } from "@/services/api";
 import { TaskStatus } from "@/services/api/event-ops/event-ops.types";
 import PpTable from "../../blocks/table";
-import SampleDataNotice from "../../elements/sample-data-notice";
+import StatBar from "../../blocks/stat-bar";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
   asList,
@@ -82,20 +82,13 @@ const Tasks = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
-      {isSample && <SampleDataNotice integration="event-tasks" compact />}
-
-      <SimpleGrid cols={{ base: 2, md: 5 }}>
-        {(Object.keys(statusColor) as TaskStatus[]).map((status) => (
-          <Card key={status} radius="lg" bg="var(--fj-surface-elevated)" p="md">
-            <Text fz="xs" c="var(--fj-text-muted)">
-              {formatStatusLabel(status)}
-            </Text>
-            <Text fz={26} fw={800} mt={4}>
-              {counts[status] || 0}
-            </Text>
-          </Card>
-        ))}
-      </SimpleGrid>
+      <StatBar
+        minCellWidth={120}
+        items={(Object.keys(statusColor) as TaskStatus[]).map((status) => ({
+          label: formatStatusLabel(status),
+          value: counts[status] || 0,
+        }))}
+      />
 
       <PpTable
         headers={tableHeaders}

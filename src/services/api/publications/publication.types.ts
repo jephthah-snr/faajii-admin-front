@@ -95,7 +95,13 @@ export interface AdminPublicationDetail {
   breakdown: AdminPublicationBreakdownRow[];
 }
 
+/**
+ * Reach revenue for one market. Kept per region rather than summed: the
+ * markets do not share a currency, and adding XOF to NGN would produce a
+ * number that means nothing. The screen shows one region at a time.
+ */
 export interface PublicationSpendTotal {
+  countryCode: string;
   currency: string;
   amount: number;
   campaigns: number;

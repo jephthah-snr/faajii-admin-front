@@ -19,7 +19,7 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { DatePicker } from "@mantine/dates";
-import { SampleDataNotice, StatusBadge } from "@/components/elements";
+import { StatusBadge } from "@/components/elements";
 import { useMemo, useState } from "react";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
@@ -172,7 +172,6 @@ const AuditLog = () => {
 
   return (
     <Flex direction="column" gap={20}>
-      {isSample && <SampleDataNotice integration="audit-log" compact />}
 
       <Box bg="var(--fj-bg)" py={10} className="sticky top-14 z-10">
         <ScrollArea.Autosize scrollbarSize={0}>

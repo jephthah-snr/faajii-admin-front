@@ -3,9 +3,7 @@
 import {
   Badge,
   Button,
-  Card,
   Progress,
-  SimpleGrid,
   Stack,
   Table,
   Text,
@@ -20,8 +18,7 @@ import {
   OverrideGuestCheckIn,
 } from "@/services/api";
 import PpTable from "../../blocks/table";
-import StatTile from "../../blocks/stat-tile";
-import SampleDataNotice from "../../elements/sample-data-notice";
+import StatBar from "../../blocks/stat-bar";
 import {
   asList,
   checkInFilters,
@@ -167,43 +164,20 @@ const CheckIns = ({ eventId }: { eventId: string }) => {
 
   return (
     <Stack gap="xl">
-      {isSample && <SampleDataNotice integration="event-check-ins" compact />}
-
-      <SimpleGrid cols={{ base: 2, md: 4 }}>
-        {[
-          {
-            label: "Expected guests",
-            value: summary?.totalGuests ?? 0,
-            color: "#74C0FC",
-          },
-          {
-            label: "Checked in",
-            value: summary?.checkedIn ?? 0,
-            color: "#63E6BE",
-          },
-          {
-            label: "Not arrived",
-            value: summary?.notCheckedIn ?? 0,
-            color: "#F5C912",
-          },
-        ].map((metric) => (
-          <StatTile key={metric.label} label={metric.label} value={metric.value.toLocaleString()} accent={metric.color} />
-        ))}
-        <Card radius="lg" bg="var(--fj-surface-elevated)" p="md">
-          <Text fz="xs" c="var(--fj-text-muted)">
-            Turnout
-          </Text>
-          <Text fz={26} fw={800} c="#D0BFFF" mt={4}>
-            {(summary?.checkInRate ?? 0).toFixed(0)}%
-          </Text>
-          <Progress
-            value={summary?.checkInRate ?? 0}
-            color="violet"
-            mt={8}
-            radius="xl"
-          />
-        </Card>
-      </SimpleGrid>
+      <Stack gap="sm">
+        <StatBar
+          items={[
+            { label: "Expected guests", value: summary?.totalGuests ?? 0 },
+            {
+              label: "Checked in",
+              value: summary?.checkedIn ?? 0,
+              hint: `${(summary?.checkInRate ?? 0).toFixed(0)}% turnout`,
+            },
+            { label: "Not arrived", value: summary?.notCheckedIn ?? 0 },
+          ]}
+        />
+        <Progress value={summary?.checkInRate ?? 0} />
+      </Stack>
 
       {summary?.lastCheckInAt && (
         <Text c="var(--fj-text-muted)" fz="sm">

@@ -33,7 +33,7 @@ import type {
   WristbandOrderStatus,
   WristbandPaymentState,
 } from '@/services/api/wristbands/wristband.types';
-import { PpTable } from "@/components";
+import { PpTable, StatBar } from "@/components";
 import {
   asList,
   rowsPerPage,
@@ -174,11 +174,26 @@ export default function WristbandOrdersPage() {
 
   return (
     <AppLayout title="Wristband Orders" subTitle="Payments, production fulfillment, delivery tracking, and reconciliation.">
-      <SimpleGrid cols={{base: 1, sm: 2, lg: 4}} mb="xl">
-        <Card radius="lg"><Text c="var(--fj-text-muted)" fz="sm">Needs reconciliation</Text><Text fw={700} fz={28}>{statistics?.pendingReconciliation || 0}</Text></Card>
-        {(statistics?.paid || []).map(total => <Card key={total.currency} radius="lg"><Text c="var(--fj-text-muted)" fz="sm">Paid volume · {total.currency}</Text><Text fw={700} fz={24}>{money(total.amount, total.currency)}</Text><Text c="var(--fj-text-muted)" fz="xs">{total.orders} orders</Text></Card>)}
-        <Card radius="lg"><Text c="var(--fj-text-muted)" fz="sm">In production</Text><Text fw={700} fz={28}>{statistics?.byStatus.find(row => row.status === 'in_production')?.orders || 0}</Text></Card>
-      </SimpleGrid>
+      <StatBar
+        mb="xl"
+        minCellWidth={175}
+        items={[
+          {
+            label: 'Needs reconciliation',
+            value: statistics?.pendingReconciliation || 0,
+            hint: 'Paid outside the wallet',
+          },
+          ...(statistics?.paid || []).map(total => ({
+            label: `Paid volume · ${total.currency}`,
+            value: money(total.amount, total.currency),
+            hint: `${total.orders} orders`,
+          })),
+          {
+            label: 'In production',
+            value: statistics?.byStatus.find(row => row.status === 'in_production')?.orders || 0,
+          },
+        ]}
+      />
 
       <PpTable
         headers={tableHeaders}
