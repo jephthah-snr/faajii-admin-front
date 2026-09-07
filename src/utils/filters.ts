@@ -296,3 +296,108 @@ export const computeApiFilters = (
 
   return out;
 };
+
+export const walletFilters: FilterItem[] = [
+  {
+    title: "Scope",
+    apiKey: "scope",
+    default: "All",
+    items: ["All", "User wallets", "Event purses"],
+    transform: (v) => (v === "User wallets" ? "user" : "event"),
+  },
+];
+
+export const momoFilters: FilterItem[] = [
+  {
+    title: "Status",
+    apiKey: "status",
+    default: "All",
+    items: ["All", "Active", "Pending", "Disabled", "Failed"],
+    transform: (v) => v?.toLowerCase(),
+  },
+];
+
+export const giftLinkFilters: FilterItem[] = [
+  {
+    title: "Status",
+    apiKey: "status",
+    default: "All",
+    items: ["All", "Active", "Closed", "Suspended"],
+    transform: (v) => v?.toLowerCase(),
+  },
+];
+
+export const purchaseFilters: FilterItem[] = [
+  {
+    title: "Status",
+    apiKey: "status",
+    default: "All",
+    items: ["All", "Paid", "Pending", "Failed", "Cancelled"],
+    transform: (v) => v?.toLowerCase(),
+  },
+  {
+    title: "Channel",
+    apiKey: "channel",
+    default: "All",
+    items: ["All", "Mobile", "Web", "Integration"],
+    transform: (v) => v?.toLowerCase(),
+  },
+];
+
+export const wristbandFilters: FilterItem[] = [
+  {
+    title: "Order",
+    apiKey: "status",
+    default: "All",
+    items: [
+      "All",
+      "Pending payment",
+      "Payment failed",
+      "Placed",
+      "In production",
+      "Quality check",
+      "Shipped",
+      "Delivered",
+      "Cancelled",
+    ],
+    transform: (v) => v?.toLowerCase().replace(/\s+/g, "_"),
+  },
+  {
+    title: "Payment",
+    apiKey: "paymentState",
+    default: "All",
+    items: ["All", "Paid", "Pending", "Failed"],
+    transform: (v) => v?.toLowerCase(),
+  },
+];
+
+/**
+ * The support queue opens on unresolved tickets, so "Open" is the default
+ * selection and "All" has to be picked deliberately.
+ */
+export const supportFilters: FilterItem[] = [
+  {
+    title: "Status",
+    apiKey: "status",
+    default: "Open",
+    items: ["All", "Open", "Pending", "Resolved", "Closed"],
+    transform: (v) => v?.toLowerCase(),
+  },
+  {
+    title: "Priority",
+    apiKey: "priority",
+    default: "All",
+    items: ["All", "Urgent", "High", "Normal", "Low"],
+    transform: (v) => v?.toLowerCase(),
+  },
+];
+
+export const checkInFilters: FilterItem[] = [
+  {
+    title: "Attendance",
+    apiKey: "checkedIn",
+    default: "All",
+    items: ["All", "Checked in", "Not arrived"],
+    transform: (v) => (v === "Checked in" ? "yes" : "no"),
+  },
+];

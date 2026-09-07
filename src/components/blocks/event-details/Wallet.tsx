@@ -12,6 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { GetEventWallet } from "@/services/api";
 import EmptyState from "../../blocks/empty-state";
+import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
 import PendingBackend from "../../elements/pending-backend";
 import { TableSkeleton } from "../../elements/skeletons";
@@ -21,6 +22,23 @@ import {
   isEndpointUnavailable,
   retryUnlessUnavailable,
 } from "@/utils";
+import { IconNoTransactions } from "@/config/icons";
+
+const tableHeaders = [
+  "Reference",
+  "Direction",
+  "Counterparty",
+  "Amount",
+  "Fee",
+  "Status",
+  "Date",
+];
+
+const movementEmptyState = {
+  title: "No movements",
+  description: "Funding and payouts on this purse will appear here.",
+  icon: IconNoTransactions,
+};
 
 const statusColor: Record<string, string> = {
   success: "teal",
@@ -64,6 +82,38 @@ const Wallet = ({ eventId }: { eventId: string }) => {
 
   const currency = wallet.currency || "NGN";
   const movements = wallet.movements || [];
+
+  const rows = movements.map((movement) => (
+    <Table.Tr key={movement.id}>
+      <Table.Td ff="monospace" fz="sm">
+        {movement.reference}
+      </Table.Td>
+      <Table.Td>
+        <Badge
+          variant="light"
+          color={movement.direction === "CREDIT" ? "teal" : "orange"}
+        >
+          {movement.direction === "CREDIT" ? "Funding" : "Payout"}
+        </Badge>
+      </Table.Td>
+      <Table.Td>
+        <Text>{movement.counterparty || "—"}</Text>
+        <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
+          {movement.narration || "No narration"}
+        </Text>
+      </Table.Td>
+      <Table.Td fw={650}>
+        {formatMoney(movement.amount, movement.currency)}
+      </Table.Td>
+      <Table.Td>{formatMoney(movement.fee, movement.currency)}</Table.Td>
+      <Table.Td>
+        <Badge variant="light" color={statusColor[movement.status] || "gray"}>
+          {movement.status}
+        </Badge>
+      </Table.Td>
+      <Table.Td>{formatDateTime(movement.created_at)}</Table.Td>
+    </Table.Tr>
+  ));
 
   return (
     <Stack gap="xl">
@@ -132,71 +182,12 @@ const Wallet = ({ eventId }: { eventId: string }) => {
         <Text fw={700} fz="lg">
           Movements
         </Text>
-        <Card radius="lg" p={0}>
-          <Table.ScrollContainer minWidth={900}>
-            <Table verticalSpacing="md" horizontalSpacing="lg">
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Reference</Table.Th>
-                  <Table.Th>Direction</Table.Th>
-                  <Table.Th>Counterparty</Table.Th>
-                  <Table.Th>Amount</Table.Th>
-                  <Table.Th>Fee</Table.Th>
-                  <Table.Th>Status</Table.Th>
-                  <Table.Th>Date</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {movements.map((movement) => (
-                  <Table.Tr key={movement.id}>
-                    <Table.Td ff="monospace" fz="sm">
-                      {movement.reference}
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        variant="light"
-                        color={
-                          movement.direction === "CREDIT" ? "teal" : "orange"
-                        }
-                      >
-                        {movement.direction === "CREDIT" ? "Funding" : "Payout"}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text>{movement.counterparty || "—"}</Text>
-                      <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
-                        {movement.narration || "No narration"}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td fw={650}>
-                      {formatMoney(movement.amount, movement.currency)}
-                    </Table.Td>
-                    <Table.Td>
-                      {formatMoney(movement.fee, movement.currency)}
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        variant="light"
-                        color={statusColor[movement.status] || "gray"}
-                      >
-                        {movement.status}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>{formatDateTime(movement.created_at)}</Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
-
-          {movements.length === 0 && (
-            <EmptyState
-              title="No movements"
-              description="Funding and payouts on this purse will appear here."
-              mb={40}
-            />
-          )}
-        </Card>
+        <PpTable
+          headers={tableHeaders}
+          rowData={rows}
+          showPagination={false}
+          emptyState={movementEmptyState}
+        />
       </Stack>
     </Stack>
   );

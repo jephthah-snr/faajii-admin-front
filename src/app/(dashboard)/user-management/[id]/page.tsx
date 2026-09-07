@@ -774,22 +774,21 @@ const UserDetails = () => {
             </Flex>
 
             {/* Recent Transactions */}
-            <Card bg="var(--fj-surface)" radius={"lg"} p={24} mt={20}>
-              <Text fw={700}>Recent Transactions</Text>
+            <Text fw={700} mt={20}>
+              Recent Transactions
+            </Text>
 
-              <PpTable
-                headers={tableHeaders}
-                rowData={rows}
-                totalItems={recentTransactions?.length}
-                activePage={activePage}
-                setActivePage={setActivePage}
-                rowsPerPage={10}
-                addOnStyle={`${classes.noRowBorder}`}
-                emptyState={transactionEmptyState}
-                isLoading={isFetchingUser}
-                mt={10}
-              />
-            </Card>
+            <PpTable
+              headers={tableHeaders}
+              rowData={rows}
+              totalItems={recentTransactions?.length}
+              activePage={activePage}
+              setActivePage={setActivePage}
+              rowsPerPage={10}
+              emptyState={transactionEmptyState}
+              isLoading={isFetchingUser}
+              mt={10}
+            />
           </Tabs.Panel>
 
           <Tabs.Panel value="events">

@@ -2,7 +2,6 @@
 
 import {
   Badge,
-  Card,
   Group,
   SimpleGrid,
   Stack,
@@ -16,7 +15,7 @@ import {
   GetEventDiscountCodes,
   SetDiscountCodeActive,
 } from "@/services/api";
-import EmptyState from "../../blocks/empty-state";
+import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
 import PendingBackend from "../../elements/pending-backend";
 import { TableSkeleton } from "../../elements/skeletons";
@@ -28,6 +27,22 @@ import {
   isEndpointUnavailable,
   retryUnlessUnavailable,
 } from "@/utils";
+import { IconNoTickets } from "@/config/icons";
+
+const tableHeaders = [
+  "Code",
+  "Discount",
+  "Scope",
+  "Usage",
+  "Expires",
+  "Active",
+];
+
+const discountCodeEmptyState = {
+  title: "No discount codes",
+  description: "Codes the host creates for this event will appear here.",
+  icon: IconNoTickets,
+};
 
 /** Promo codes hosts issue for free/discounted RSVPs and ticket sales. */
 const DiscountCodes = ({
@@ -81,6 +96,54 @@ const DiscountCodes = ({
   );
   const activeCodes = codes.filter((code) => code.isActive).length;
 
+  const rows = codes.map((code) => {
+    const exhausted = code.maxUses !== null && code.usedCount >= code.maxUses;
+
+    return (
+      <Table.Tr key={code.id}>
+        <Table.Td>
+          <Text ff="monospace" fw={700}>
+            {code.code}
+          </Text>
+        </Table.Td>
+        <Table.Td>
+          {code.type === "percent"
+            ? `${code.value}% off`
+            : `${formatMoney(code.value, currency)} off`}
+        </Table.Td>
+        <Table.Td>
+          <Badge variant="light" tt="capitalize">
+            {code.scope}
+          </Badge>
+        </Table.Td>
+        <Table.Td>
+          <Group gap={6}>
+            <Text fw={600}>{code.usedCount}</Text>
+            <Text c="var(--fj-text-muted)">/ {code.maxUses ?? "unlimited"}</Text>
+            {exhausted && (
+              <Badge color="red" variant="light" size="sm">
+                Exhausted
+              </Badge>
+            )}
+          </Group>
+        </Table.Td>
+        <Table.Td>{formatDateTime(code.expiresAt, "No expiry")}</Table.Td>
+        <Table.Td>
+          <Switch
+            checked={code.isActive}
+            disabled={toggle.isPending}
+            onChange={(event) =>
+              toggle.mutate({
+                codeId: code.id,
+                isActive: event.currentTarget.checked,
+              })
+            }
+          />
+        </Table.Td>
+      </Table.Tr>
+    );
+  });
+
   if (isFetching) return <TableSkeleton />;
 
   return (
@@ -99,84 +162,13 @@ const DiscountCodes = ({
         ))}
       </SimpleGrid>
 
-      <Card radius="lg" p={0}>
-        <Table.ScrollContainer minWidth={860}>
-          <Table verticalSpacing="md" horizontalSpacing="lg">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Code</Table.Th>
-                <Table.Th>Discount</Table.Th>
-                <Table.Th>Scope</Table.Th>
-                <Table.Th>Usage</Table.Th>
-                <Table.Th>Expires</Table.Th>
-                <Table.Th>Active</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {codes.map((code) => {
-                const exhausted =
-                  code.maxUses !== null && code.usedCount >= code.maxUses;
-
-                return (
-                  <Table.Tr key={code.id}>
-                    <Table.Td>
-                      <Text ff="monospace" fw={700}>
-                        {code.code}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      {code.type === "percent"
-                        ? `${code.value}% off`
-                        : `${formatMoney(code.value, currency)} off`}
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge variant="light" tt="capitalize">
-                        {code.scope}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap={6}>
-                        <Text fw={600}>{code.usedCount}</Text>
-                        <Text c="var(--fj-text-muted)">
-                          / {code.maxUses ?? "unlimited"}
-                        </Text>
-                        {exhausted && (
-                          <Badge color="red" variant="light" size="sm">
-                            Exhausted
-                          </Badge>
-                        )}
-                      </Group>
-                    </Table.Td>
-                    <Table.Td>
-                      {formatDateTime(code.expiresAt, "No expiry")}
-                    </Table.Td>
-                    <Table.Td>
-                      <Switch
-                        checked={code.isActive}
-                        disabled={toggle.isPending}
-                        onChange={(event) =>
-                          toggle.mutate({
-                            codeId: code.id,
-                            isActive: event.currentTarget.checked,
-                          })
-                        }
-                      />
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-
-        {codes.length === 0 && (
-          <EmptyState
-            title="No discount codes"
-            description="Codes the host creates for this event will appear here."
-            mb={40}
-          />
-        )}
-      </Card>
+      <PpTable
+        headers={tableHeaders}
+        rowData={rows}
+        showPagination={false}
+        isLoading={isFetching}
+        emptyState={discountCodeEmptyState}
+      />
     </Stack>
   );
 };

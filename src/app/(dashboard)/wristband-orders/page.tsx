@@ -7,7 +7,6 @@ import {
   Card,
   Divider,
   Drawer,
-  Flex,
   Group,
   NumberInput,
   Select,
@@ -34,10 +33,12 @@ import type {
   WristbandOrderStatus,
   WristbandPaymentState,
 } from '@/services/api/wristbands/wristband.types';
-import { FilterPill, TableToolbar } from "@/components";
+import { PpTable } from "@/components";
 import {
   asList,
-  capitalizeString,
+  rowsPerPage,
+  wristbandEmptyState,
+  wristbandFilters,
 } from "@/utils";
 
 const STATUS_OPTIONS: Array<{value: WristbandOrderStatus; label: string}> = [
@@ -62,6 +63,17 @@ function money(amount: number, currency: string) {
   return new Intl.NumberFormat('en', {style: 'currency', currency, maximumFractionDigits: 2}).format(amount);
 }
 
+const tableHeaders = [
+  'Reference',
+  'Event',
+  'Customer',
+  'Bands',
+  'Amount',
+  'Payment',
+  'Fulfillment',
+  'Date',
+];
+
 function statusColor(status: string) {
   if (['placed', 'delivered'].includes(status)) return 'teal';
   if (['in_production', 'quality_check', 'shipped'].includes(status)) return 'blue';
@@ -72,11 +84,10 @@ function statusColor(status: string) {
 
 export default function WristbandOrdersPage() {
   const queryClient = useQueryClient();
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebouncedValue(search, 350);
-  const [status, setStatus] = useState<WristbandOrderStatus>();
-  const [paymentState, setPaymentState] = useState<WristbandPaymentState>();
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<AdminWristbandOrder | null>(null);
   const [nextStatus, setNextStatus] = useState<string | null>(null);
   const [carrier, setCarrier] = useState('');
@@ -86,9 +97,18 @@ export default function WristbandOrdersPage() {
   const [confirmedAmount, setConfirmedAmount] = useState<number | string>('');
   const [reconciliationNote, setReconciliationNote] = useState('');
 
+  const status = filters.status as WristbandOrderStatus | undefined;
+  const paymentState = filters.paymentState as WristbandPaymentState | undefined;
+
   const ordersQuery = useQuery({
     queryKey: ['admin-wristband-orders', page, debouncedSearch, status, paymentState],
-    queryFn: () => GetAdminWristbandOrders({page, limit: 20, search: debouncedSearch || undefined, status, paymentState}),
+    queryFn: () => GetAdminWristbandOrders({
+      page,
+      limit: rowsPerPage,
+      search: debouncedSearch || undefined,
+      status: status || undefined,
+      paymentState: paymentState || undefined,
+    }),
   });
   const statsQuery = useQuery({queryKey: ['admin-wristband-statistics'], queryFn: GetAdminWristbandStatistics});
   const detailQuery = useQuery({
@@ -135,8 +155,22 @@ export default function WristbandOrdersPage() {
 
   const statistics = statsQuery.data?.data;
   const orders = asList(ordersQuery.data?.data?.data);
+  const totalItems = ordersQuery.data?.data?.pagination?.total || 0;
   const canReconcile = detail && ['pending_payment', 'payment_failed'].includes(detail.status);
   const transitionOptions = detail ? NEXT_STATUS[detail.status] || [] : [];
+
+  const rows = orders.map(order => (
+    <Table.Tr key={order.id} onClick={() => setSelected(order)} className="cursor-pointer">
+      <Table.Td><Text fw={600}>{order.reference}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.paymentProviderRef || 'No provider reference'}</Text></Table.Td>
+      <Table.Td><Text fw={600}>{order.eventName}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.eventRef}</Text></Table.Td>
+      <Table.Td><Text>{order.customerName}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.customerEmail}</Text></Table.Td>
+      <Table.Td>{order.totalQuantity}</Table.Td>
+      <Table.Td>{money(order.amount, order.currency)}</Table.Td>
+      <Table.Td><Badge color={order.paymentState === 'paid' ? 'teal' : order.paymentState === 'failed' ? 'red' : 'yellow'}>{order.paymentState}</Badge><Text c="var(--fj-text-muted)" fz="xs">{order.paymentMethod}</Text></Table.Td>
+      <Table.Td><Badge color={statusColor(order.status)}>{STATUS_OPTIONS.find(item => item.value === order.status)?.label || order.status}</Badge></Table.Td>
+      <Table.Td>{new Intl.DateTimeFormat('en', {dateStyle: 'medium'}).format(new Date(order.createdAt))}</Table.Td>
+    </Table.Tr>
+  ));
 
   return (
     <AppLayout title="Wristband Orders" subTitle="Payments, production fulfillment, delivery tracking, and reconciliation.">
@@ -146,60 +180,28 @@ export default function WristbandOrdersPage() {
         <Card radius="lg"><Text c="var(--fj-text-muted)" fz="sm">In production</Text><Text fw={700} fz={28}>{statistics?.byStatus.find(row => row.status === 'in_production')?.orders || 0}</Text></Card>
       </SimpleGrid>
 
-      <TableToolbar
+      <PpTable
+        headers={tableHeaders}
+        rowData={rows}
+        totalItems={totalItems}
+        activePage={page}
+        setActivePage={setPage}
+        rowsPerPage={rowsPerPage}
+        isLoading={ordersQuery.isFetching}
+        hasActions
+        filters={wristbandFilters}
+        onFilterChange={(next) => {
+          setFilters(next);
+          setPage(1);
+        }}
         query={search}
-        onQueryChange={setSearch}
+        handleQuery={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
         searchPlaceholder="Search order, provider ref, event, or customer"
-        action={
-          <Flex gap={10} wrap="wrap">
-            <FilterPill
-              label="Order"
-              value={
-                STATUS_OPTIONS.find((option) => option.value === status)
-                  ?.label || "All"
-              }
-              items={["All", ...STATUS_OPTIONS.map((option) => option.label)]}
-              onChange={(value) => {
-                const match = STATUS_OPTIONS.find(
-                  (option) => option.label === value,
-                );
-                setStatus(match?.value);
-              }}
-            />
-            <FilterPill
-              label="Payment"
-              value={paymentState ? capitalizeString(paymentState) : "All"}
-              items={["All", "Paid", "Pending", "Failed"]}
-              onChange={(value) => {
-                const next = String(value).toLowerCase();
-                setPaymentState(
-                  next === "all"
-                    ? undefined
-                    : (next as WristbandPaymentState),
-                );
-              }}
-            />
-          </Flex>
-        }
+        emptyState={wristbandEmptyState}
       />
-
-      <Card radius="lg" padding={0}>
-        <Table.ScrollContainer minWidth={1050}>
-          <Table verticalSpacing="md" horizontalSpacing="lg" highlightOnHover>
-            <Table.Thead><Table.Tr><Table.Th>Reference</Table.Th><Table.Th>Event</Table.Th><Table.Th>Customer</Table.Th><Table.Th>Bands</Table.Th><Table.Th>Amount</Table.Th><Table.Th>Payment</Table.Th><Table.Th>Fulfillment</Table.Th><Table.Th>Date</Table.Th></Table.Tr></Table.Thead>
-            <Table.Tbody>{orders.map(order => <Table.Tr key={order.id} onClick={() => setSelected(order)} style={{cursor: 'pointer'}}>
-              <Table.Td><Text fw={600}>{order.reference}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.paymentProviderRef || 'No provider reference'}</Text></Table.Td>
-              <Table.Td><Text fw={600}>{order.eventName}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.eventRef}</Text></Table.Td>
-              <Table.Td><Text>{order.customerName}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.customerEmail}</Text></Table.Td>
-              <Table.Td>{order.totalQuantity}</Table.Td><Table.Td>{money(order.amount, order.currency)}</Table.Td>
-              <Table.Td><Badge color={order.paymentState === 'paid' ? 'teal' : order.paymentState === 'failed' ? 'red' : 'yellow'}>{order.paymentState}</Badge><Text c="var(--fj-text-muted)" fz="xs">{order.paymentMethod}</Text></Table.Td>
-              <Table.Td><Badge color={statusColor(order.status)}>{STATUS_OPTIONS.find(item => item.value === order.status)?.label || order.status}</Badge></Table.Td>
-              <Table.Td>{new Intl.DateTimeFormat('en', {dateStyle: 'medium'}).format(new Date(order.createdAt))}</Table.Td>
-            </Table.Tr>)}</Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-        {!ordersQuery.isLoading && orders.length === 0 && <Group justify="center" p="xl"><Text c="var(--fj-text-muted)">No wristband orders match these filters.</Text></Group>}
-      </Card>
 
       <Drawer opened={selected != null} onClose={() => setSelected(null)} position="right" size="xl" title={detail ? `Order ${detail.reference}` : 'Wristband order'}>
         {detailQuery.isLoading ? <Text>Loading order…</Text> : detail ? <Stack gap="lg">

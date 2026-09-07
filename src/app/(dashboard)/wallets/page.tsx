@@ -2,7 +2,6 @@
 
 import {
   Badge,
-  Button,
   Card,
   Group,
   SimpleGrid,
@@ -17,14 +16,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
 import { GetFinanceSummary, GetWallets } from "@/services/api";
 import { WalletScope } from "@/services/api/finance/finance.types";
-import {
-  EmptyState,
-  FilterPill,
-  PendingBackend,
-  StatTile,
-  TableSkeleton,
-  TableToolbar,
-} from "@/components";
+import { PendingBackend, PpTable, StatTile } from "@/components";
 import {
   asList,
   formatCount,
@@ -33,7 +25,19 @@ import {
   isEndpointUnavailable,
   retryUnlessUnavailable,
   rowsPerPage,
+  walletEmptyState,
+  walletFilters,
 } from "@/utils";
+
+const tableHeaders = [
+  "Owner",
+  "Scope",
+  "Balance",
+  "Funded",
+  "Spent",
+  "Status",
+  "Last movement",
+];
 
 /**
  * Float across the platform: every user wallet and event purse in one ledger,
@@ -44,7 +48,9 @@ export default function WalletsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 400);
-  const [scope, setScope] = useState<"all" | WalletScope>("all");
+  const [filters, setFilters] = useState<Record<string, string>>({});
+
+  const scope = filters.scope as WalletScope | undefined;
 
   const walletsQuery = useQuery({
     queryKey: ["admin-wallets", page, debouncedSearch, scope],
@@ -53,7 +59,7 @@ export default function WalletsPage() {
         page,
         limit: rowsPerPage,
         search: debouncedSearch || undefined,
-        scope: scope === "all" ? undefined : scope,
+        scope: scope || undefined,
       }),
     retry: retryUnlessUnavailable,
   });
@@ -67,7 +73,44 @@ export default function WalletsPage() {
   const unavailable = isEndpointUnavailable(walletsQuery.error);
   const summary = summaryQuery.data?.data;
   const wallets = asList(walletsQuery.data?.data?.data);
-  const pagination = walletsQuery.data?.data?.pagination;
+  const totalItems = walletsQuery.data?.data?.pagination?.total || 0;
+
+  const rows = wallets.map((wallet) => (
+    <Table.Tr
+      key={`${wallet.scope}-${wallet.id}`}
+      className="cursor-pointer"
+      onClick={() =>
+        wallet.scope === "event" && wallet.eventId
+          ? router.push(`/event-management/${wallet.eventId}`)
+          : router.push(`/user-management/${wallet.userId}`)
+      }
+    >
+      <Table.Td>
+        <Text fw={650}>{wallet.ownerName || `User #${wallet.userId}`}</Text>
+        {wallet.eventName && (
+          <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
+            {wallet.eventName}
+          </Text>
+        )}
+      </Table.Td>
+      <Table.Td>
+        <Badge variant="light" color={wallet.scope === "event" ? "grape" : "blue"}>
+          {wallet.scope === "event" ? "Event purse" : "User"}
+        </Badge>
+      </Table.Td>
+      <Table.Td fw={700}>
+        {formatMoney(wallet.balance, wallet.currency)}
+      </Table.Td>
+      <Table.Td>{formatMoney(wallet.totalFunded, wallet.currency)}</Table.Td>
+      <Table.Td>{formatMoney(wallet.totalSpent, wallet.currency)}</Table.Td>
+      <Table.Td>
+        <Badge variant="light" color={wallet.isActive ? "teal" : "red"}>
+          {wallet.isActive ? "Active" : "Frozen"}
+        </Badge>
+      </Table.Td>
+      <Table.Td>{formatDateTime(wallet.lastMovementAt, "Never")}</Table.Td>
+    </Table.Tr>
+  ));
 
   return (
     <AppLayout
@@ -77,10 +120,7 @@ export default function WalletsPage() {
       {unavailable ? (
         <PendingBackend
           feature="Wallets"
-          endpoints={[
-            "GET /admin/wallets",
-            "GET /admin/wallets/summary",
-          ]}
+          endpoints={["GET /admin/wallets", "GET /admin/wallets/summary"]}
         />
       ) : (
         <Stack gap="xl">
@@ -139,144 +179,28 @@ export default function WalletsPage() {
             </Stack>
           )}
 
-          <TableToolbar
+          <PpTable
+            headers={tableHeaders}
+            rowData={rows}
+            totalItems={totalItems}
+            activePage={page}
+            setActivePage={setPage}
+            rowsPerPage={rowsPerPage}
+            isLoading={walletsQuery.isFetching}
+            hasActions
+            filters={walletFilters}
+            onFilterChange={(next) => {
+              setFilters(next);
+              setPage(1);
+            }}
             query={search}
-            onQueryChange={(value) => {
+            handleQuery={(value) => {
               setSearch(value);
               setPage(1);
             }}
             searchPlaceholder="Search owner, event or wallet reference"
-            action={
-              <FilterPill
-                label="Scope"
-                value={
-                  scope === "all"
-                    ? "All"
-                    : scope === "user"
-                      ? "User wallets"
-                      : "Event purses"
-                }
-                items={["All", "User wallets", "Event purses"]}
-                onChange={(value) => {
-                  const next = String(value);
-                  setScope(
-                    next === "All"
-                      ? "all"
-                      : next === "User wallets"
-                        ? "user"
-                        : "event",
-                  );
-                  setPage(1);
-                }}
-              />
-            }
+            emptyState={walletEmptyState}
           />
-
-          <Card radius="lg" p={0}>
-            {walletsQuery.isFetching ? (
-              <TableSkeleton />
-            ) : (
-              <Table.ScrollContainer minWidth={960}>
-                <Table verticalSpacing="md" horizontalSpacing="lg">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Owner</Table.Th>
-                      <Table.Th>Scope</Table.Th>
-                      <Table.Th>Balance</Table.Th>
-                      <Table.Th>Funded</Table.Th>
-                      <Table.Th>Spent</Table.Th>
-                      <Table.Th>Status</Table.Th>
-                      <Table.Th>Last movement</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {wallets.map((wallet) => (
-                      <Table.Tr
-                        key={`${wallet.scope}-${wallet.id}`}
-                        className="cursor-pointer"
-                        onClick={() =>
-                          wallet.scope === "event" && wallet.eventId
-                            ? router.push(
-                                `/event-management/${wallet.eventId}`,
-                              )
-                            : router.push(`/user-management/${wallet.userId}`)
-                        }
-                      >
-                        <Table.Td>
-                          <Text fw={650}>
-                            {wallet.ownerName || `User #${wallet.userId}`}
-                          </Text>
-                          {wallet.eventName && (
-                            <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
-                              {wallet.eventName}
-                            </Text>
-                          )}
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge
-                            variant="light"
-                            color={wallet.scope === "event" ? "grape" : "blue"}
-                          >
-                            {wallet.scope === "event" ? "Event purse" : "User"}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td fw={700}>
-                          {formatMoney(wallet.balance, wallet.currency)}
-                        </Table.Td>
-                        <Table.Td>
-                          {formatMoney(wallet.totalFunded, wallet.currency)}
-                        </Table.Td>
-                        <Table.Td>
-                          {formatMoney(wallet.totalSpent, wallet.currency)}
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge
-                            variant="light"
-                            color={wallet.isActive ? "teal" : "red"}
-                          >
-                            {wallet.isActive ? "Active" : "Frozen"}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          {formatDateTime(wallet.lastMovementAt, "Never")}
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            )}
-
-            {!walletsQuery.isFetching && wallets.length === 0 && (
-              <EmptyState
-                title="No wallets"
-                description="Wallets appear here once users fund an account or open an event purse."
-                mb={40}
-              />
-            )}
-          </Card>
-
-          {pagination && pagination.totalPages > 1 && (
-            <Group justify="center">
-              <Button
-                variant="light"
-                disabled={page === 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                Previous
-              </Button>
-              <Text>
-                Page {page} of {pagination.totalPages}
-              </Text>
-              <Button
-                variant="light"
-                disabled={page === pagination.totalPages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-              </Button>
-            </Group>
-          )}
         </Stack>
       )}
     </AppLayout>

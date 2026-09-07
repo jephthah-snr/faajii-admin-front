@@ -12,11 +12,27 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventBudget } from "@/services/api";
-import EmptyState from "../../blocks/empty-state";
+import PpTable from "../../blocks/table";
 import StatTile from "../../blocks/stat-tile";
 import PendingBackend from "../../elements/pending-backend";
 import { TableSkeleton } from "../../elements/skeletons";
 import { formatMoney, isEndpointUnavailable, retryUnlessUnavailable } from "@/utils";
+import { IconAmount } from "@/config/icons";
+
+const tableHeaders = [
+  "Line item",
+  "Budgeted",
+  "Spent",
+  "Remaining",
+  "Progress",
+];
+
+const budgetEmptyState = {
+  title: "No budget set",
+  description:
+    "The host hasn't added any budget line items for this event.",
+  icon: IconAmount,
+};
 
 /** Mirrors the Budget screen an event owner sees in the app. */
 const Budget = ({ eventId }: { eventId: string }) => {
@@ -43,6 +59,40 @@ const Budget = ({ eventId }: { eventId: string }) => {
   const totalSpent = budget?.totalSpent || 0;
   const remaining = totalBudgeted - totalSpent;
   const spendRate = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
+
+  const rows = items.map((item) => {
+    const itemRate =
+      item.amount > 0 ? (item.amountSpent / item.amount) * 100 : 0;
+    const over = item.amountSpent > item.amount;
+
+    return (
+      <Table.Tr key={item.id}>
+        <Table.Td>
+          <Group gap={8}>
+            <Flex
+              w={10}
+              h={10}
+              bg={item.itemColor || "#5769E9"}
+              style={{ borderRadius: "50%" }}
+            />
+            <Text fw={600}>{item.item}</Text>
+          </Group>
+        </Table.Td>
+        <Table.Td>{formatMoney(item.amount, currency)}</Table.Td>
+        <Table.Td>{formatMoney(item.amountSpent, currency)}</Table.Td>
+        <Table.Td c={over ? "#FF8787" : undefined}>
+          {formatMoney(item.amount - item.amountSpent, currency)}
+        </Table.Td>
+        <Table.Td w={180}>
+          <Progress
+            value={Math.min(itemRate, 100)}
+            color={over ? "red" : "teal"}
+            radius="xl"
+          />
+        </Table.Td>
+      </Table.Tr>
+    );
+  });
 
   if (isFetching) return <TableSkeleton />;
 
@@ -76,66 +126,13 @@ const Budget = ({ eventId }: { eventId: string }) => {
         </Card>
       </SimpleGrid>
 
-      <Card radius="lg" p={0}>
-        <Table.ScrollContainer minWidth={720}>
-          <Table verticalSpacing="md" horizontalSpacing="lg">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Line item</Table.Th>
-                <Table.Th>Budgeted</Table.Th>
-                <Table.Th>Spent</Table.Th>
-                <Table.Th>Remaining</Table.Th>
-                <Table.Th>Progress</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {items.map((item) => {
-                const itemRate =
-                  item.amount > 0 ? (item.amountSpent / item.amount) * 100 : 0;
-                const over = item.amountSpent > item.amount;
-
-                return (
-                  <Table.Tr key={item.id}>
-                    <Table.Td>
-                      <Group gap={8}>
-                        <Flex
-                          w={10}
-                          h={10}
-                          bg={item.itemColor || "#5769E9"}
-                          style={{ borderRadius: "50%" }}
-                        />
-                        <Text fw={600}>{item.item}</Text>
-                      </Group>
-                    </Table.Td>
-                    <Table.Td>{formatMoney(item.amount, currency)}</Table.Td>
-                    <Table.Td>
-                      {formatMoney(item.amountSpent, currency)}
-                    </Table.Td>
-                    <Table.Td c={over ? "#FF8787" : undefined}>
-                      {formatMoney(item.amount - item.amountSpent, currency)}
-                    </Table.Td>
-                    <Table.Td w={180}>
-                      <Progress
-                        value={Math.min(itemRate, 100)}
-                        color={over ? "red" : "teal"}
-                        radius="xl"
-                      />
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-
-        {items.length === 0 && (
-          <EmptyState
-            title="No budget set"
-            description="The host hasn't added any budget line items for this event."
-            mb={40}
-          />
-        )}
-      </Card>
+      <PpTable
+        headers={tableHeaders}
+        rowData={rows}
+        showPagination={false}
+        isLoading={isFetching}
+        emptyState={budgetEmptyState}
+      />
     </Stack>
   );
 };

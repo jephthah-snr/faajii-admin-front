@@ -2,7 +2,6 @@
 
 import {
   Badge,
-  Card,
   Group,
   SimpleGrid,
   Stack,
@@ -31,10 +30,56 @@ import {
   EventStore,
   EventTasks,
   EventWallet,
+  PpTable,
   StatTile,
 } from "@/components";
-import { formatDateTime as formatDate, formatMoney } from "@/utils";
+import {
+  formatDateTime as formatDate,
+  formatMoney,
+  transactionEmptyState,
+} from "@/utils";
+import { IconNoTickets, IconNoUsers } from "@/config/icons";
 import { useMemo, useState } from "react";
+
+const guestHeaders = [
+  "Guest",
+  "Contact",
+  "Group",
+  "Tickets",
+  "Status",
+  "Added",
+];
+
+const ticketHeaders = [
+  "Ticket holder",
+  "Tier / type",
+  "Ticket reference",
+  "Order",
+  "Price",
+  "State",
+  "Issued",
+];
+
+const transactionHeaders = [
+  "Reference",
+  "Buyer",
+  "Method",
+  "Amount",
+  "Status",
+  "Date",
+];
+
+const guestEmptyState = {
+  title: "No guests yet",
+  description: "Guests added to this event will be listed here.",
+  icon: IconNoUsers,
+};
+
+const ticketEmptyState = {
+  title: "No tickets issued",
+  description: "Every ticket issued for this event will appear here.",
+  icon: IconNoTickets,
+};
 
 /** Guards a list-shaped field so a malformed payload renders empty, not crashes. */
 const asArray = <T,>(value: T[] | undefined): T[] =>
@@ -122,6 +167,95 @@ export default function EventDetailsPage() {
     });
   }, [partyStoreFilter, partyStoreItems, partyStoreSearch]);
 
+  const guestRows = guests.map((guest) => (
+    <Table.Tr key={guest.id}>
+      <Table.Td fw={600}>{guest.name}</Table.Td>
+      <Table.Td>
+        <Text>{guest.email || "No email"}</Text>
+        <Text c="var(--fj-text-muted)" fz="xs">
+          {guest.phone || "No phone"}
+        </Text>
+      </Table.Td>
+      <Table.Td>{guest.group || "General"}</Table.Td>
+      <Table.Td>
+        {ticketsByGuest.get(guest.id) ? (
+          <Stack gap={3}>
+            <Text fw={700}>
+              {ticketsByGuest.get(guest.id)?.count} ticket
+              {ticketsByGuest.get(guest.id)?.count === 1 ? "" : "s"}
+            </Text>
+            <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
+              {[...(ticketsByGuest.get(guest.id)?.tiers || [])].join(", ")}
+            </Text>
+          </Stack>
+        ) : (
+          <Text c="var(--fj-text-muted)">No ticket</Text>
+        )}
+      </Table.Td>
+      <Table.Td>
+        <Badge variant="light">{guest.status}</Badge>
+      </Table.Td>
+      <Table.Td>{formatDate(guest.createdAt)}</Table.Td>
+    </Table.Tr>
+  ));
+
+  const ticketRows = tickets.map((ticket) => (
+    <Table.Tr key={ticket.id}>
+      <Table.Td>
+        <Text fw={650}>{ticket.guest.name}</Text>
+        <Text c="var(--fj-text-muted)" fz="xs">
+          {ticket.guest.email || ticket.guest.phone || "No contact"}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text fw={600}>{ticket.ticket.name}</Text>
+        <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">
+          {ticket.ticket.type} · {ticket.guestTicketCount} held
+        </Text>
+      </Table.Td>
+      <Table.Td ff="monospace">{ticket.ticketRef}</Table.Td>
+      <Table.Td>
+        <Text>{ticket.order.reference || `#${ticket.order.id}`}</Text>
+        <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">
+          {ticket.order.status}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        {formatMoney(ticket.ticket.price, ticket.ticket.currency)}
+      </Table.Td>
+      <Table.Td>
+        <Badge
+          variant="light"
+          color={
+            ticket.status === "used"
+              ? "teal"
+              : ticket.status === "cancelled"
+                ? "red"
+                : "blue"
+          }
+        >
+          {ticket.status === "used" ? "Checked in" : ticket.status}
+        </Badge>
+      </Table.Td>
+      <Table.Td>{formatDate(ticket.createdAt)}</Table.Td>
+    </Table.Tr>
+  ));
+
+  const transactionRows = transactions.map((transaction) => (
+    <Table.Tr key={transaction.id}>
+      <Table.Td fw={600}>{transaction.reference}</Table.Td>
+      <Table.Td>{transaction.buyer?.name || "Guest checkout"}</Table.Td>
+      <Table.Td>{transaction.paymentMethod || "—"}</Table.Td>
+      <Table.Td>
+        {formatMoney(transaction.amount, transaction.currency)}
+      </Table.Td>
+      <Table.Td>
+        <Badge variant="light">{transaction.status}</Badge>
+      </Table.Td>
+      <Table.Td>{formatDate(transaction.createdAt)}</Table.Td>
+    </Table.Tr>
+  ));
+
   return (
     <AppLayout
       title="Event details"
@@ -169,55 +303,13 @@ export default function EventDetailsPage() {
           </SimpleGrid>
 
           <Text fw={700} fz="lg" mb="sm">Guest directory</Text>
-          <Card radius="lg" p={0}>
-            <Table.ScrollContainer minWidth={800}>
-              <Table verticalSpacing="md" horizontalSpacing="lg">
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Guest</Table.Th>
-                    <Table.Th>Contact</Table.Th>
-                    <Table.Th>Group</Table.Th>
-                    <Table.Th>Tickets</Table.Th>
-                    <Table.Th>Status</Table.Th>
-                    <Table.Th>Added</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {guests.map((guest) => (
-                    <Table.Tr key={guest.id}>
-                      <Table.Td fw={600}>{guest.name}</Table.Td>
-                      <Table.Td>
-                        <Text>{guest.email || "No email"}</Text>
-                        <Text c="var(--fj-text-muted)" fz="xs">
-                          {guest.phone || "No phone"}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>{guest.group || "General"}</Table.Td>
-                      <Table.Td>
-                        {ticketsByGuest.get(guest.id) ? (
-                          <Stack gap={3}>
-                            <Text fw={700}>
-                              {ticketsByGuest.get(guest.id)?.count} ticket
-                              {ticketsByGuest.get(guest.id)?.count === 1 ? "" : "s"}
-                            </Text>
-                            <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
-                              {[...(ticketsByGuest.get(guest.id)?.tiers || [])].join(", ")}
-                            </Text>
-                          </Stack>
-                        ) : (
-                          <Text c="var(--fj-text-muted)">No ticket</Text>
-                        )}
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge variant="light">{guest.status}</Badge>
-                      </Table.Td>
-                      <Table.Td>{formatDate(guest.createdAt)}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-          </Card>
+          <PpTable
+            headers={guestHeaders}
+            rowData={guestRows}
+            showPagination={false}
+            isLoading={guestsQuery.isFetching}
+            emptyState={guestEmptyState}
+          />
 
           <Group justify="space-between" mt="xl" mb="sm">
             <Stack gap={2}>
@@ -228,64 +320,13 @@ export default function EventDetailsPage() {
             </Stack>
             <Badge variant="light" size="lg">{tickets.length} records</Badge>
           </Group>
-          <Card radius="lg" p={0}>
-            <Table.ScrollContainer minWidth={1050}>
-              <Table verticalSpacing="md" horizontalSpacing="lg">
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Ticket holder</Table.Th>
-                    <Table.Th>Tier / type</Table.Th>
-                    <Table.Th>Ticket reference</Table.Th>
-                    <Table.Th>Order</Table.Th>
-                    <Table.Th>Price</Table.Th>
-                    <Table.Th>State</Table.Th>
-                    <Table.Th>Issued</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {tickets.map((ticket) => (
-                    <Table.Tr key={ticket.id}>
-                      <Table.Td>
-                        <Text fw={650}>{ticket.guest.name}</Text>
-                        <Text c="var(--fj-text-muted)" fz="xs">
-                          {ticket.guest.email || ticket.guest.phone || "No contact"}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text fw={600}>{ticket.ticket.name}</Text>
-                        <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">
-                          {ticket.ticket.type} · {ticket.guestTicketCount} held
-                        </Text>
-                      </Table.Td>
-                      <Table.Td ff="monospace">{ticket.ticketRef}</Table.Td>
-                      <Table.Td>
-                        <Text>{ticket.order.reference || `#${ticket.order.id}`}</Text>
-                        <Text c="var(--fj-text-muted)" fz="xs" tt="capitalize">{ticket.order.status}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        {formatMoney(ticket.ticket.price, ticket.ticket.currency)}
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge
-                          variant="light"
-                          color={
-                            ticket.status === "used"
-                              ? "teal"
-                              : ticket.status === "cancelled"
-                                ? "red"
-                                : "blue"
-                          }
-                        >
-                          {ticket.status === "used" ? "Checked in" : ticket.status}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td>{formatDate(ticket.createdAt)}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-          </Card>
+          <PpTable
+            headers={ticketHeaders}
+            rowData={ticketRows}
+            showPagination={false}
+            isLoading={ticketsQuery.isFetching}
+            emptyState={ticketEmptyState}
+          />
         </Tabs.Panel>
 
         <Tabs.Panel value="check-ins">
@@ -314,40 +355,13 @@ export default function EventDetailsPage() {
 
 
         <Tabs.Panel value="transactions">
-          <Card radius="lg" p={0}>
-            <Table.ScrollContainer minWidth={850}>
-              <Table verticalSpacing="md" horizontalSpacing="lg">
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Reference</Table.Th>
-                    <Table.Th>Buyer</Table.Th>
-                    <Table.Th>Method</Table.Th>
-                    <Table.Th>Amount</Table.Th>
-                    <Table.Th>Status</Table.Th>
-                    <Table.Th>Date</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {transactions.map((transaction) => (
-                    <Table.Tr key={transaction.id}>
-                      <Table.Td fw={600}>{transaction.reference}</Table.Td>
-                      <Table.Td>
-                        {transaction.buyer?.name || "Guest checkout"}
-                      </Table.Td>
-                      <Table.Td>{transaction.paymentMethod || "—"}</Table.Td>
-                      <Table.Td>
-                        {formatMoney(transaction.amount, transaction.currency)}
-                      </Table.Td>
-                      <Table.Td>
-                        <Badge variant="light">{transaction.status}</Badge>
-                      </Table.Td>
-                      <Table.Td>{formatDate(transaction.createdAt)}</Table.Td>
-                    </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </Table.ScrollContainer>
-          </Card>
+          <PpTable
+            headers={transactionHeaders}
+            rowData={transactionRows}
+            showPagination={false}
+            isLoading={transactionsQuery.isFetching}
+            emptyState={transactionEmptyState}
+          />
         </Tabs.Panel>
 
         <Tabs.Panel value="wallet">

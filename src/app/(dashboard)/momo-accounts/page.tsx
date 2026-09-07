@@ -1,20 +1,10 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Card,
-  Flex,
-  Group,
-  Stack,
-  Switch,
-  Table,
-  Text,
-} from "@mantine/core";
+import { Badge, Switch, Table, Text } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
 import {
@@ -23,23 +13,18 @@ import {
   SetMomoAccountEnabled,
 } from "@/services/api";
 import { MomoAccountStatus } from "@/services/api/finance/finance.types";
-import {
-  EmptyState,
-  FilterPill,
-  PendingBackend,
-  TableSkeleton,
-  TableToolbar,
-} from "@/components";
+import { PendingBackend, PpTable } from "@/components";
 import {
   asList,
-  capitalizeString,
   formatDateTime,
   formatStatusLabel,
   getApiErrorMessage,
   isEndpointUnavailable,
   retryUnlessUnavailable,
   rowsPerPage,
+  type FilterItem,
 } from "@/utils";
+import { IconMomo } from "@/config/icons";
 
 const statusColor: Record<MomoAccountStatus, string> = {
   active: "teal",
@@ -49,6 +34,23 @@ const statusColor: Record<MomoAccountStatus, string> = {
 };
 
 const statusOptions = ["All", "Active", "Pending", "Disabled", "Failed"];
+
+const tableHeaders = [
+  "Account holder",
+  "Linked by",
+  "Provider",
+  "Status",
+  "Verified",
+  "Linked",
+  "Enabled",
+];
+
+const momoEmptyState = {
+  title: "No MoMo accounts",
+  description:
+    "Accounts appear here as users link mobile money for funding.",
+  icon: IconMomo,
+};
 
 /**
  * Mobile money accounts users link for funding and payouts
@@ -61,8 +63,48 @@ export default function MomoAccountsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 400);
-  const [status, setStatus] = useState<MomoAccountStatus | undefined>();
-  const [providerId, setProviderId] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Record<string, string>>({});
+
+  const status = filters.status as MomoAccountStatus | undefined;
+  const providerId = filters.providerId;
+
+  // Served by the same public route the app uses, so the filter can't drift.
+  const providersQuery = useQuery({
+    queryKey: ["momo-providers"],
+    queryFn: GetMomoProviders,
+    retry: retryUnlessUnavailable,
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const providerOptions = useMemo(
+    () =>
+      asList(providersQuery.data?.data).map((provider) => ({
+        value: String(provider.id),
+        label: `${provider.name} (${provider.country})`,
+      })),
+    [providersQuery.data],
+  );
+
+  const momoFilters: FilterItem[] = useMemo(
+    () => [
+      {
+        title: "Status",
+        apiKey: "status",
+        default: "All",
+        items: statusOptions,
+        transform: (value) => value?.toLowerCase(),
+      },
+      {
+        title: "Provider",
+        apiKey: "providerId",
+        default: "All",
+        items: ["All", ...providerOptions.map((option) => option.label)],
+        transform: (value) =>
+          providerOptions.find((option) => option.label === value)?.value || "",
+      },
+    ],
+    [providerOptions],
+  );
 
   const accountsQuery = useQuery({
     queryKey: ["admin-momo-accounts", page, debouncedSearch, status, providerId],
@@ -71,18 +113,10 @@ export default function MomoAccountsPage() {
         page,
         limit: rowsPerPage,
         search: debouncedSearch || undefined,
-        status,
+        status: status || undefined,
         providerId: providerId ? Number(providerId) : undefined,
       }),
     retry: retryUnlessUnavailable,
-  });
-
-  // Served by the same public route the app uses, so the filter can't drift.
-  const providersQuery = useQuery({
-    queryKey: ["momo-providers"],
-    queryFn: GetMomoProviders,
-    retry: retryUnlessUnavailable,
-    staleTime: 1000 * 60 * 30,
   });
 
   const toggle = useMutation({
@@ -100,14 +134,50 @@ export default function MomoAccountsPage() {
   });
 
   const accounts = asList(accountsQuery.data?.data?.data);
-  const pagination = accountsQuery.data?.data?.pagination;
-  const providerOptions: { value: string | null; label: string }[] = [
-    { value: null, label: "All" },
-    ...asList(providersQuery.data?.data).map((provider) => ({
-      value: String(provider.id),
-      label: `${provider.name} (${provider.country})`,
-    })),
-  ];
+  const totalItems = accountsQuery.data?.data?.pagination?.total || 0;
+
+  const rows = accounts.map((account) => (
+    <Table.Tr key={account.id}>
+      <Table.Td>
+        <Text fw={650}>{account.fullName}</Text>
+        <Text c="var(--fj-text-muted)" fz="xs">
+          {account.number} · {account.countryCode}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Text
+          className="cursor-pointer"
+          td="underline"
+          onClick={() => router.push(`/user-management/${account.userId}`)}
+        >
+          {account.userName || `User #${account.userId}`}
+        </Text>
+        <Text c="var(--fj-text-muted)" fz="xs">
+          {account.userEmail || "No email"}
+        </Text>
+      </Table.Td>
+      <Table.Td>{account.providerName || "Unknown"}</Table.Td>
+      <Table.Td>
+        <Badge variant="light" color={statusColor[account.status] || "gray"}>
+          {formatStatusLabel(account.status)}
+        </Badge>
+      </Table.Td>
+      <Table.Td>{formatDateTime(account.verifiedAt, "Not verified")}</Table.Td>
+      <Table.Td>{formatDateTime(account.created_at)}</Table.Td>
+      <Table.Td>
+        <Switch
+          checked={account.enabled}
+          disabled={toggle.isPending}
+          onChange={(event) =>
+            toggle.mutate({
+              id: account.id,
+              enabled: event.currentTarget.checked,
+            })
+          }
+        />
+      </Table.Td>
+    </Table.Tr>
+  ));
 
   return (
     <AppLayout
@@ -123,155 +193,28 @@ export default function MomoAccountsPage() {
           ]}
         />
       ) : (
-        <Stack gap="xl">
-          <TableToolbar
-            query={search}
-            onQueryChange={(value) => {
-              setSearch(value);
-              setPage(1);
-            }}
-            searchPlaceholder="Search user, name or number"
-            action={
-              <Flex gap={10} wrap="wrap">
-                <FilterPill
-                  label="Status"
-                  value={status ? capitalizeString(status) : "All"}
-                  items={statusOptions}
-                  onChange={(value) => {
-                    const next = String(value).toLowerCase();
-                    setStatus(
-                      next === "all" ? undefined : (next as MomoAccountStatus),
-                    );
-                    setPage(1);
-                  }}
-                />
-                <FilterPill
-                  label="Provider"
-                  value={
-                    providerOptions.find(
-                      (option) => option.value === providerId,
-                    )?.label || "All"
-                  }
-                  items={providerOptions.map((option) => option.label)}
-                  onChange={(value) => {
-                    const match = providerOptions.find(
-                      (option) => option.label === value,
-                    );
-                    setProviderId(match?.value || null);
-                    setPage(1);
-                  }}
-                />
-              </Flex>
-            }
-          />
-
-          <Card radius="lg" p={0}>
-            {accountsQuery.isFetching ? (
-              <TableSkeleton />
-            ) : (
-              <Table.ScrollContainer minWidth={980}>
-                <Table verticalSpacing="md" horizontalSpacing="lg">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Account holder</Table.Th>
-                      <Table.Th>Linked by</Table.Th>
-                      <Table.Th>Provider</Table.Th>
-                      <Table.Th>Status</Table.Th>
-                      <Table.Th>Verified</Table.Th>
-                      <Table.Th>Linked</Table.Th>
-                      <Table.Th>Enabled</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {accounts.map((account) => (
-                      <Table.Tr key={account.id}>
-                        <Table.Td>
-                          <Text fw={650}>{account.fullName}</Text>
-                          <Text c="var(--fj-text-muted)" fz="xs">
-                            {account.number} · {account.countryCode}
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Text
-                            className="cursor-pointer"
-                            td="underline"
-                            onClick={() =>
-                              router.push(`/user-management/${account.userId}`)
-                            }
-                          >
-                            {account.userName || `User #${account.userId}`}
-                          </Text>
-                          <Text c="var(--fj-text-muted)" fz="xs">
-                            {account.userEmail || "No email"}
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          {account.providerName || "Unknown"}
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge
-                            variant="light"
-                            color={statusColor[account.status] || "gray"}
-                          >
-                            {formatStatusLabel(account.status)}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          {formatDateTime(account.verifiedAt, "Not verified")}
-                        </Table.Td>
-                        <Table.Td>
-                          {formatDateTime(account.created_at)}
-                        </Table.Td>
-                        <Table.Td>
-                          <Switch
-                            checked={account.enabled}
-                            disabled={toggle.isPending}
-                            onChange={(event) =>
-                              toggle.mutate({
-                                id: account.id,
-                                enabled: event.currentTarget.checked,
-                              })
-                            }
-                          />
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            )}
-
-            {!accountsQuery.isFetching && accounts.length === 0 && (
-              <EmptyState
-                title="No MoMo accounts"
-                description="Accounts appear here as users link mobile money for funding."
-                mb={40}
-              />
-            )}
-          </Card>
-
-          {pagination && pagination.totalPages > 1 && (
-            <Group justify="center">
-              <Button
-                variant="light"
-                disabled={page === 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                Previous
-              </Button>
-              <Text>
-                Page {page} of {pagination.totalPages}
-              </Text>
-              <Button
-                variant="light"
-                disabled={page === pagination.totalPages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-              </Button>
-            </Group>
-          )}
-        </Stack>
+        <PpTable
+          headers={tableHeaders}
+          rowData={rows}
+          totalItems={totalItems}
+          activePage={page}
+          setActivePage={setPage}
+          rowsPerPage={rowsPerPage}
+          isLoading={accountsQuery.isFetching}
+          hasActions
+          filters={momoFilters}
+          onFilterChange={(next) => {
+            setFilters(next);
+            setPage(1);
+          }}
+          query={search}
+          handleQuery={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+          searchPlaceholder="Search user, name or number"
+          emptyState={momoEmptyState}
+        />
       )}
     </AppLayout>
   );

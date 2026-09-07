@@ -3,8 +3,6 @@
 import {
   Badge,
   Button,
-  Card,
-  Group,
   Modal,
   Select,
   SimpleGrid,
@@ -31,12 +29,7 @@ import {
   BroadcastAudience,
   BroadcastStatus,
 } from "@/services/api/notifications/notifications.types";
-import {
-  EmptyState,
-  PendingBackend,
-  StatTile,
-  TableSkeleton,
-} from "@/components";
+import { PendingBackend, PpTable, StatTile } from "@/components";
 import {
   asList,
   formatCount,
@@ -47,6 +40,7 @@ import {
   retryUnlessUnavailable,
   rowsPerPage,
 } from "@/utils";
+import { IconNotifications, IconUsers } from "@/config/icons";
 
 const statusColor: Record<BroadcastStatus, string> = {
   draft: "gray",
@@ -63,6 +57,36 @@ const audienceOptions: { value: BroadcastAudience; label: string }[] = [
   { value: "event_hosts", label: "Event hosts" },
   { value: "event_attendees", label: "Event attendees" },
 ];
+
+const deviceHeaders = [
+  "Device owner",
+  "Platform",
+  "App version",
+  "Status",
+  "Last seen",
+];
+
+const broadcastHeaders = [
+  "Message",
+  "Audience",
+  "Status",
+  "Delivery",
+  "Sent",
+  "Created by",
+  "",
+];
+
+const deviceEmptyState = {
+  title: "No registered devices",
+  description: "Devices will appear after users sign in to the mobile app.",
+  icon: IconUsers,
+};
+
+const broadcastEmptyState = {
+  title: "No broadcasts yet",
+  description: "Send your first push notification to the Faajii app.",
+  icon: IconNotifications,
+};
 
 /**
  * Push notifications. The app registers FCM tokens on sign-in; this is where an
@@ -139,8 +163,88 @@ export default function NotificationsPage() {
   const deviceStats = deviceStatsQuery.data?.data;
   const broadcasts = asList(broadcastsQuery.data?.data?.data);
   const devices = asList(devicesQuery.data?.data?.data);
-  const pagination = broadcastsQuery.data?.data?.pagination;
+  const totalBroadcasts = broadcastsQuery.data?.data?.pagination?.total || 0;
   const canSend = title.trim().length > 0 && message.trim().length > 0;
+
+  const deviceRows = devices.map((device) => (
+    <Table.Tr key={device.id}>
+      <Table.Td>
+        <Text fw={650}>{device.userName || `User #${device.userId}`}</Text>
+        <Text c="var(--fj-text-muted)" fz="xs">
+          {device.userEmail || "No email"}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Badge variant="light">{device.deviceType || "Unknown"}</Badge>
+      </Table.Td>
+      <Table.Td>{device.appVersion || "—"}</Table.Td>
+      <Table.Td>
+        <Badge color={device.isActive ? "teal" : "gray"}>
+          {device.isActive ? "Active" : "Inactive"}
+        </Badge>
+      </Table.Td>
+      <Table.Td>{formatDateTime(device.lastSeenAt, "Never")}</Table.Td>
+    </Table.Tr>
+  ));
+
+  const broadcastRows = broadcasts.map((broadcast) => {
+    const cancellable =
+      broadcast.status === "draft" || broadcast.status === "queued";
+
+    return (
+      <Table.Tr key={broadcast.id}>
+        <Table.Td maw={340}>
+          <Text fw={650} lineClamp={1}>
+            {broadcast.title}
+          </Text>
+          <Text c="var(--fj-text-muted)" fz="xs" lineClamp={2}>
+            {broadcast.message}
+          </Text>
+        </Table.Td>
+        <Table.Td>
+          <Badge variant="light">{formatStatusLabel(broadcast.audience)}</Badge>
+          {broadcast.eventName && (
+            <Text c="var(--fj-text-muted)" fz="xs" mt={4} lineClamp={1}>
+              {broadcast.eventName}
+            </Text>
+          )}
+        </Table.Td>
+        <Table.Td>
+          <Badge variant="light" color={statusColor[broadcast.status]}>
+            {formatStatusLabel(broadcast.status)}
+          </Badge>
+        </Table.Td>
+        <Table.Td>
+          <Text fz="sm">
+            {formatCount(broadcast.deliveredCount)} /{" "}
+            {formatCount(broadcast.recipientCount)}
+          </Text>
+          {broadcast.failedCount > 0 && (
+            <Text c="#FF8787" fz="xs">
+              {formatCount(broadcast.failedCount)} failed
+            </Text>
+          )}
+        </Table.Td>
+        <Table.Td>
+          {formatDateTime(broadcast.sentAt || broadcast.scheduledFor, "Not sent")}
+        </Table.Td>
+        <Table.Td>{broadcast.createdByName || "—"}</Table.Td>
+        <Table.Td>
+          {cancellable && (
+            <Button
+              size="xs"
+              variant="light"
+              color="red"
+              loading={cancel.isPending && cancel.variables === broadcast.id}
+              onClick={() => cancel.mutate(broadcast.id)}
+            >
+              Cancel
+            </Button>
+          )}
+        </Table.Td>
+      </Table.Tr>
+    );
+  });
 
   return (
     <AppLayout
@@ -192,44 +296,18 @@ export default function NotificationsPage() {
             </SimpleGrid>
           )}
 
-          <Card radius="lg" p={0}>
-            {devicesQuery.isFetching ? (
-              <TableSkeleton />
-            ) : (
-              <Table.ScrollContainer minWidth={760}>
-                <Table verticalSpacing="md" horizontalSpacing="lg">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Device owner</Table.Th>
-                      <Table.Th>Platform</Table.Th>
-                      <Table.Th>App version</Table.Th>
-                      <Table.Th>Status</Table.Th>
-                      <Table.Th>Last seen</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {devices.map((device) => (
-                      <Table.Tr key={device.id}>
-                        <Table.Td>
-                          <Text fw={650}>{device.userName || `User #${device.userId}`}</Text>
-                          <Text c="var(--fj-text-muted)" fz="xs">{device.userEmail || "No email"}</Text>
-                        </Table.Td>
-                        <Table.Td><Badge variant="light">{device.deviceType || "Unknown"}</Badge></Table.Td>
-                        <Table.Td>{device.appVersion || "—"}</Table.Td>
-                        <Table.Td><Badge color={device.isActive ? "teal" : "gray"}>{device.isActive ? "Active" : "Inactive"}</Badge></Table.Td>
-                        <Table.Td>{formatDateTime(device.lastSeenAt, "Never")}</Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            )}
-            {!devicesQuery.isFetching && devices.length === 0 && (
-              <EmptyState title="No registered devices" description="Devices will appear after users sign in to the mobile app." mb={40} />
-            )}
-          </Card>
+          <Stack gap="sm">
+            <Text fw={700}>Registered devices</Text>
+            <PpTable
+              headers={deviceHeaders}
+              rowData={deviceRows}
+              showPagination={false}
+              isLoading={devicesQuery.isFetching}
+              emptyState={deviceEmptyState}
+            />
+          </Stack>
 
-          {isEndpointUnavailable(broadcastsQuery.error) && (
+          {isEndpointUnavailable(broadcastsQuery.error) ? (
             <PendingBackend
               feature="Notification broadcasts"
               endpoints={[
@@ -238,132 +316,20 @@ export default function NotificationsPage() {
                 "PATCH /admin/notifications/broadcasts/:id/cancel",
               ]}
             />
-          )}
-
-          {!isEndpointUnavailable(broadcastsQuery.error) && <Card radius="lg" p={0}>
-            {broadcastsQuery.isFetching ? (
-              <TableSkeleton />
-            ) : (
-              <Table.ScrollContainer minWidth={1000}>
-                <Table verticalSpacing="md" horizontalSpacing="lg">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Message</Table.Th>
-                      <Table.Th>Audience</Table.Th>
-                      <Table.Th>Status</Table.Th>
-                      <Table.Th>Delivery</Table.Th>
-                      <Table.Th>Sent</Table.Th>
-                      <Table.Th>Created by</Table.Th>
-                      <Table.Th />
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {broadcasts.map((broadcast) => {
-                      const cancellable =
-                        broadcast.status === "draft" ||
-                        broadcast.status === "queued";
-
-                      return (
-                        <Table.Tr key={broadcast.id}>
-                          <Table.Td maw={340}>
-                            <Text fw={650} lineClamp={1}>
-                              {broadcast.title}
-                            </Text>
-                            <Text c="var(--fj-text-muted)" fz="xs" lineClamp={2}>
-                              {broadcast.message}
-                            </Text>
-                          </Table.Td>
-                          <Table.Td>
-                            <Badge variant="light">
-                              {formatStatusLabel(broadcast.audience)}
-                            </Badge>
-                            {broadcast.eventName && (
-                              <Text c="var(--fj-text-muted)" fz="xs" mt={4} lineClamp={1}>
-                                {broadcast.eventName}
-                              </Text>
-                            )}
-                          </Table.Td>
-                          <Table.Td>
-                            <Badge
-                              variant="light"
-                              color={statusColor[broadcast.status]}
-                            >
-                              {formatStatusLabel(broadcast.status)}
-                            </Badge>
-                          </Table.Td>
-                          <Table.Td>
-                            <Text fz="sm">
-                              {formatCount(broadcast.deliveredCount)} /{" "}
-                              {formatCount(broadcast.recipientCount)}
-                            </Text>
-                            {broadcast.failedCount > 0 && (
-                              <Text c="#FF8787" fz="xs">
-                                {formatCount(broadcast.failedCount)} failed
-                              </Text>
-                            )}
-                          </Table.Td>
-                          <Table.Td>
-                            {formatDateTime(
-                              broadcast.sentAt || broadcast.scheduledFor,
-                              "Not sent",
-                            )}
-                          </Table.Td>
-                          <Table.Td>
-                            {broadcast.createdByName || "—"}
-                          </Table.Td>
-                          <Table.Td>
-                            {cancellable && (
-                              <Button
-                                size="xs"
-                                variant="light"
-                                color="red"
-                                loading={
-                                  cancel.isPending &&
-                                  cancel.variables === broadcast.id
-                                }
-                                onClick={() => cancel.mutate(broadcast.id)}
-                              >
-                                Cancel
-                              </Button>
-                            )}
-                          </Table.Td>
-                        </Table.Tr>
-                      );
-                    })}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            )}
-
-            {!broadcastsQuery.isFetching && broadcasts.length === 0 && (
-              <EmptyState
-                title="No broadcasts yet"
-                description="Send your first push notification to the Faajii app."
-                mb={40}
+          ) : (
+            <Stack gap="sm">
+              <Text fw={700}>Broadcasts</Text>
+              <PpTable
+                headers={broadcastHeaders}
+                rowData={broadcastRows}
+                totalItems={totalBroadcasts}
+                activePage={page}
+                setActivePage={setPage}
+                rowsPerPage={rowsPerPage}
+                isLoading={broadcastsQuery.isFetching}
+                emptyState={broadcastEmptyState}
               />
-            )}
-          </Card>}
-
-          {pagination && pagination.totalPages > 1 && (
-            <Group justify="center">
-              <Button
-                variant="light"
-                disabled={page === 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                Previous
-              </Button>
-              <Text>
-                Page {page} of {pagination.totalPages}
-              </Text>
-              <Button
-                variant="light"
-                disabled={page === pagination.totalPages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-              </Button>
-            </Group>
+            </Stack>
           )}
         </Stack>
       )}

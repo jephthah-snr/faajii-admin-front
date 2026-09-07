@@ -5,7 +5,6 @@ import {
   Badge,
   Button,
   Card,
-  Flex,
   Group,
   Modal,
   Select,
@@ -33,16 +32,13 @@ import {
   SupportStatus,
 } from "@/services/api/support/support.types";
 import {
-  EmptyState,
-  FilterPill,
   PendingBackend,
+  PpTable,
   StatTile,
   TableSkeleton,
-  TableToolbar,
 } from "@/components";
 import {
   asList,
-  capitalizeString,
   formatCount,
   formatDateTime,
   formatStatusLabel,
@@ -50,6 +46,8 @@ import {
   isEndpointUnavailable,
   retryUnlessUnavailable,
   rowsPerPage,
+  supportEmptyState,
+  supportFilters,
 } from "@/utils";
 
 const statusColor: Record<SupportStatus, string> = {
@@ -66,6 +64,16 @@ const priorityColor: Record<SupportPriority, string> = {
   urgent: "red",
 };
 
+const tableHeaders = [
+  "Ticket",
+  "User",
+  "Category",
+  "Priority",
+  "Status",
+  "Assigned",
+  "Last activity",
+];
+
 /**
  * Support desk. In the app "Contact support" is a set of outbound links; giving
  * it a queue here is what turns a complaint into something trackable.
@@ -76,11 +84,18 @@ export default function SupportPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 400);
-  const [status, setStatus] = useState<SupportStatus | undefined>("open");
-  const [priority, setPriority] = useState<SupportPriority | undefined>();
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [reply, setReply] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
+
+  // The queue opens on unresolved tickets, so an untouched filter means "open".
+  const status = (
+    filters.status === "all" ? undefined : filters.status || "open"
+  ) as SupportStatus | undefined;
+  const priority = (filters.priority || undefined) as
+    | SupportPriority
+    | undefined;
 
   const ticketsQuery = useQuery({
     queryKey: ["admin-support-tickets", page, debouncedSearch, status, priority],
@@ -140,7 +155,7 @@ export default function SupportPage() {
 
   const stats = statsQuery.data?.data;
   const tickets = asList(ticketsQuery.data?.data?.data);
-  const pagination = ticketsQuery.data?.data?.pagination;
+  const totalItems = ticketsQuery.data?.data?.pagination?.total || 0;
   const detail = detailQuery.data?.data;
 
   const openTicket = (id: number) => {
@@ -148,6 +163,63 @@ export default function SupportPage() {
     setReply("");
     open();
   };
+
+  const rows = tickets.map((ticket) => (
+    <Table.Tr
+      key={ticket.id}
+      className="cursor-pointer"
+      onClick={() => openTicket(ticket.id)}
+    >
+      <Table.Td maw={320}>
+        <Text fw={650} lineClamp={1}>
+          {ticket.subject}
+        </Text>
+        <Text c="var(--fj-text-muted)" fz="xs" ff="monospace">
+          {ticket.ref}
+        </Text>
+      </Table.Td>
+      <Table.Td>
+        <Group gap={8}>
+          <Avatar
+            size="sm"
+            src={ticket.userAvatar}
+            name={ticket.userName || "Guest"}
+          />
+          <Stack gap={0}>
+            <Text fz="sm">{ticket.userName || "Guest"}</Text>
+            <Text c="var(--fj-text-muted)" fz="xs">
+              {formatStatusLabel(ticket.channel)}
+            </Text>
+          </Stack>
+        </Group>
+      </Table.Td>
+      <Table.Td>
+        <Badge variant="light" tt="capitalize">
+          {ticket.category}
+        </Badge>
+      </Table.Td>
+      <Table.Td>
+        <Badge variant="light" color={priorityColor[ticket.priority]}>
+          {ticket.priority}
+        </Badge>
+      </Table.Td>
+      <Table.Td>
+        <Badge variant="light" color={statusColor[ticket.status]}>
+          {formatStatusLabel(ticket.status)}
+        </Badge>
+      </Table.Td>
+      <Table.Td>
+        {ticket.assignedToName || (
+          <Text c="#FF8787" fz="sm">
+            Unassigned
+          </Text>
+        )}
+      </Table.Td>
+      <Table.Td>
+        {formatDateTime(ticket.lastMessageAt || ticket.created_at)}
+      </Table.Td>
+    </Table.Tr>
+  ));
 
   return (
     <AppLayout
@@ -199,162 +271,28 @@ export default function SupportPage() {
             </SimpleGrid>
           )}
 
-          <TableToolbar
+          <PpTable
+            headers={tableHeaders}
+            rowData={rows}
+            totalItems={totalItems}
+            activePage={page}
+            setActivePage={setPage}
+            rowsPerPage={rowsPerPage}
+            isLoading={ticketsQuery.isFetching}
+            hasActions
+            filters={supportFilters}
+            onFilterChange={(next) => {
+              setFilters(next);
+              setPage(1);
+            }}
             query={search}
-            onQueryChange={(value) => {
+            handleQuery={(value) => {
               setSearch(value);
               setPage(1);
             }}
             searchPlaceholder="Search subject, reference or user"
-            action={
-              <Flex gap={10} wrap="wrap">
-                <FilterPill
-                  label="Status"
-                  value={status ? capitalizeString(status) : "All"}
-                  items={["All", "Open", "Pending", "Resolved", "Closed"]}
-                  onChange={(value) => {
-                    const next = String(value).toLowerCase();
-                    setStatus(
-                      next === "all" ? undefined : (next as SupportStatus),
-                    );
-                    setPage(1);
-                  }}
-                />
-                <FilterPill
-                  label="Priority"
-                  value={priority ? capitalizeString(priority) : "All"}
-                  items={["All", "Urgent", "High", "Normal", "Low"]}
-                  onChange={(value) => {
-                    const next = String(value).toLowerCase();
-                    setPriority(
-                      next === "all" ? undefined : (next as SupportPriority),
-                    );
-                    setPage(1);
-                  }}
-                />
-              </Flex>
-            }
+            emptyState={supportEmptyState}
           />
-
-          <Card radius="lg" p={0}>
-            {ticketsQuery.isFetching ? (
-              <TableSkeleton />
-            ) : (
-              <Table.ScrollContainer minWidth={1000}>
-                <Table verticalSpacing="md" horizontalSpacing="lg">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Ticket</Table.Th>
-                      <Table.Th>User</Table.Th>
-                      <Table.Th>Category</Table.Th>
-                      <Table.Th>Priority</Table.Th>
-                      <Table.Th>Status</Table.Th>
-                      <Table.Th>Assigned</Table.Th>
-                      <Table.Th>Last activity</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {tickets.map((ticket) => (
-                      <Table.Tr
-                        key={ticket.id}
-                        className="cursor-pointer"
-                        onClick={() => openTicket(ticket.id)}
-                      >
-                        <Table.Td maw={320}>
-                          <Text fw={650} lineClamp={1}>
-                            {ticket.subject}
-                          </Text>
-                          <Text c="var(--fj-text-muted)" fz="xs" ff="monospace">
-                            {ticket.ref}
-                          </Text>
-                        </Table.Td>
-                        <Table.Td>
-                          <Group gap={8}>
-                            <Avatar
-                              size="sm"
-                              src={ticket.userAvatar}
-                              name={ticket.userName || "Guest"}
-                            />
-                            <Stack gap={0}>
-                              <Text fz="sm">
-                                {ticket.userName || "Guest"}
-                              </Text>
-                              <Text c="var(--fj-text-muted)" fz="xs">
-                                {formatStatusLabel(ticket.channel)}
-                              </Text>
-                            </Stack>
-                          </Group>
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge variant="light" tt="capitalize">
-                            {ticket.category}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge
-                            variant="light"
-                            color={priorityColor[ticket.priority]}
-                          >
-                            {ticket.priority}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          <Badge
-                            variant="light"
-                            color={statusColor[ticket.status]}
-                          >
-                            {formatStatusLabel(ticket.status)}
-                          </Badge>
-                        </Table.Td>
-                        <Table.Td>
-                          {ticket.assignedToName || (
-                            <Text c="#FF8787" fz="sm">
-                              Unassigned
-                            </Text>
-                          )}
-                        </Table.Td>
-                        <Table.Td>
-                          {formatDateTime(
-                            ticket.lastMessageAt || ticket.created_at,
-                          )}
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            )}
-
-            {!ticketsQuery.isFetching && tickets.length === 0 && (
-              <EmptyState
-                title="Nothing in the queue"
-                description="Support requests from the app will land here."
-                mb={40}
-              />
-            )}
-          </Card>
-
-          {pagination && pagination.totalPages > 1 && (
-            <Group justify="center">
-              <Button
-                variant="light"
-                disabled={page === 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                Previous
-              </Button>
-              <Text>
-                Page {page} of {pagination.totalPages}
-              </Text>
-              <Button
-                variant="light"
-                disabled={page === pagination.totalPages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-              </Button>
-            </Group>
-          )}
         </Stack>
       )}
 

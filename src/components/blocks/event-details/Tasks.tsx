@@ -4,7 +4,7 @@ import { Badge, Card, SimpleGrid, Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventTasks } from "@/services/api";
 import { TaskStatus } from "@/services/api/event-ops/event-ops.types";
-import EmptyState from "../../blocks/empty-state";
+import PpTable from "../../blocks/table";
 import PendingBackend from "../../elements/pending-backend";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
@@ -14,6 +14,21 @@ import {
   isEndpointUnavailable,
   retryUnlessUnavailable,
 } from "@/utils";
+import { IconNoTasks } from "@/config/icons";
+
+const tableHeaders = [
+  "Task",
+  "Assignee",
+  "Created by",
+  "Deadline",
+  "Status",
+];
+
+const taskEmptyState = {
+  title: "No tasks yet",
+  description: "Tasks the host or co-planners create will appear here.",
+  icon: IconNoTasks,
+};
 
 const statusColor: Record<TaskStatus, string> = {
   pending: "gray",
@@ -48,6 +63,27 @@ const Tasks = ({ eventId }: { eventId: string }) => {
     return acc;
   }, {});
 
+  const rows = tasks.map((task) => (
+    <Table.Tr key={task.id}>
+      <Table.Td>
+        <Text fw={600}>{task.title}</Text>
+        {task.description && (
+          <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
+            {task.description}
+          </Text>
+        )}
+      </Table.Td>
+      <Table.Td>{task.assigneeName || "Unassigned"}</Table.Td>
+      <Table.Td>{task.createdByName || "—"}</Table.Td>
+      <Table.Td>{formatDateTime(task.deadline, "No deadline")}</Table.Td>
+      <Table.Td>
+        <Badge variant="light" color={statusColor[task.status]}>
+          {formatStatusLabel(task.status)}
+        </Badge>
+      </Table.Td>
+    </Table.Tr>
+  ));
+
   if (isFetching) return <TableSkeleton />;
 
   return (
@@ -65,53 +101,13 @@ const Tasks = ({ eventId }: { eventId: string }) => {
         ))}
       </SimpleGrid>
 
-      <Card radius="lg" p={0}>
-        <Table.ScrollContainer minWidth={840}>
-          <Table verticalSpacing="md" horizontalSpacing="lg">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Task</Table.Th>
-                <Table.Th>Assignee</Table.Th>
-                <Table.Th>Created by</Table.Th>
-                <Table.Th>Deadline</Table.Th>
-                <Table.Th>Status</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {tasks.map((task) => (
-                <Table.Tr key={task.id}>
-                  <Table.Td>
-                    <Text fw={600}>{task.title}</Text>
-                    {task.description && (
-                      <Text c="var(--fj-text-muted)" fz="xs" lineClamp={1}>
-                        {task.description}
-                      </Text>
-                    )}
-                  </Table.Td>
-                  <Table.Td>{task.assigneeName || "Unassigned"}</Table.Td>
-                  <Table.Td>{task.createdByName || "—"}</Table.Td>
-                  <Table.Td>
-                    {formatDateTime(task.deadline, "No deadline")}
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge variant="light" color={statusColor[task.status]}>
-                      {formatStatusLabel(task.status)}
-                    </Badge>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-
-        {tasks.length === 0 && (
-          <EmptyState
-            title="No tasks yet"
-            description="Tasks the host or co-planners create will appear here."
-            mb={40}
-          />
-        )}
-      </Card>
+      <PpTable
+        headers={tableHeaders}
+        rowData={rows}
+        showPagination={false}
+        isLoading={isFetching}
+        emptyState={taskEmptyState}
+      />
     </Stack>
   );
 };
