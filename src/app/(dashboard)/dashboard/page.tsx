@@ -66,7 +66,7 @@ const tableHeaders = [
   "Time",
 ];
 
-/** Section heading used to separate the dashboard's bandss. */
+/** Section heading used to separate the dashboard's bands. */
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
     fw={600}
