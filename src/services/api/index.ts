@@ -21,6 +21,7 @@ export * from "./gift-links";
 // Money
 export * from "./transaction";
 export * from "./payment-tracking";
+export * from "./kyc";
 export * from "./finance";
 
 // Content & comms

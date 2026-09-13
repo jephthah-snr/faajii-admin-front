@@ -31,6 +31,7 @@ export const routeAccess: RouteAccess[] = [
   // Community
   { path: "/user-management", roles: ["super", "admin", "support"] },
   { path: "/host-profiles", roles: ["super", "admin", "support"] },
+  { path: "/kyc", roles: ["super", "admin"] },
   { path: "/vendor-management", roles: ["super", "admin", "support"] },
 
   // Events — check-ins, budget, tasks, sponsors and discount codes live as

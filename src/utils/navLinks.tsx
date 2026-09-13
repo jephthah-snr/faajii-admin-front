@@ -54,6 +54,7 @@ export const navSections: NavSection[] = [
         navLink: "/host-profiles",
         icon: IconHostProfile,
       },
+      { label: "KYC Reviews", navLink: "/kyc", icon: IconHostProfile },
       { label: "Vendors", navLink: "/vendor-management", icon: IconVendors },
     ],
   },
