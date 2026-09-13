@@ -66,7 +66,7 @@ const tableHeaders = [
   "Time",
 ];
 
-/** Section heading used to separate the dashboard's bands. */
+/** Section heading used to separate the dashboard's bandss. */
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <Text
     fw={600}
@@ -132,13 +132,21 @@ const Dashboard = () => {
   // exact counts from the legend.
   const totalEvents = stats?.totalEvents ?? 0;
   const eventSegments = [
-    { label: "Active", value: stats?.activeEvents ?? 0, color: "var(--fj-viz-3)" },
+    {
+      label: "Active",
+      value: stats?.activeEvents ?? 0,
+      color: "var(--fj-viz-3)",
+    },
     {
       label: "Completed",
       value: stats?.completedEvents ?? 0,
       color: "var(--fj-viz-2)",
     },
-    { label: "Pending", value: stats?.pendingEvents ?? 0, color: "var(--fj-viz-1)" },
+    {
+      label: "Pending",
+      value: stats?.pendingEvents ?? 0,
+      color: "var(--fj-viz-1)",
+    },
   ];
   const accountedFor = eventSegments.reduce((sum, s) => sum + s.value, 0);
   const ringSections = eventSegments.map((segment) => ({
@@ -272,7 +280,11 @@ const Dashboard = () => {
         </Stack>
 
         {/* -------------------------------------------- Growth & event split */}
-        <Flex direction={{ base: "column", lg: "row" }} gap={20} align="stretch">
+        <Flex
+          direction={{ base: "column", lg: "row" }}
+          gap={20}
+          align="stretch"
+        >
           <Card w={{ base: "100%", lg: "62%" }} radius="lg">
             <Group justify="space-between" mb="md">
               <Stack gap={2}>
@@ -305,7 +317,9 @@ const Dashboard = () => {
                 curveType="monotone"
                 gridAxis="y"
                 strokeWidth={2.5}
-                series={[{ name: "totalUsers", label: "Signups", color: "faajii.6" }]}
+                series={[
+                  { name: "totalUsers", label: "Signups", color: "faajii.6" },
+                ]}
                 valueFormatter={(value) => value.toLocaleString()}
               />
             )}
@@ -376,7 +390,12 @@ const Dashboard = () => {
                         <Text fz={14} fw={700}>
                           {segment.value.toLocaleString()}
                         </Text>
-                        <Text fz={12} c="var(--fj-text-muted)" w={38} ta="right">
+                        <Text
+                          fz={12}
+                          c="var(--fj-text-muted)"
+                          w={38}
+                          ta="right"
+                        >
                           {accountedFor > 0
                             ? `${Math.round((segment.value / accountedFor) * 100)}%`
                             : "0%"}
