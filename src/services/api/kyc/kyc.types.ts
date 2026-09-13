@@ -16,6 +16,22 @@ export interface KycSubmission {
 export interface KycSubmissionDetail extends KycSubmission {
   documentNumber?: string | null;
   evidence: { documentFrontUrl?: string | null; documentBackUrl?: string | null; selfieUrl?: string | null };
+  history: KycSubmissionHistory[];
+}
+
+export interface KycSubmissionHistory {
+  id: number;
+  submissionType: "identity" | "selfie";
+  status: KycPartStatus;
+  statusLabel?: string | null;
+  reason?: string | null;
+  countryIso?: string | null;
+  documentType?: string | null;
+  documentNumber?: string | null;
+  submittedAt?: string | null;
+  reviewedAt?: string | null;
+  archivedAt: string;
+  evidence: { documentFrontUrl?: string | null; documentBackUrl?: string | null; selfieUrl?: string | null };
 }
 
 export interface KycStats { total: number; pending: number; verified: number; rejected: number; incomplete: number }
