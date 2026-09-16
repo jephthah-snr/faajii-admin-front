@@ -26,10 +26,17 @@ export const formatMoney = (
   currency = "NGN",
 ): string => {
   const value = Number(amount);
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: currency || "NGN",
+  const normalizedCurrency = currency === "XOF" ? "XOF" : "NGN";
+  const formattedValue = new Intl.NumberFormat("en-NG", {
+    minimumFractionDigits: normalizedCurrency === "XOF" ? 0 : 2,
+    maximumFractionDigits: normalizedCurrency === "XOF" ? 0 : 2,
   }).format(Number.isFinite(value) ? value : 0);
+
+  // Faajii uses the familiar naira symbol, while XOF stays explicit and is
+  // displayed after the amount: "₦1,000.00" and "95 XOF".
+  return normalizedCurrency === "NGN"
+    ? `₦${formattedValue}`
+    : `${formattedValue} XOF`;
 };
 
 /** Human date + time, or a placeholder when the value is absent. */

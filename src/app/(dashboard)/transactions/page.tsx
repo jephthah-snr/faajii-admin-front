@@ -7,7 +7,7 @@ import { GetTransactions } from "@/services/api";
 import {
   asList,
   buildDefaultFilters,
-  formatStringAmount,
+  formatMoney,
   initialsColors,
   rowsPerPage,
   transactionEmptyState,
@@ -117,7 +117,9 @@ const Transactions = () => {
             </Text>
           </Flex>
         </Table.Td>
-        <Table.Td>₦{formatStringAmount(data?.transactionAmount || "0.00")}</Table.Td>
+        <Table.Td>
+          {formatMoney(data?.transactionAmount || 0, data?.currency || "NGN")}
+        </Table.Td>
         <Table.Td>
           <FormatDate data={data?.created_at} formatType="fullDate" />
         </Table.Td>

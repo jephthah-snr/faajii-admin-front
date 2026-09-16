@@ -2,8 +2,7 @@
 
 import { GetEventTransactions } from "@/services/api";
 import {
-  convertToNaira,
-  formatStringAmount,
+  formatMoney,
   initialsColors,
   rowsPerPage,
 } from "@/utils";
@@ -65,8 +64,6 @@ const EventTransactions = ({ id }: EventTransactionsProps) => {
   };
 
   const rows = eventTransactions.map((data) => {
-    const nairaAmount = convertToNaira(data?.amount);
-
     return (
       <Table.Tr
         key={data.id}
@@ -105,7 +102,7 @@ const EventTransactions = ({ id }: EventTransactionsProps) => {
           </Flex>
         </Table.Td>
 
-        <Table.Td>₦{formatStringAmount(nairaAmount || "0.00")}</Table.Td>
+        <Table.Td>{formatMoney(data?.amount || 0, data?.currency || "NGN")}</Table.Td>
 
         <Table.Td>
           <FormatDate data={data.created_at} formatType="fullDate" />

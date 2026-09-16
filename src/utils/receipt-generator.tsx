@@ -1,5 +1,5 @@
 import html2canvas from "html2canvas";
-import { convertToNaira, formatStringAmount } from "./valueFormatter";
+import { formatMoney } from "./valueFormatter";
 import { TransactionDetails } from "@/services/api/transaction/transaction.types";
 import { getStatusColorAlt } from "./getStatusColor";
 import { Edges } from "@/services/api/event/event.types";
@@ -14,14 +14,12 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
   container.style.width = "420px"; // Receipt width
   document.body.appendChild(container);
 
-  const isPvb = transaction?.reference?.startsWith("PVB");
-
-  // Format the amount
-  const formattedAmount = isPvb
-    ? formatStringAmount(
-        convertToNaira(transaction?.transactionAmount || 0) || "0.00",
-      )
-    : formatStringAmount(transaction?.transactionAmount);
+  // Receipts must preserve the amount's ledger currency. PVB can process
+  // multiple currencies, so its reference is not a safe currency signal.
+  const formattedAmount = formatMoney(
+    transaction?.transactionAmount || 0,
+    transaction?.currency || "NGN",
+  );
 
   const formattedDate = new Date(transaction.created_at).toLocaleString(
     "en-GB",
@@ -96,7 +94,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
             color: #fff;
           "
         >
-          ₦${formattedAmount}
+          ${formattedAmount}
         </div>
 
         <div
@@ -249,9 +247,11 @@ export const generateReceipt2 = async (transaction: Edges) => {
   container.style.width = "420px"; // Receipt width
   document.body.appendChild(container);
 
-  // Format the amount
-  const amount = convertToNaira(transaction.amount || 0);
-  const formattedAmount = formatStringAmount(amount || "0.00");
+  // Event wallet receipts use the provider's recorded currency directly.
+  const formattedAmount = formatMoney(
+    transaction.amount || 0,
+    transaction.currency || "NGN",
+  );
   const formattedDate = new Date(transaction.created_at).toLocaleString(
     "en-GB",
     {
@@ -325,7 +325,7 @@ export const generateReceipt2 = async (transaction: Edges) => {
             color: #fff;
           "
         >
-          ₦${formattedAmount}
+          ${formattedAmount}
         </div>
 
         <div

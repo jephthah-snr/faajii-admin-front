@@ -7,6 +7,7 @@ interface User {
 interface Wallet {
   ref: string;
   partyBankName: string;
+  currency?: "NGN" | "XOF";
 }
 
 export interface Transaction {
@@ -15,6 +16,7 @@ export interface Transaction {
   transactionRef: string;
   reference: string;
   transactionAmount: string | number;
+  currency?: "NGN" | "XOF";
   narration: string;
   direction: "DEBIT" | "CREDIT";
   transactionStatus: "pending" | "completed" | "failed";
@@ -43,9 +45,19 @@ export interface TransactionDetails {
     partyBankName: string;
   };
   transactionAmount: number;
+  currency?: "NGN" | "XOF";
   partyDiscount: number;
   quantity: number;
   narration: string;
+  recipient?: string | null;
+  transactionParties?: {
+    direction?: "inbound" | "outbound" | "internal";
+    rail?: "pvb" | "momo" | "internal_wallet";
+    sender?: {name?: string | null; accountNumber?: string | null; bankName?: string | null};
+    receiver?: {name?: string | null; accountNumber?: string | null; bankName?: string | null};
+    providerTransactionId?: string | null;
+    providerReference?: string | null;
+  } | null;
   paymentTagId: number | null;
   destination: {
     bankCode: string;

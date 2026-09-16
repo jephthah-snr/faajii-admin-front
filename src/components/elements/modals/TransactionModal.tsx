@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import StatusBadge from "../status-badge";
 import classes from "@/styles/General.module.css";
-import { formatStringAmount, generateReceipt } from "@/utils";
+import { formatMoney, generateReceipt } from "@/utils";
 import { GetTransactionDetails } from "@/services/api";
 import { useQuery } from "@tanstack/react-query";
 import FormatDate from "../format-date";
@@ -52,8 +52,13 @@ const TransactionModal = ({
     }
   };
 
-  // Amount is already converted to NAIRA by the backend
+  // Amount stays in the transaction's original ledger currency.
   const formattedAmount = transactionData?.transactionAmount || 0;
+  const parties = transactionData?.transactionParties;
+  const sender = parties?.sender;
+  const receiver = parties?.receiver;
+  const partyLabel = (party?: {name?: string | null; accountNumber?: string | null; bankName?: string | null}) =>
+    party ? [party.name, party.bankName, party.accountNumber].filter(Boolean).join(" · ") || "N/A" : "N/A";
 
   return (
     <Drawer
@@ -76,7 +81,7 @@ const TransactionModal = ({
           >
             <Flex direction="column" align="center" justify="center" gap={10}>
               <Text fz={24} fw={500} c="#fff">
-                ₦{formatStringAmount(formattedAmount || 0)}
+                {formatMoney(formattedAmount || 0, transactionData?.currency || "NGN")}
               </Text>
 
               <StatusBadge
@@ -103,19 +108,17 @@ const TransactionModal = ({
                 }
               />
 
-              {/* Sender */}
-              <GridItem label="Sender" value="N/A" />
+              <GridItem label="Sender" value={partyLabel(sender)} />
 
-              {/* Sender Bank */}
-              <GridItem label="Sender bank" value={"N/A"} />
+              <GridItem label="Sender bank" value={sender?.bankName || "N/A"} />
 
               {/* Recipient */}
               <GridItem
                 label="Recipient"
                 value={
-                  transactionData?.destination?.accountName
-                    ? transactionData?.destination?.accountName
-                    : "N/A"
+                  partyLabel(receiver) !== "N/A"
+                    ? partyLabel(receiver)
+                    : transactionData?.recipient || "N/A"
                 }
               />
 

@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import StatusBadge from "../status-badge";
 import classes from "@/styles/General.module.css";
-import { convertToNaira, formatStringAmount, generateReceipt2 } from "@/utils";
+import { formatMoney, generateReceipt2 } from "@/utils";
 import FormatDate from "../format-date";
 import { useState } from "react";
 import { IconCopy } from "@/config/icons";
@@ -42,8 +42,6 @@ const EventTransactionModal = ({
     }
   };
 
-  const transactionAmount = convertToNaira(transactionData?.amount);
-
   return (
     <Drawer
       opened={opened}
@@ -62,7 +60,7 @@ const EventTransactionModal = ({
         >
           <Flex direction="column" align="center" justify="center" gap={10}>
             <Text fz={24} fw={500} c="#fff">
-              ₦{formatStringAmount(transactionAmount || 0)}
+              {formatMoney(transactionData?.amount || 0, transactionData?.currency || "NGN")}
             </Text>
 
             <StatusBadge
