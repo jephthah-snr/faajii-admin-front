@@ -5,6 +5,9 @@ export interface PaymentTracking {
   bankName: string;
   accountName: string;
   expectedAmount: number;
+  currency?: "NGN" | "XOF";
+  refundableAmount?: number | null;
+  refundStatus?: "refund_pending" | "refunded" | null;
   actualAmount?: number;
   senderName?: string;
   senderAccountNumber?: string;

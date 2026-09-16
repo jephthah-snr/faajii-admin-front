@@ -15,6 +15,9 @@ import {
   Tooltip,
   Modal,
   Stack,
+  Select,
+  TextInput,
+  Textarea,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -33,9 +36,11 @@ import {
   AssignDuplicateTicket,
   EscalateToFinance,
   ResendPaymentTrackingWebhook,
+  RefundOverpayment,
 } from "@/services/api/payment-tracking";
 import { EventDetails } from "@/services/api/event/event.types";
 import { GetEventDetails } from "@/services/api";
+import { useState } from "react";
 
 interface PaymentTrackingModalProps {
   opened: boolean;
@@ -55,6 +60,11 @@ const PaymentTrackingModal = ({
     { open: openConfirmModal, close: closeConfirmModal },
   ] = useDisclosure(false);
   const queryClient = useQueryClient();
+  const [refundOpened, { open: openRefund, close: closeRefund }] = useDisclosure(false);
+  const [refundPhone, setRefundPhone] = useState("");
+  const [refundCountry, setRefundCountry] = useState<string | null>(null);
+  const [refundReason, setRefundReason] = useState("");
+  const [refundConfirmation, setRefundConfirmation] = useState("");
 
   const confirmMutation = useMutation({
     mutationFn: async () => {
@@ -176,6 +186,18 @@ const PaymentTrackingModal = ({
       });
     },
   });
+  const refundMutation = useMutation({
+    mutationFn: async () => {
+      if (!payment || !refundCountry) throw new Error("Complete the refund details");
+      return RefundOverpayment(payment.reference, { phoneNumber: refundPhone, country: refundCountry as "NG" | "BJ" | "CI", reason: refundReason, confirmationReference: refundConfirmation });
+    },
+    onSuccess: () => {
+      notifications.show({ title: "Refund initiated", message: "The MoMo refund has been recorded and sent for processing.", color: "green" });
+      queryClient.invalidateQueries({ queryKey: ["paymentTrackings"] });
+      closeRefund(); close();
+    },
+    onError: (error: any) => notifications.show({ title: "Refund not initiated", message: error?.response?.data?.message || error.message || "Could not initiate the refund", color: "red" }),
+  });
 
   const { data } = useQuery({
     queryKey: ["tracking-event-details", payment?.metadata?.eventId],
@@ -245,6 +267,7 @@ const PaymentTrackingModal = ({
   const canEscalate =
     !hasNoActualAmount &&
     ((isDuplicate && isPending && !hasMatchedTicket) || hasAmountMismatch);
+  const canRefund = isEscalated && Number(payment.refundableAmount || 0) > 0 && !payment.refundStatus;
 
   const handleConfirm = () => {
     confirmMutation.mutate();
@@ -364,6 +387,9 @@ const PaymentTrackingModal = ({
               <Badge color="pink" size="lg" mt={16}>
                 Escalated to Finance
               </Badge>
+            )}
+            {canRefund && (
+              <Button mt={16} color="red" size="md" fullWidth onClick={openRefund}>Refund overpayment</Button>
             )}
           </Flex>
 
@@ -1064,6 +1090,16 @@ const PaymentTrackingModal = ({
               Confirm Payment
             </Button>
           </Flex>
+        </Stack>
+      </Modal>
+      <Modal opened={refundOpened} onClose={closeRefund} title="Refund overpayment" centered size="md" closeOnClickOutside={false}>
+        <Stack gap="sm">
+          <Text size="sm" c="var(--fj-text-muted)">Faajii locks the refund to the verified excess: <strong>{payment.currency || ""} {payment.refundableAmount}</strong>. This cannot be changed.</Text>
+          <TextInput label="Verified MoMo number" placeholder="e.g. +229xxxxxxxx" value={refundPhone} onChange={(e) => setRefundPhone(e.currentTarget.value)} required />
+          <Select label="Recipient country" placeholder="Select only after verification" value={refundCountry} onChange={setRefundCountry} required data={[{ value: "NG", label: "Nigeria (NGN)" }, { value: "BJ", label: "Benin (XOF)" }, { value: "CI", label: "Côte d’Ivoire (XOF)" }]} />
+          <Textarea label="Refund reason" minRows={3} value={refundReason} onChange={(e) => setRefundReason(e.currentTarget.value)} required />
+          <TextInput label={`Type ${payment.reference} to confirm`} value={refundConfirmation} onChange={(e) => setRefundConfirmation(e.currentTarget.value)} required />
+          <Button color="red" loading={refundMutation.isPending} disabled={refundConfirmation !== payment.reference || refundReason.trim().length < 10 || !refundCountry || !refundPhone.trim()} onClick={() => refundMutation.mutate()}>Confirm MoMo refund</Button>
         </Stack>
       </Modal>
     </Drawer>

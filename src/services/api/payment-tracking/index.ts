@@ -150,6 +150,11 @@ export const EscalateToFinance = async (
   }
 };
 
+export const RefundOverpayment = async (reference: string, payload: { phoneNumber: string; country: "NG" | "BJ" | "CI"; reason: string; confirmationReference: string }): Promise<ApiResponse<PaymentTracking>> => {
+  const res = await axios.post(`/admin/payment-tracking/${reference}/refund`, payload);
+  return res.data as ApiResponse<PaymentTracking>;
+};
+
 /**
  * Resend webhook for a payment tracking record
  * Used when actualAmount is N/A (webhook was never received)
