@@ -76,6 +76,7 @@ export const navSections: NavSection[] = [
         navLink: "/wristband-orders",
         icon: IconWristbands,
       },
+      { label: "Merchandise Orders", navLink: "/merchandise-orders", icon: IconOrders },
       { label: "Gift Links", navLink: "/gift-links", icon: IconGiftLinks },
     ],
   },

@@ -46,6 +46,7 @@ export const routeAccess: RouteAccess[] = [
   { path: "/purchases", roles: ["super", "admin", "finance", "support"] },
   { path: "/order-management", roles: ["super", "admin", "support"] },
   { path: "/wristband-orders", roles: ["super", "admin", "support"] },
+  { path: "/merchandise-orders", roles: ["super", "admin", "finance", "support"] },
   { path: "/gift-links", roles: ["super", "admin", "support"] },
 
   // Money

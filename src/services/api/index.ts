@@ -16,6 +16,7 @@ export * from "./publications";
 export * from "./purchases";
 export * from "./order-management";
 export * from "./wristbands";
+export * from "./merchandise";
 export * from "./gift-links";
 
 // Money
