@@ -176,7 +176,7 @@ const theme = createTheme({
     lg: "18px",
     xl: "24px",
   },
-  /** Exposed to components that need a token in JS rather than CSS. */
+  /** Exposed to component that need a token in JS rather than CSS. */
   other: {
     bg: "var(--fj-bg)",
     surface: "var(--fj-surface)",
