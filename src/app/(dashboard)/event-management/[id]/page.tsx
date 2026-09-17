@@ -28,9 +28,9 @@ import {
   EventPromoters,
   EventReach,
   EventSponsors,
-  EventStore,
   EventTasks,
   EventWallet,
+  FaajiiStore,
   PpTable,
   StatBar,
 } from "@/components";
@@ -279,8 +279,8 @@ export default function EventDetailsPage() {
             Transactions ({transactions.length})
           </Tabs.Tab>
           <Tabs.Tab value="wallet">Purse</Tabs.Tab>
-          <Tabs.Tab value="party-store">
-            Party Store ({partyStoreItems.length})
+          <Tabs.Tab value="faajii-store">
+            Faajii Store ({partyStoreItems.length})
           </Tabs.Tab>
         </Tabs.List>
 
@@ -394,8 +394,8 @@ export default function EventDetailsPage() {
 
 
 
-        <Tabs.Panel value="party-store">
-          <EventStore
+        <Tabs.Panel value="faajii-store">
+          <FaajiiStore
             storeData={filteredPartyStoreItems}
             isFetching={partyStoreQuery.isFetching}
             selectedFilter={partyStoreFilter}

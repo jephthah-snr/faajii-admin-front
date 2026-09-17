@@ -14,6 +14,7 @@ import {
   IWishlist,
   Store,
   StoreDetails,
+  UpdateStoreItemPayload,
   WishlistDetails,
 } from "./event.types";
 import {
@@ -225,7 +226,21 @@ export const GetAdminEventPartyStore = async (
   return response.data as ApiResponse<Store[]>;
 };
 
-// Archive party store item
+// Update Faajii store item inventory
+export const UpdatePartyStoreItem = async (
+  id: string,
+  payload: UpdateStoreItemPayload
+): Promise<ApiResponse<Store>> => {
+  try {
+    const url = `/admin/partystore/items/${id}`;
+    const res = await axios.put(url, payload);
+    return res.data as ApiResponse<Store>;
+  } catch (err) {
+    throw err;
+  }
+};
+
+// Archive Faajii store item
 export const ArchivePartyStoreItem = async (
   id: string
 ): Promise<ApiResponse<StoreDetails>> => {
@@ -238,7 +253,7 @@ export const ArchivePartyStoreItem = async (
   }
 };
 
-// Delete Party store item
+// Delete Faajii store item
 export const DeletePartyStoreItem = async (
   id: string
 ): Promise<ApiResponse<StoreDetails>> => {

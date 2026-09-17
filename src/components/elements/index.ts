@@ -6,7 +6,8 @@ export { default as ConfirmationModal } from "./modals/ConfirmationModal";
 
 export { default as TransactionModal } from "./modals/TransactionModal";
 export { default as GuestDetailsModal } from "./modals/GuestDetailsModal";
-export { default as PartyStoreDetailsModal } from "./modals/PartyStoreDetailsModal";
+export { default as FaajiiStoreDetailsModal } from "./modals/FaajiiStoreDetailsModal";
+export { default as UpdateInventoryModal } from "./modals/UpdateInventoryModal";
 export { default as VendorOrderModal } from "./modals/VendorOrderModal";
 export { default as OrderDetailsModal } from "./modals/OrderDetailsModal";
 export { default as AddGuestModal } from "./modals/AddGuestModal";

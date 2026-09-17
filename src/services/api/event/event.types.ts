@@ -228,6 +228,15 @@ export interface Store {
   totalQuantity: number;
 }
 
+/**
+ * What an admin may change on a store item. Mirrors the owner-side
+ * `UpdateStoreOfferPayload` in the mobile app's `partyShopApi`; the backend
+ * still calls the store "partystore" even though the product is Faajii Store.
+ */
+export interface UpdateStoreItemPayload {
+  quantityAvailable: number;
+}
+
 // -----------------------------
 // Subtypes
 // -----------------------------

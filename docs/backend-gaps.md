@@ -71,6 +71,7 @@ POST  /admin/reset-password
 POST  /tooling/reset-pin/:id          # user PIN reset
 GET   /admin/wishlist/items/:id
 GET   /partybank/admin/event/:id/transactions
+PUT   /admin/partystore/items/:id     # Faajii Store inventory edit — body { quantityAvailable }; /archive sibling works
 ```
 
 ## 2. New admin coverage for existing mobile features
@@ -224,9 +225,10 @@ endpoint:
   `/product/gift-store/items`, `/wishbasket/sales`, `/partybundle`,
   `/admin/partybundle/overview`
 
-Party Store was **kept** — `/admin/partystore/items/:id` and
+The store was **kept** — `/admin/partystore/items/:id` and
 `/admin/events/:id/party-store` are live, and the app has an active
-`partyShopApi` / Faajii Store screen.
+`partyShopApi` / Faajii Store screen. The admin now labels it **Faajii Store**
+to match the app; the backend routes still say `partystore`.
 
 ## 4. Known lint debt after the Next 16 upgrade
 
