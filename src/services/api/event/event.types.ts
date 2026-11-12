@@ -488,3 +488,45 @@ export interface AddGuestPayload {
   tickets: [{ ticketId?: number; quantity?: number }];
   generateMultipleRsvpCodes?: boolean;
 }
+
+export interface ImportGuestsCsvPayload {
+  file: File;
+  /** Internal `events.id` — the event-management route param. */
+  eventId: string;
+  sendInviteEmails: boolean;
+}
+
+export interface ImportedGuest {
+  /** 1-based CSV row; the header is row 1. */
+  row: number;
+  guestId: number;
+  name: string;
+  email: string;
+  phone?: string;
+  rsvpReference: string;
+  status: string;
+  invitationDeliveryStatus: string | null;
+}
+
+export interface ImportGuestRowIssue {
+  row: number;
+  email: string;
+  reason: string;
+}
+
+export interface ImportGuestsCsvResult {
+  eventId: number;
+  eventRef: string;
+  eventName: string;
+  sendInviteEmails: boolean;
+  summary: {
+    totalRows: number;
+    created: number;
+    /** Rows rejected as conflicts, e.g. an email already on the event. */
+    skipped: number;
+    failed: number;
+  };
+  guests: ImportedGuest[];
+  skipped: ImportGuestRowIssue[];
+  failed: ImportGuestRowIssue[];
+}

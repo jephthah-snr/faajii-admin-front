@@ -39,6 +39,7 @@ export {
   Sort as IconSort,
   Add as IconAdd,
   DocumentDownload as IconDownload,
+  DocumentUpload as IconUpload,
   Refresh2 as IconRefresh,
   More as IconMore,
 
