@@ -27,6 +27,7 @@ export interface Event {
   invitedCount: number;
   vendorsCount: number;
   status: string;
+  currency?: string;
 }
 
 // -----------------------------
@@ -208,6 +209,8 @@ export interface Guest {
 }
 
 export interface Store {
+  /** Each item is priced in its market's currency (NGN or XOF). */
+  currency?: string;
   id: number;
   eventId: number;
   name: string;
@@ -345,6 +348,7 @@ export interface Ticket {
   quantity: number;
   price: string;
   totalPrice: string;
+  currency?: string;
   deliveryStatus: string;
   orderReference: number;
   purchasedAt: string;

@@ -28,8 +28,7 @@ import {
   VendorOverviewPanel,
 } from "@/components";
 import {
-  formatStatusLabel,
-  formatStringAmount,
+  formatMoney,
   getPhoneCountryFlag,
   initialsColors,
   rowsPerPage,
@@ -148,9 +147,7 @@ const VendorDetailsPage = () => {
     },
     {
       label: "Total Amount Made",
-      value: `₦ ${formatStringAmount(
-        String(vendorOverview?.statistics?.totalAmountMade),
-      )}`,
+      value: formatMoney(vendorOverview?.statistics?.totalAmountMade),
     },
   ];
 
@@ -353,9 +350,8 @@ const VendorDetailsPage = () => {
         </Table.Td>
         <Table.Td miw={120} px={0}>
           <StatusBadge
-            status={formatStatusLabel(data?.status || "")}
+            status={data?.status || ""}
             px={0}
-            useAltColor
           />
         </Table.Td>
         <Table.Td>
@@ -547,14 +543,12 @@ const VendorDetailsPage = () => {
                           </Text>
                         </Table.Td>
                         <Table.Td fw={600}>
-                          {transaction.currency}{" "}
-                          {Number(transaction.amount).toLocaleString()}
+                          {formatMoney(transaction.amount, transaction.currency)}
                         </Table.Td>
                         <Table.Td>
                           <StatusBadge
-                            status={formatStatusLabel(transaction.status)}
+                            status={transaction.status}
                             px={0}
-                            useAltColor
                           />
                         </Table.Td>
                         <Table.Td>

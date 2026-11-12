@@ -14,11 +14,7 @@ import {
 } from "@mantine/core";
 import StatusBadge from "../status-badge";
 import classes from "@/styles/General.module.css";
-import {
-  convertToNaira,
-  formatStringAmount,
-  verifyTransactionSchema,
-} from "@/utils";
+import { formatKobo, verifyTransactionSchema } from "@/utils";
 import FormatDate from "../format-date";
 import { TransactionDetailsSkeleton } from "../skeletons";
 import { IconCopy } from "@/config/icons";
@@ -188,18 +184,11 @@ const VerifyTransactionModal = ({
 
                   <Flex align="center" justify="center" gap={10}>
                     <Text fz={24} fw={500} c="#fff">
-                      ₦
-                      {formatStringAmount(
-                        convertToNaira(transactionDetails?.amount || "0.00") ||
-                          "0.00"
-                      )}
+                      {formatKobo(transactionDetails?.amount)}
                     </Text>
 
                     <StatusBadge
                       status={transactionDetails?.status || ""}
-                      isTransparent={false}
-                      isTransaction
-                      useAltColor
                       size="xl"
                       px={10}
                       fz={13}

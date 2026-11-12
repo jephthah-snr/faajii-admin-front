@@ -1,95 +1,65 @@
-import { getStatusColor, getStatusColorAlt } from "@/utils";
-import { Badge, BadgeProps, Box, Flex } from "@mantine/core";
+import { formatStatusLabel, getStatusColor } from "@/utils";
+import { alpha, Badge, BadgeProps, Box } from "@mantine/core";
 
-interface StatusBadgeProps extends BadgeProps {
-  status: string;
-  size?: string;
-  useAltColor?: boolean;
-  isTransparent?: boolean;
-  isTransaction?: boolean;
+interface StatusBadgeProps extends Omit<BadgeProps, "color" | "variant"> {
+  /** Raw API status — "pending_payment", "COMPLETED", "In transit" all work. */
+  status?: string | null;
+  /** Wording to show instead of the status itself, coloured by `status`. */
+  label?: React.ReactNode;
   hasDropdown?: boolean;
   hasDot?: boolean;
-  variant?: BadgeProps["variant"];
 }
 
+/**
+ * The one way the admin shows a status. Colour comes from the shared palette,
+ * so a status reads the same on every screen; the label is sentence case
+ * ("Pending payment") rather than shouted in uppercase.
+ */
 const StatusBadge = ({
   status,
-  size = "lg",
-  useAltColor = false,
-  isTransparent = true,
-  isTransaction = false,
+  label,
+  size = "md",
   hasDropdown = false,
   hasDot = false,
-  variant,
+  style,
   ...props
 }: StatusBadgeProps) => {
-  const normalizedStatus = status?.toLowerCase().replace(/\s+/g, "");
-  const resolvedVariant = variant ?? (isTransparent ? "transparent" : "filled");
-
-  // decide which function to use for the inner dot color
-  const dotColor = useAltColor
-    ? getStatusColorAlt(normalizedStatus, isTransaction)
-    : getStatusColor(normalizedStatus);
-
-  const badgeColor = () => {
-    if (!isTransparent && useAltColor) {
-      return getStatusColorAlt(normalizedStatus, isTransaction);
-    }
-    return useAltColor
-      ? getStatusColorAlt(normalizedStatus)
-      : getStatusColor(normalizedStatus);
-  };
+  const color = getStatusColor(status);
 
   return (
     <Badge
-      {...props}
-      variant={resolvedVariant}
-      tt={"capitalize"}
-      fw={400}
-      color={badgeColor()}
-      rightSection={hasDropdown ? <CaretDownIcon color={badgeColor()} /> : null}
       radius="xl"
       size={size}
-      styles={{
-        root: {
-          cursor: "pointer",
-        },
+      tt="none"
+      fw={500}
+      leftSection={
+        hasDot ? <Box bg={color} w={6} h={6} className="rounded-full" /> : null
+      }
+      rightSection={hasDropdown ? <CaretDownIcon color={color} /> : null}
+      {...props}
+      style={{
+        "--badge-bg": alpha(color, 0.14),
+        "--badge-color": color,
+        "--badge-bd": `1px solid ${alpha(color, 0.32)}`,
+        ...(hasDropdown ? { cursor: "pointer" } : null),
+        ...(style as object),
       }}
     >
-      <Flex align={"center"} gap={6}>
-        {hasDot && (
-          <Box
-            bg={dotColor}
-            w={6}
-            h={6}
-            opacity={0.8}
-            className="rounded-full"
-          ></Box>
-        )}
-        {status}
-      </Flex>
+      {label ?? (formatStatusLabel(status) || "Unknown")}
     </Badge>
   );
 };
 
 export default StatusBadge;
 
-const CaretDownIcon = ({ color }: { color: string }) => {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 12 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M10 4.5L7.06067 7.43934C6.47488 8.02513 5.52513 8.02513 4.93935 7.43934L2 4.5"
-        stroke={color}
-        strokeWidth="0.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-};
+const CaretDownIcon = ({ color }: { color: string }) => (
+  <svg width="16" height="16" viewBox="0 0 12 12" fill="none">
+    <path
+      d="M10 4.5L7.06067 7.43934C6.47488 8.02513 5.52513 8.02513 4.93935 7.43934L2 4.5"
+      stroke={color}
+      strokeWidth="0.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);

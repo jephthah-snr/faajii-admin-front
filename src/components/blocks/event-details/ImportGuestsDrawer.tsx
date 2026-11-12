@@ -12,6 +12,7 @@ import {
   Text,
 } from "@mantine/core";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
+import { useMediaQuery } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ImportEventGuestsCsv } from "@/services/api";
@@ -45,6 +46,7 @@ const ImportGuestsDrawer = ({
   const [file, setFile] = useState<File | null>(null);
   const [sendInviteEmails, setSendInviteEmails] = useState(true);
   const [result, setResult] = useState<ImportGuestsCsvResult | null>(null);
+  const isMobile = useMediaQuery("(max-width: 640px)");
 
   const importGuests = useMutation({
     mutationFn: (csv: File) =>
@@ -110,7 +112,7 @@ const ImportGuestsDrawer = ({
     <Drawer
       opened={opened}
       onClose={handleClose}
-      size="lg"
+      size={isMobile ? "100%" : "lg"}
       title="Import Guest List"
     >
       {result ? (
@@ -136,7 +138,7 @@ const ImportGuestsDrawer = ({
             </Flex>
           )}
 
-          <Flex gap={14}>
+          <Flex direction={{ base: "column", xs: "row" }} gap={14}>
             <Button
               radius="xl"
               className={classes.btnNeutral}

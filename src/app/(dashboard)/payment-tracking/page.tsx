@@ -16,6 +16,7 @@ import {
 import {
   asList,
   buildDefaultFilters,
+  formatMoney,
   formatStringAmount,
   isEndpointUnavailable,
   paymentTrackingEmptyState,
@@ -94,9 +95,10 @@ const PaymentTrackingPage = () => {
     open();
   };
 
-  const formatAmount = (amount?: number) => {
+  // Tracked amounts are stored in minor units, in the payment's currency.
+  const formatAmount = (amount?: number, currency?: string) => {
     if (!amount) return "N/A";
-    return `₦${formatStringAmount(amount / 100)}`;
+    return formatMoney(amount / 100, currency);
   };
 
   const handleDownloadCSV = async () => {
@@ -241,7 +243,7 @@ const PaymentTrackingPage = () => {
           </Badge>
         </Table.Td>
         <Table.Td>
-          <Text fz={14}>{formatAmount(expectedAmount)}</Text>
+          <Text fz={14}>{formatAmount(expectedAmount, data.currency)}</Text>
         </Table.Td>
         <Table.Td>
           <Flex align="center" gap={2}>
@@ -254,7 +256,7 @@ const PaymentTrackingPage = () => {
                   : "dimmed"
               }
             >
-              {formatAmount(feeAmount) || "N/A"}
+              {formatAmount(feeAmount, data.currency)}
             </Text>
             {(data?.metadata?.percentageFee ||
               data?.metadata?.paystackCharge?.percentage) && (
@@ -265,7 +267,7 @@ const PaymentTrackingPage = () => {
           </Flex>
         </Table.Td>
         <Table.Td>
-          <Text fz={14}>{formatAmount(actualAmount)}</Text>
+          <Text fz={14}>{formatAmount(actualAmount, data.currency)}</Text>
         </Table.Td>
         <Table.Td>
           <StatusBadge status={data.status} px={0} fullWidth />

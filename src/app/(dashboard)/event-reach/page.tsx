@@ -19,14 +19,13 @@ import {
   PublicationChannel,
   PublicationStatus,
 } from "@/services/api/publications/publication.types";
-import { PpTable, StatBar } from "@/components";
+import { PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   defaultReachRegion,
   formatCount,
   formatDateTime,
   formatMoney,
-  formatStatusLabel,
   isEndpointUnavailable,
   publicationEmptyState,
   publicationFilters,
@@ -35,14 +34,6 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { mockPublicationStatistics, mockPublications } from "@/mocks";
-
-const statusColor: Record<PublicationStatus, string> = {
-  pending_payment: "yellow",
-  paid: "blue",
-  sending: "grape",
-  completed: "teal",
-  failed: "red",
-};
 
 const channelLabel: Record<PublicationChannel, string> = {
   push: "Push",
@@ -185,9 +176,7 @@ export default function EventReachPage() {
           {formatMoney(row.totalAmount, row.currency)}
         </Table.Td>
         <Table.Td>
-          <Badge variant="light" color={statusColor[row.status]}>
-            {formatStatusLabel(row.status)}
-          </Badge>
+          <StatusBadge status={row.status} />
         </Table.Td>
         <Table.Td>{formatDateTime(row.created_at)}</Table.Td>
       </Table.Tr>

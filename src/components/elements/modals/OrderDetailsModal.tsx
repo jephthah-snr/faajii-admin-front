@@ -4,9 +4,8 @@ import { Box, Divider, Drawer, Flex, Loader, Menu, Text } from "@mantine/core";
 import SummaryItem from "../summary-item";
 import StatusBadge from "../status-badge";
 import {
-  convertToNaira,
+  formatKobo,
   formatStatusLabel,
-  formatStringAmount,
   orderStatuses,
 } from "@/utils";
 import { Order } from "@/services/api/order-management/order.types";
@@ -127,9 +126,7 @@ const OrderDetailsModal = ({
 
               <SummaryItem
                 label="Price"
-                value={`₦ ${formatStringAmount(
-                  convertToNaira(data?.orderAmount) || "0.00",
-                )}`}
+                value={formatKobo(data?.orderAmount)}
                 fz={14}
               />
 
@@ -147,10 +144,8 @@ const OrderDetailsModal = ({
                         <StatusBadge
                           status={badgeStatus}
                           px={18}
-                          bg="var(--fj-surface-card)"
                           size="lg"
                           style={{ border: "1px solid #2D2D2D" }}
-                          useAltColor
                           hasDropdown
                         />
                       </Flex>
@@ -175,7 +170,7 @@ const OrderDetailsModal = ({
                               handleOpenStatusModal(status);
                             }}
                           >
-                            <StatusBadge status={status} useAltColor hasDot />
+                            <StatusBadge status={status} hasDot />
                           </Menu.Item>
 
                           {index !== orderStatuses.length - 1 && (
@@ -209,17 +204,11 @@ const OrderDetailsModal = ({
                 </Text>
 
                 <Text fz={30} fw={500} c="#fff">
-                  ₦
-                  {formatStringAmount(
-                    convertToNaira(data?.orderAmount) || "0.00",
-                  )}
+                  {formatKobo(data?.orderAmount)}
                 </Text>
 
                 <StatusBadge
                   status={data?.paymentStatus || ""}
-                  isTransparent={false}
-                  isTransaction
-                  useAltColor
                   size="lg"
                   px={20}
                 />

@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import classes from "@/styles/General.module.css";
 import { FormatDate, StatusBadge } from "@/components/elements";
-import { extractDocId, formatStringAmount, initialsColors } from "@/utils";
+import { extractDocId, formatMoney, initialsColors } from "@/utils";
 import { IconDocument, IconEye } from "@/config/icons";
 import { NoImageS } from "@/images";
 import { VendorDetails } from "@/services/api/vendor-management/vendor.types";
@@ -208,7 +208,7 @@ const VendorOverviewPanel = ({ vendorOverview }: VendorOverviewPanelProps) => {
                             </Text>
                           </Flex>
                           <Text c="#F5C912" fw={500}>
-                            ₦ {formatStringAmount(service?.price || "0.00")}
+                            {formatMoney(service?.price)}
                           </Text>
                         </Flex>
                       </Flex>

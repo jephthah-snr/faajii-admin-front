@@ -1,11 +1,12 @@
 "use client";
 
+import StatusBadge from "@/components/elements/status-badge";
+
 import { Badge, Progress, Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventPublications, GetEventReachActivity } from "@/services/api";
 import type {
   PublicationChannel,
-  PublicationStatus,
 } from "@/services/api/publications/publication.types";
 import PpTable from "../table";
 import StatBar from "../stat-bar";
@@ -14,20 +15,11 @@ import {
   formatCount,
   formatDateTime,
   formatMoney,
-  formatStatusLabel,
   isEndpointUnavailable,
   publicationEmptyState,
   retryUnlessUnavailable,
 } from "@/utils";
 import { mockEventPublications, mockEventReachActivity } from "@/mocks";
-
-const statusColor: Record<PublicationStatus, string> = {
-  pending_payment: "yellow",
-  paid: "blue",
-  sending: "grape",
-  completed: "teal",
-  failed: "red",
-};
 
 const channelLabel: Record<PublicationChannel, string> = {
   push: "Push",
@@ -119,9 +111,7 @@ const Reach = ({ eventId }: { eventId: string }) => {
           {formatMoney(campaign.totalAmount, campaign.currency)}
         </Table.Td>
         <Table.Td>
-          <Badge variant="light" color={statusColor[campaign.status]}>
-            {formatStatusLabel(campaign.status)}
-          </Badge>
+          <StatusBadge status={campaign.status} />
         </Table.Td>
         <Table.Td>{formatDateTime(campaign.created_at)}</Table.Td>
       </Table.Tr>

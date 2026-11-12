@@ -175,10 +175,8 @@ const OrderStatusModal = ({
                     <StatusBadge
                       status={status}
                       px={18}
-                      bg="var(--fj-surface-card)"
                       size="xl"
                       style={{ border: "1px solid #2D2D2D" }}
-                      useAltColor
                       hasDropdown
                     />
                   </Flex>
@@ -201,7 +199,7 @@ const OrderStatusModal = ({
                           form.setFieldValue("status", item);
                         }}
                       >
-                        <StatusBadge status={item} useAltColor hasDot />
+                        <StatusBadge status={item} hasDot />
                       </Menu.Item>
 
                       {index !== orderStatuses.length - 1 && (

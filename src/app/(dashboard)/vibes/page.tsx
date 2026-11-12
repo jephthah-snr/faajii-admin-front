@@ -2,7 +2,6 @@
 
 import {
   Avatar,
-  Badge,
   Box,
   Button,
   Card,
@@ -31,6 +30,7 @@ import {
   EmptyState,
   FilterPill,
   TableToolbar,
+  StatusBadge,
 } from "@/components";
 import {
   IconArrowRight,
@@ -51,13 +51,6 @@ import {
 } from "@/utils";
 
 const statusOptions = ["All", "Active", "Flagged", "Hidden", "Disabled"];
-
-function statusColor(status: VibeModerationStatus) {
-  if (status === "active") return "teal";
-  if (status === "flagged") return "yellow";
-  if (status === "hidden") return "gray";
-  return "red";
-}
 
 function VibeMedia({
   vibe,
@@ -296,17 +289,14 @@ export default function VibesPage() {
               >
                 <Box pos="relative">
                   <VibeMedia vibe={vibe} />
-                  <Badge
+                  {/* Dark backing keeps the tint legible over any photo. */}
+                  <StatusBadge
+                    status={vibe.moderationStatus}
                     pos="absolute"
                     top={10}
                     right={10}
-                    variant="filled"
-                    radius="sm"
-                    color={statusColor(vibe.moderationStatus)}
-                    tt="capitalize"
-                  >
-                    {vibe.moderationStatus}
-                  </Badge>
+                    bg="rgba(0, 0, 0, 0.7)"
+                  />
                 </Box>
 
                 <Stack gap={10} mt="md" px={4} pb={4}>
@@ -395,14 +385,7 @@ export default function VibesPage() {
                 style={{ minHeight: "min(74vh, 780px)" }}
               >
                 <Group justify="space-between">
-                  <Badge
-                    variant="light"
-                    radius="sm"
-                    tt="capitalize"
-                    color={statusColor(selectedVibe.moderationStatus)}
-                  >
-                    {selectedVibe.moderationStatus}
-                  </Badge>
+                  <StatusBadge status={selectedVibe.moderationStatus} />
                   <Text fz={12} c="var(--fj-text-muted)">
                     {formatDateTime(selectedVibe.createdAt)}
                   </Text>

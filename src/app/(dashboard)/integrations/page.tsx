@@ -1,7 +1,8 @@
 "use client";
 
+import StatusBadge from "@/components/elements/status-badge";
+
 import {
-  Badge,
   Button,
   Card,
   Flex,
@@ -22,12 +23,6 @@ import {
   UpdateIntegrationBusiness,
 } from "@/services/api";
 import { asList } from "@/utils";
-
-function statusColor(status: string) {
-  if (status === "active") return "teal";
-  if (status === "suspended") return "yellow";
-  return "red";
-}
 
 export default function IntegrationsPage() {
   const queryClient = useQueryClient();
@@ -106,9 +101,7 @@ export default function IntegrationsPage() {
                         {business.businessId}
                       </Text>
                     </Stack>
-                    <Badge color={statusColor(business.status)} variant="light">
-                      {business.status}
-                    </Badge>
+                    <StatusBadge status={business.status} />
                   </Group>
 
                   <Stack gap={4}>

@@ -20,24 +20,73 @@ export const formatStringAmount = (
   });
 };
 
-/** Currency-aware amount formatter shared by the newer admin modules. */
+/**
+ * Currency an amount is shown in when its record does not say. Faajii's home
+ * market is Benin, so this matches the mobile app's default rather than
+ * assuming naira.
+ */
+export const DEFAULT_CURRENCY = "XOF";
+
+const COUNTRY_CURRENCY: Record<string, string> = {
+  NG: "NGN",
+  GH: "GHS",
+  // UEMOA — the eight states that share the West African CFA franc.
+  BJ: "XOF",
+  BF: "XOF",
+  CI: "XOF",
+  GW: "XOF",
+  ML: "XOF",
+  NE: "XOF",
+  SN: "XOF",
+  TG: "XOF",
+};
+
+/** The currency a market bills in, for records that only carry a country. */
+export const currencyForCountry = (countryCode?: string | null): string =>
+  COUNTRY_CURRENCY[(countryCode || "").trim().toUpperCase()] ??
+  DEFAULT_CURRENCY;
+
+const PREFIX_SYMBOLS: Record<string, string> = { NGN: "₦", USD: "$", EUR: "€" };
+
+/** Decimal places the currency is actually written with (XOF has none). */
+const fractionDigits = (code: string): number => {
+  try {
+    return (
+      new Intl.NumberFormat("en", { style: "currency", currency: code })
+        .resolvedOptions().maximumFractionDigits ?? 2
+    );
+  } catch {
+    return 2;
+  }
+};
+
+/**
+ * The one money formatter. Mirrors the mobile app so both products print an
+ * amount identically: "₦1,000.00" / "$25.00" with a prefix symbol, and every
+ * other currency as the figure followed by its code — "25,000 XOF".
+ */
 export const formatMoney = (
   amount: number | string | null | undefined,
-  currency = "NGN",
+  currency?: string | null,
 ): string => {
   const value = Number(amount);
-  const normalizedCurrency = currency === "XOF" ? "XOF" : "NGN";
-  const formattedValue = new Intl.NumberFormat("en-NG", {
-    minimumFractionDigits: normalizedCurrency === "XOF" ? 0 : 2,
-    maximumFractionDigits: normalizedCurrency === "XOF" ? 0 : 2,
+  const code = (currency || DEFAULT_CURRENCY).trim().toUpperCase();
+  const digits = fractionDigits(code);
+  const figure = new Intl.NumberFormat("en", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(Number.isFinite(value) ? value : 0);
 
-  // Faajii uses the familiar naira symbol, while XOF stays explicit and is
-  // displayed after the amount: "₦1,000.00" and "95 XOF".
-  return normalizedCurrency === "NGN"
-    ? `₦${formattedValue}`
-    : `${formattedValue} XOF`;
+  const symbol = PREFIX_SYMBOLS[code];
+  return symbol ? `${symbol}${figure}` : `${figure} ${code}`;
 };
+
+/**
+ * Paystack-era records (gift orders, verified Paystack transactions) store
+ * naira in kobo, so both the conversion and the currency are fixed.
+ */
+export const formatKobo = (amount?: string | number | null): string =>
+  formatMoney(convertToNaira(amount), "NGN");
 
 /** Human date + time, or a placeholder when the value is absent. */
 export const formatDateTime = (
@@ -63,17 +112,6 @@ export const extractWalletName = (walletString: string): string => {
 export const capitalizeString = (str: string): string => {
   if (!str) return "";
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
-
-export const formatQuantityPrice = (value: string) => {
-  const [quantity, amount] = value.split("x");
-  const formattedAmount = Number(amount).toLocaleString("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 0,
-  });
-
-  return `${quantity} x ${formattedAmount}`;
 };
 
 export const getFirstName = (fullName: string): string => {
@@ -131,9 +169,10 @@ export const getPhoneCountryFlag = (phoneNumber: string): string => {
   }
 };
 
-export const formatStatusLabel = (status: string) => {
-  const formatted = status
-    .replace(/_/g, " ")
+/** "PENDING_PAYMENT" / "in-transit" → "Pending payment" / "In transit". */
+export const formatStatusLabel = (status?: string | null) => {
+  const formatted = (status || "")
+    .replace(/[_-]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
@@ -154,7 +193,8 @@ export const normalizeStatus = (status: string) => {
   return status.toLowerCase().replace(/\s+/g, "");
 };
 
-export const convertToNaira = (amount: string | number) => {
+/** Kobo → naira for the Paystack-era records stored in minor units. */
+export const convertToNaira = (amount?: string | number | null) => {
   if (!amount) return;
   return Math.abs(Number(amount)) / 100;
 };

@@ -10,6 +10,7 @@ import {
   Text,
 } from "@mantine/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEventCurrency } from "@/hooks";
 import { notifications } from "@mantine/notifications";
 import {
   GetEventDiscountCodes,
@@ -45,14 +46,9 @@ const discountCodeEmptyState = {
 };
 
 /** Promo codes hosts issue for free/discounted RSVPs and ticket sales. */
-const DiscountCodes = ({
-  eventId,
-  currency = "NGN",
-}: {
-  eventId: string;
-  currency?: string;
-}) => {
+const DiscountCodes = ({ eventId }: { eventId: string }) => {
   const queryClient = useQueryClient();
+  const currency = useEventCurrency(eventId);
 
   const { data, isFetching, error } = useQuery({
     queryKey: ["admin-event-discount-codes", eventId],

@@ -30,7 +30,7 @@ import {
   AdminHostProfile,
   HostApprovalStatus,
 } from "@/services/api/host-profiles/host-profiles.types";
-import { PpTable, StatBar } from "@/components";
+import { PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -42,12 +42,6 @@ import {
   rowsPerPage,
 } from "@/utils";
 import { mockHostProfileStats, mockHostProfiles } from "@/mocks";
-
-const statusColor: Record<HostApprovalStatus, string> = {
-  pending: "yellow",
-  approved: "teal",
-  rejected: "red",
-};
 
 const tableHeaders = [
   "Profile",
@@ -201,9 +195,7 @@ export default function HostProfilesPage() {
       </Table.Td>
       <Table.Td>{profile.eventsHosted}</Table.Td>
       <Table.Td>
-        <Badge variant="light" color={statusColor[profile.approvalStatus]}>
-          {profile.approvalStatus}
-        </Badge>
+        <StatusBadge status={profile.approvalStatus} />
       </Table.Td>
       <Table.Td>{formatDateTime(profile.created_at)}</Table.Td>
     </Table.Tr>
@@ -288,13 +280,7 @@ export default function HostProfilesPage() {
                   </Group>
                 </Stack>
               </Group>
-              <Badge
-                size="lg"
-                variant="light"
-                color={statusColor[selected.approvalStatus]}
-              >
-                {selected.approvalStatus}
-              </Badge>
+              <StatusBadge status={selected.approvalStatus} size="lg" />
             </Group>
 
             <Text fz="sm" c="var(--fj-text-secondary)" lh={1.6}>

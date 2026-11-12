@@ -1,9 +1,10 @@
 "use client";
 
+import StatusBadge from "../../elements/status-badge";
+
 import {
   ActionIcon,
   Avatar,
-  Badge,
   Card,
   Divider,
   Flex,
@@ -35,13 +36,6 @@ import {
   isEndpointUnavailable,
   retryUnlessUnavailable,
 } from "@/utils";
-
-const statusColor: Record<string, string> = {
-  accepted: "teal",
-  pending: "yellow",
-  declined: "gray",
-  revoked: "red",
-};
 
 /**
  * One card per co-planner: who they are, what they can do, and the single
@@ -123,15 +117,7 @@ const CoPlanners = ({ eventId }: { eventId: string }) => {
                       {planner.phone}
                     </Text>
                   </Flex>
-                  <Badge
-                    variant="light"
-                    size="sm"
-                    radius="sm"
-                    w="fit-content"
-                    color={statusColor[planner.status] || "gray"}
-                  >
-                    {formatStatusLabel(planner.status)}
-                  </Badge>
+                  <StatusBadge status={planner.status} size="sm" w="fit-content" />
                 </Stack>
               </Flex>
 

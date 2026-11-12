@@ -34,6 +34,7 @@ interface RecentTransaction {
   transactionRef: string;
   reference: string;
   transactionAmount: number;
+  currency?: string;
   narration: string;
   direction: "DEBIT" | "CREDIT";
   transactionStatus: string;

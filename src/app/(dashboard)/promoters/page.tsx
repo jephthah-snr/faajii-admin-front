@@ -1,6 +1,8 @@
 "use client";
 
-import { Avatar, Badge, Group, Stack, Table, Text } from "@mantine/core";
+import StatusBadge from "@/components/elements/status-badge";
+
+import { Avatar, Group, Stack, Table, Text } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -107,9 +109,7 @@ export default function PromotersPage() {
         </Group>
       </Table.Td>
       <Table.Td>
-        <Badge variant="light" color={promoter.isActive ? "teal" : "gray"}>
-          {promoter.isActive ? "Active" : "Off"}
-        </Badge>
+        <StatusBadge status={promoter.isActive ? "Active" : "Off"} />
       </Table.Td>
       <Table.Td>
         <Text fw={600}>{formatCount(promoter.activePromotions)} live</Text>

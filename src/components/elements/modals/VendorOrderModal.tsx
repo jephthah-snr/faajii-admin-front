@@ -19,7 +19,7 @@ import SummaryItem from "../summary-item";
 import StatusBadge from "../status-badge";
 import { IconChevronDown, IconCopy } from "@/config/icons";
 import {
-  formatStatusLabel,
+  formatMoney,
   getProgressColor,
   initialsColors,
   normalizeAddress,
@@ -113,9 +113,8 @@ const VendorOrderModal = ({
                   <Menu.Target>
                     <Flex align="center" gap={2} className="cursor-pointer">
                       <StatusBadge
-                        status={formatStatusLabel(data?.status)}
+                        status={data?.status}
                         px={0}
-                        useAltColor
                       />
                       <IconChevronDown size={20} color="currentColor" variant="Linear" />
                     </Flex>
@@ -185,7 +184,8 @@ const VendorOrderModal = ({
                     </Text>
                   </Flex>
                   <Text fz={13} c="#fff">
-                    {data?.payment?.formattedPaid || "₦0.00"}
+                    {data?.payment?.formattedPaid ||
+                      formatMoney(0, data?.payment?.currency)}
                   </Text>
                 </Flex>
 
@@ -199,10 +199,13 @@ const VendorOrderModal = ({
 
                 <Flex align="center" gap={4}>
                   <Text fz={13} c="#fff">
-                    {data?.payment?.formattedPaid || "₦0.00"} sent
+                    {data?.payment?.formattedPaid ||
+                      formatMoney(0, data?.payment?.currency)} sent
                   </Text>
                   <Text fz={13} c="#D9D9D9B2">
-                    out of {data?.payment?.formattedRemaining || "₦0.00"}
+                    out of{" "}
+                    {data?.payment?.formattedRemaining ||
+                      formatMoney(0, data?.payment?.currency)}
                   </Text>
                 </Flex>
               </Flex>

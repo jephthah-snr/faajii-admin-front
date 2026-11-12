@@ -1,5 +1,7 @@
 "use client";
 
+import StatusBadge from "@/components/elements/status-badge";
+
 import {
   Badge,
   Card,
@@ -40,12 +42,6 @@ const movementEmptyState = {
   icon: IconNoTransactions,
 };
 
-const statusColor: Record<string, string> = {
-  success: "teal",
-  pending: "yellow",
-  failed: "red",
-};
-
 /**
  * The event's Faajii purse — funded over MoMo and spent on vendors. Mirrors
  * `/v1/event/:id/wallet/fund` and `/wallet/send` from the host's side.
@@ -74,7 +70,7 @@ const Wallet = ({ eventId }: { eventId: string }) => {
     );
   }
 
-  const currency = wallet.currency || "NGN";
+  const currency = wallet.currency;
   const movements = wallet.movements || [];
 
   const rows = movements.map((movement) => (
@@ -101,9 +97,7 @@ const Wallet = ({ eventId }: { eventId: string }) => {
       </Table.Td>
       <Table.Td>{formatMoney(movement.fee, movement.currency)}</Table.Td>
       <Table.Td>
-        <Badge variant="light" color={statusColor[movement.status] || "gray"}>
-          {movement.status}
-        </Badge>
+        <StatusBadge status={movement.status} />
       </Table.Td>
       <Table.Td>{formatDateTime(movement.created_at)}</Table.Td>
     </Table.Tr>
@@ -115,9 +109,10 @@ const Wallet = ({ eventId }: { eventId: string }) => {
         <Text c="var(--fj-text-muted)" fz="sm">
           Owner: {wallet.ownerName || `User #${wallet.userId}`}
         </Text>
-        <Badge variant="light" color={wallet.isActive ? "teal" : "red"}>
-          {wallet.isActive ? "Purse active" : "Purse frozen"}
-        </Badge>
+        <StatusBadge
+          status={wallet.isActive ? "active" : "frozen"}
+          label={wallet.isActive ? "Purse active" : "Purse frozen"}
+        />
       </Group>
 
       <StatBar

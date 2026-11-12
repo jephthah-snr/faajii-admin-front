@@ -375,7 +375,8 @@ const theme = createTheme({
        * keeps its full width and the column gives way instead.
        */
       styles: {
-        root: { maxWidth: "none" },
+        // Mantine's uppercase bold reads as shouting across a dense table.
+        root: { maxWidth: "none", textTransform: "none", fontWeight: 500 },
         label: { overflow: "visible", textOverflow: "clip" },
       },
     }),

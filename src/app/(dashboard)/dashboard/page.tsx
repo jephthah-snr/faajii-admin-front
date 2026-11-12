@@ -48,7 +48,7 @@ import {
   asList,
   capitalizeString,
   convertToNaira,
-  formatStringAmount,
+  formatMoney,
   getFirstName,
   initialsColors,
   transactionEmptyState,
@@ -205,7 +205,7 @@ const Dashboard = () => {
           </Flex>
         </Table.Td>
         <Table.Td fw={600}>
-          ₦{formatStringAmount(formattedAmount || "0.00")}
+          {formatMoney(formattedAmount, data?.currency)}
         </Table.Td>
         <Table.Td>
           <FormatDate data={data?.created_at} formatType="fullDate" />

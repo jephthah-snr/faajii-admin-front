@@ -34,6 +34,7 @@ import {
   PpTable,
   StatBar,
   TableSkeleton,
+  StatusBadge,
 } from "@/components";
 import {
   asList,
@@ -52,20 +53,6 @@ import {
   mockSupportTicketDetail,
   mockSupportTickets,
 } from "@/mocks";
-
-const statusColor: Record<SupportStatus, string> = {
-  open: "blue",
-  pending: "yellow",
-  resolved: "teal",
-  closed: "gray",
-};
-
-const priorityColor: Record<SupportPriority, string> = {
-  low: "gray",
-  normal: "blue",
-  high: "orange",
-  urgent: "red",
-};
 
 const tableHeaders = [
   "Ticket",
@@ -210,14 +197,10 @@ export default function SupportPage() {
         </Badge>
       </Table.Td>
       <Table.Td>
-        <Badge variant="light" color={priorityColor[ticket.priority]}>
-          {ticket.priority}
-        </Badge>
+        <StatusBadge status={ticket.priority} />
       </Table.Td>
       <Table.Td>
-        <Badge variant="light" color={statusColor[ticket.status]}>
-          {formatStatusLabel(ticket.status)}
-        </Badge>
+        <StatusBadge status={ticket.status} />
       </Table.Td>
       <Table.Td>
         {ticket.assignedToName || (

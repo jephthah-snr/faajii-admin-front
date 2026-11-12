@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Switch, Table, Text } from "@mantine/core";
+import { Switch, Table, Text } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
@@ -13,11 +13,10 @@ import {
   SetMomoAccountEnabled,
 } from "@/services/api";
 import { MomoAccountStatus } from "@/services/api/finance/finance.types";
-import { PpTable } from "@/components";
+import { PpTable, StatusBadge } from "@/components";
 import {
   asList,
   formatDateTime,
-  formatStatusLabel,
   getApiErrorMessage,
   isEndpointUnavailable,
   retryUnlessUnavailable,
@@ -26,13 +25,6 @@ import {
 } from "@/utils";
 import { IconMomo } from "@/config/icons";
 import { mockMomoAccounts } from "@/mocks";
-
-const statusColor: Record<MomoAccountStatus, string> = {
-  active: "teal",
-  pending: "yellow",
-  disabled: "gray",
-  failed: "red",
-};
 
 const statusOptions = ["All", "Active", "Pending", "Disabled", "Failed"];
 
@@ -165,9 +157,7 @@ export default function MomoAccountsPage() {
       </Table.Td>
       <Table.Td>{account.providerName || "Unknown"}</Table.Td>
       <Table.Td>
-        <Badge variant="light" color={statusColor[account.status] || "gray"}>
-          {formatStatusLabel(account.status)}
-        </Badge>
+        <StatusBadge status={account.status} />
       </Table.Td>
       <Table.Td>{formatDateTime(account.verifiedAt, "Not verified")}</Table.Td>
       <Table.Td>{formatDateTime(account.created_at)}</Table.Td>

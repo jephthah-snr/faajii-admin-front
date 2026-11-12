@@ -1,4 +1,6 @@
 import { FilterItem } from "./types";
+import { normalizeStatusKey } from "./getStatusColor";
+import { formatStatusLabel } from "./valueFormatter";
 
 export const userManagementFilters: FilterItem[] = [
   {
@@ -296,6 +298,27 @@ export const computeApiFilters = (
 
   return out;
 };
+
+/**
+ * Guest-list filters for one event. Status options come from the guests the
+ * event actually has, so no option can ever match nothing.
+ */
+export const buildEventGuestFilters = (statuses: string[]): FilterItem[] => [
+  {
+    title: "Status",
+    apiKey: "status",
+    default: "All",
+    items: ["All", ...statuses.map(formatStatusLabel)],
+    transform: normalizeStatusKey,
+  },
+  {
+    title: "Ticket",
+    apiKey: "ticket",
+    default: "All",
+    items: ["All", "Has ticket", "No ticket"],
+  },
+  { title: "Added", apiKey: "added", isDate: true },
+];
 
 export const walletFilters: FilterItem[] = [
   {

@@ -26,9 +26,8 @@ import {
 } from "@/services/api";
 import {
   BroadcastAudience,
-  BroadcastStatus,
 } from "@/services/api/notifications/notifications.types";
-import { PpTable, StatBar } from "@/components";
+import { PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatCount,
@@ -45,14 +44,6 @@ import {
   mockPushDevices,
   mockPushTokenStats,
 } from "@/mocks";
-
-const statusColor: Record<BroadcastStatus, string> = {
-  draft: "gray",
-  queued: "blue",
-  sending: "yellow",
-  sent: "teal",
-  failed: "red",
-};
 
 const audienceOptions: { value: BroadcastAudience; label: string }[] = [
   { value: "all", label: "Everyone" },
@@ -194,9 +185,7 @@ export default function NotificationsPage() {
       </Table.Td>
       <Table.Td>{device.appVersion || "—"}</Table.Td>
       <Table.Td>
-        <Badge color={device.isActive ? "teal" : "gray"}>
-          {device.isActive ? "Active" : "Inactive"}
-        </Badge>
+        <StatusBadge status={device.isActive ? "Active" : "Inactive"} />
       </Table.Td>
       <Table.Td>{formatDateTime(device.lastSeenAt, "Never")}</Table.Td>
     </Table.Tr>
@@ -225,9 +214,7 @@ export default function NotificationsPage() {
           )}
         </Table.Td>
         <Table.Td>
-          <Badge variant="light" color={statusColor[broadcast.status]}>
-            {formatStatusLabel(broadcast.status)}
-          </Badge>
+          <StatusBadge status={broadcast.status} />
         </Table.Td>
         <Table.Td>
           <Text fz="sm">

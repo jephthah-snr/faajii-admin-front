@@ -1,5 +1,7 @@
 "use client";
 
+import StatusBadge from "@/components/elements/status-badge";
+
 import {
   Badge,
   Card,
@@ -112,9 +114,7 @@ export default function WalletsPage() {
       <Table.Td>{formatMoney(wallet.totalFunded, wallet.currency)}</Table.Td>
       <Table.Td>{formatMoney(wallet.totalSpent, wallet.currency)}</Table.Td>
       <Table.Td>
-        <Badge variant="light" color={wallet.isActive ? "teal" : "red"}>
-          {wallet.isActive ? "Active" : "Frozen"}
-        </Badge>
+        <StatusBadge status={wallet.isActive ? "Active" : "Frozen"} />
       </Table.Td>
       <Table.Td>{formatDateTime(wallet.lastMovementAt, "Never")}</Table.Td>
     </Table.Tr>

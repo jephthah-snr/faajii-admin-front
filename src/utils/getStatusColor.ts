@@ -1,134 +1,80 @@
 /**
- * Status colours, resolved from the shared token palette so a "successful"
- * badge is the same green everywhere — including inside charts and stat tiles.
+ * One status palette for the whole admin.
+ *
+ * Every screen used to keep its own map onto Mantine's named colours, so
+ * "pending" was yellow on one page and grey on the next, and the muted
+ * `light` tints made most states read as the same dull grey-green. Each
+ * status *meaning* now owns one vivid hue that stays readable on the black
+ * surface, and neighbouring stages of one lifecycle (placed → in production →
+ * shipped → delivered) land on different hues so a table can be scanned by
+ * colour alone.
+ *
+ * Literal hex rather than `var(--fj-*)`: these feed Mantine's `color` prop and
+ * `alpha()`, which parse the value and cannot resolve a CSS variable.
  */
+export const STATUS_PALETTE = {
+  success: "#22C55E",
+  used: "#2DD4BF",
+  info: "#22D3EE",
+  progress: "#60A5FA",
+  review: "#818CF8",
+  transit: "#C084FC",
+  pending: "#FACC15",
+  caution: "#FB923C",
+  danger: "#F87171",
+  highlight: "#F472B6",
+  neutral: "#9CA3AF",
+} as const;
 
-// Literal hex rather than `var(--fj-*)`: these feed Mantine's `color` prop,
-// which parses the value to compute contrast and cannot resolve a CSS variable.
-// Keep in sync with `src/styles/tokens.css`.
-const SUCCESS = "#1ED69E";
-const WARNING = "#FF8A00";
-const DANGER = "#FF5C66";
-const INFO = "#74C0FC";
-const NEUTRAL = "#747482";
-const VIOLET = "#D0BFFF";
-const PINK = "#F45797";
+type StatusTone = keyof typeof STATUS_PALETTE;
 
-export const getStatusColor = (data: string) => {
-  switch (data) {
-    case "active":
-    case "complete":
-    case "completed":
-    case "successful":
-    case "available":
-    case "verified":
-    case "approved":
-    case "delivered":
-    case "paid":
-    case "gifted":
-      return SUCCESS;
-
-    case "pending":
-    case "processing":
-    case "upcoming":
-    case "outofstock":
-    case "medium":
-    case "intransit":
-    case "confirmed":
-    case "customersupport":
-    case "giftingstarted":
-      return WARNING;
-
-    case "deactivated":
-    case "cancelled":
-    case "inactive":
-    case "failed":
-    case "high":
-    case "unverified":
-    case "disapproved":
-    case "suspended":
-    case "rejected":
-    case "revoked":
-      return DANGER;
-
-    case "invited":
-    case "gifts":
-    case "superadmin":
-    case "admin":
-    case "ticket":
-      return INFO;
-
-    case "products":
-    case "services":
-      return VIOLET;
-
-    case "operations":
-    case "customrole1":
-      return PINK;
-
-    case "expectinggift":
-      return NEUTRAL;
-
-    default:
-      return NEUTRAL;
-  }
+const STATUS_TONES: Record<StatusTone, string[]> = {
+  success: [
+    "active", "approved", "accepted", "available", "complete", "completed",
+    "confirmed", "delivered", "gifted", "paid", "resolved", "sent", "success",
+    "successful", "verified", "live", "enabled", "settled", "credit",
+  ],
+  used: ["used", "checkedin", "redeemed", "refunded", "convertedtocash"],
+  info: [
+    "invited", "offered", "placed", "queued", "upcoming", "open", "new",
+    "admin", "gifts", "ticket", "scheduled",
+  ],
+  progress: [
+    "processing", "inprogress", "inproduction", "infulfilment", "fulfilled",
+    "ongoing", "sending", "normal", "customersupport", "giftingstarted",
+  ],
+  review: ["qualitycheck", "underreview", "review", "superadmin", "services"],
+  transit: ["shipped", "intransit", "outfordelivery", "products"],
+  pending: [
+    "pending", "pendingpayment", "awaiting", "awaitingpayment", "draft",
+    "incomplete", "partial", "partiallypaid", "medium", "expectinggift",
+  ],
+  caution: [
+    "suspended", "flagged", "declined", "high", "overpaid", "underpaid",
+    "unverified", "onhold", "noshow",
+  ],
+  danger: [
+    "failed", "paymentfailed", "rejected", "cancelled", "canceled",
+    "revoked", "removed", "deleted", "disapproved", "deactivated", "urgent",
+    "outofstock", "error", "debit", "frozen", "overdue",
+  ],
+  highlight: ["operations", "customrole1"],
+  neutral: [
+    "inactive", "closed", "hidden", "disabled", "expired", "notstarted",
+    "low", "unknown", "all", "off", "notarrived",
+  ],
 };
 
-export const getStatusColorAlt = (data: string, isTransaction?: boolean) => {
-  if (isTransaction) {
-    switch (data) {
-      case "successful":
-      case "completed":
-      case "paid":
-        return SUCCESS;
-      case "inprogress":
-      case "pending":
-        return WARNING;
-      case "failed":
-      case "cancelled":
-        return DANGER;
-      default:
-        return NEUTRAL;
-    }
-  }
+const STATUS_COLOR_LOOKUP = new Map(
+  (Object.entries(STATUS_TONES) as [StatusTone, string[]][]).flatMap(
+    ([tone, statuses]) =>
+      statuses.map((status) => [status, STATUS_PALETTE[tone]] as const),
+  ),
+);
 
-  switch (data) {
-    case "all":
-      return "#FFFFFF";
+/** "Pending_Payment", "pending payment" and "pending-payment" are one key. */
+export const normalizeStatusKey = (status?: string | null) =>
+  (status || "").toLowerCase().replace(/[\s_-]+/g, "");
 
-    case "confirmed":
-    case "completed":
-    case "delivered":
-    case "active":
-      return SUCCESS;
-
-    case "inprogress":
-    case "pending":
-    case "refunded":
-      return WARNING;
-
-    case "outfordelivery":
-    case "shipped":
-      return VIOLET;
-
-    case "cancelled":
-    case "failed":
-    case "noshow":
-      return DANGER;
-
-    case "infulfilment":
-    case "processing":
-    case "suspended":
-      return PINK;
-
-    case "paid":
-    case "invited":
-      return INFO;
-
-    case "convertedtocash":
-      return NEUTRAL;
-
-    default:
-      return NEUTRAL;
-  }
-};
+export const getStatusColor = (status?: string | null): string =>
+  STATUS_COLOR_LOOKUP.get(normalizeStatusKey(status)) ?? STATUS_PALETTE.neutral;

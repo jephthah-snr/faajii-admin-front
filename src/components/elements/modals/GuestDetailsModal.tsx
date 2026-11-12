@@ -17,7 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import SummaryItem from "../summary-item";
 import StatusBadge from "../status-badge";
 import classes from "@/styles/General.module.css";
-import { capitalizeString } from "@/utils";
+import { capitalizeString, formatMoney } from "@/utils";
 import FormatDate from "../format-date";
 import { EventSubDetailsSkeleton } from "../skeletons";
 import { useState } from "react";
@@ -86,9 +86,7 @@ const GuestDetailsModal = ({
                       />
                       <StatusBadge
                         px={0}
-                        status={capitalizeString(
-                          guestDetails?.guest?.status || "N/A"
-                        )}
+                        status={guestDetails?.guest?.status || "N/A"}
                       />
                     </Flex>
                     <SummaryItem
@@ -194,8 +192,7 @@ const GuestDetailsModal = ({
                                 </Flex>
                                 <Text c="#D9D9D9B2" fz={13}>
                                   Total:{" "}
-                                  {Number(item?.totalPrice)?.toLocaleString()}{" "}
-                                  NGN
+                                  {formatMoney(item?.totalPrice, item?.currency)}
                                 </Text>
                                 <Flex align="center" gap={10}>
                                   <Text c="#D9D9D9B2" fw={500} fz={13}>

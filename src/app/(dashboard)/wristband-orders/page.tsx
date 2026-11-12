@@ -2,7 +2,6 @@
 
 import {useState} from 'react';
 import {
-  Badge,
   Button,
   Card,
   Divider,
@@ -33,9 +32,10 @@ import type {
   WristbandOrderStatus,
   WristbandPaymentState,
 } from '@/services/api/wristbands/wristband.types';
-import { PpTable, StatBar } from "@/components";
+import { PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
+  formatMoney,
   rowsPerPage,
   wristbandEmptyState,
   wristbandFilters,
@@ -59,10 +59,6 @@ const NEXT_STATUS: Partial<Record<WristbandOrderStatus, Array<{value: string; la
   shipped: [{value: 'delivered', label: 'Mark as delivered'}],
 };
 
-function money(amount: number, currency: string) {
-  return new Intl.NumberFormat('en', {style: 'currency', currency, maximumFractionDigits: 2}).format(amount);
-}
-
 const tableHeaders = [
   'Reference',
   'Event',
@@ -73,14 +69,6 @@ const tableHeaders = [
   'Fulfillment',
   'Date',
 ];
-
-function statusColor(status: string) {
-  if (['placed', 'delivered'].includes(status)) return 'teal';
-  if (['in_production', 'quality_check', 'shipped'].includes(status)) return 'blue';
-  if (status === 'pending_payment') return 'yellow';
-  if (status === 'payment_failed') return 'red';
-  return 'gray';
-}
 
 export default function WristbandOrdersPage() {
   const queryClient = useQueryClient();
@@ -165,9 +153,9 @@ export default function WristbandOrdersPage() {
       <Table.Td><Text fw={600}>{order.eventName}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.eventRef}</Text></Table.Td>
       <Table.Td><Text>{order.customerName}</Text><Text c="var(--fj-text-muted)" fz="xs">{order.customerEmail}</Text></Table.Td>
       <Table.Td>{order.totalQuantity}</Table.Td>
-      <Table.Td>{money(order.amount, order.currency)}</Table.Td>
-      <Table.Td><Badge color={order.paymentState === 'paid' ? 'teal' : order.paymentState === 'failed' ? 'red' : 'yellow'}>{order.paymentState}</Badge><Text c="var(--fj-text-muted)" fz="xs">{order.paymentMethod}</Text></Table.Td>
-      <Table.Td><Badge color={statusColor(order.status)}>{STATUS_OPTIONS.find(item => item.value === order.status)?.label || order.status}</Badge></Table.Td>
+      <Table.Td>{formatMoney(order.amount, order.currency)}</Table.Td>
+      <Table.Td><StatusBadge status={order.paymentState} /><Text c="var(--fj-text-muted)" fz="xs">{order.paymentMethod}</Text></Table.Td>
+      <Table.Td><StatusBadge status={order.status} label={STATUS_OPTIONS.find(item => item.value === order.status)?.label} /></Table.Td>
       <Table.Td>{new Intl.DateTimeFormat('en', {dateStyle: 'medium'}).format(new Date(order.createdAt))}</Table.Td>
     </Table.Tr>
   ));
@@ -185,7 +173,7 @@ export default function WristbandOrdersPage() {
           },
           ...(statistics?.paid || []).map(total => ({
             label: `Paid volume · ${total.currency}`,
-            value: money(total.amount, total.currency),
+            value: formatMoney(total.amount, total.currency),
             hint: `${total.orders} orders`,
           })),
           {
@@ -220,10 +208,10 @@ export default function WristbandOrdersPage() {
 
       <Drawer opened={selected != null} onClose={() => setSelected(null)} position="right" size="xl" title={detail ? `Order ${detail.reference}` : 'Wristband order'}>
         {detailQuery.isLoading ? <Text>Loading order…</Text> : detail ? <Stack gap="lg">
-          <SimpleGrid cols={2}><Card><Text c="var(--fj-text-muted)" fz="xs">Payment</Text><Badge color={detail.paymentState === 'paid' ? 'teal' : 'yellow'}>{detail.paymentState}</Badge><Text mt="xs">{money(detail.amount, detail.currency)}</Text></Card><Card><Text c="var(--fj-text-muted)" fz="xs">Fulfillment</Text><Badge color={statusColor(detail.status)}>{detail.status}</Badge><Text mt="xs">{detail.totalQuantity} bands</Text></Card></SimpleGrid>
+          <SimpleGrid cols={2}><Card><Text c="var(--fj-text-muted)" fz="xs">Payment</Text><StatusBadge status={detail.paymentState} /><Text mt="xs">{formatMoney(detail.amount, detail.currency)}</Text></Card><Card><Text c="var(--fj-text-muted)" fz="xs">Fulfillment</Text><StatusBadge status={detail.status} /><Text mt="xs">{detail.totalQuantity} bands</Text></Card></SimpleGrid>
           <Card><Text fw={700}>Customer and event</Text><Text mt="sm">{detail.customerName} · {detail.customerEmail}</Text><Text>{detail.eventName} · {detail.eventRef}</Text><Text c="var(--fj-text-muted)" fz="sm">Provider reference: {detail.paymentProviderRef || 'Not recorded'}</Text></Card>
 
-          <Card><Text fw={700} mb="sm">Order items</Text>{detail.items.map(item => <Group key={item.id} justify="space-between" py="xs"><div><Text fw={600}>{item.productName}</Text><Text c="var(--fj-text-muted)" fz="xs">{item.quantity} × {money(item.unitPrice, detail.currency)} · {item.color}</Text></div><Button component="a" href={item.designSourceUrl || item.designUrl} target="_blank" variant="light" size="xs">Artwork</Button></Group>)}</Card>
+          <Card><Text fw={700} mb="sm">Order items</Text>{detail.items.map(item => <Group key={item.id} justify="space-between" py="xs"><div><Text fw={600}>{item.productName}</Text><Text c="var(--fj-text-muted)" fz="xs">{item.quantity} × {formatMoney(item.unitPrice, detail.currency)} · {item.color}</Text></div><Button component="a" href={item.designSourceUrl || item.designUrl} target="_blank" variant="light" size="xs">Artwork</Button></Group>)}</Card>
 
           {transitionOptions.length > 0 && <Card><Text fw={700}>Update fulfillment</Text><Select mt="sm" placeholder="Choose next status" data={transitionOptions} value={nextStatus} onChange={setNextStatus} /><Group grow mt="sm"><TextInput placeholder="Carrier" value={carrier} onChange={e => setCarrier(e.currentTarget.value)} /><TextInput placeholder="Tracking number" value={trackingNumber} onChange={e => setTrackingNumber(e.currentTarget.value)} /></Group><Textarea mt="sm" placeholder="Internal fulfillment note" value={fulfillmentNote} onChange={e => setFulfillmentNote(e.currentTarget.value)} /><Button mt="md" disabled={!nextStatus || (nextStatus === 'shipped' && !trackingNumber.trim())} loading={fulfillmentMutation.isPending} onClick={() => fulfillmentMutation.mutate()}>Save fulfillment update</Button></Card>}
 

@@ -146,9 +146,7 @@ const AuditLog = () => {
         <Table.Td>
           <StatusBadge
             status={data?.adminRole}
-            variant="light"
             px={10}
-            isTransparent={false}
           />
         </Table.Td>
 

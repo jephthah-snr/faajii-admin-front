@@ -102,7 +102,7 @@ const EventTransactions = ({ id }: EventTransactionsProps) => {
           </Flex>
         </Table.Td>
 
-        <Table.Td>{formatMoney(data?.amount || 0, data?.currency || "NGN")}</Table.Td>
+        <Table.Td>{formatMoney(data?.amount, data?.currency)}</Table.Td>
 
         <Table.Td>
           <FormatDate data={data.created_at} formatType="fullDate" />

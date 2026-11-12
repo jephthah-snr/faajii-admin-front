@@ -45,7 +45,7 @@ const Budget = ({ eventId }: { eventId: string }) => {
   const isSample = isEndpointUnavailable(error);
   const budget = isSample ? mockEventBudget : data?.data;
   const items = budget?.items || [];
-  const currency = budget?.currency || "NGN";
+  const currency = budget?.currency;
   const totalBudgeted = budget?.totalBudgeted || 0;
   const totalSpent = budget?.totalSpent || 0;
   const remaining = totalBudgeted - totalSpent;

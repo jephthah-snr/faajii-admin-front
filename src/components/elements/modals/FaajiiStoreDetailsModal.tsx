@@ -1,5 +1,7 @@
 "use client";
 
+import { formatMoney } from "@/utils";
+
 import { GetEventStoreDetails } from "@/services/api";
 import {
   Avatar,
@@ -95,9 +97,10 @@ const FaajiiStoreDetailsModal = ({
                   </Flex>
                   <SummaryItem
                     label="Price"
-                    value={`${
-                      Number(storeDetails?.item?.price)?.toLocaleString() || 0
-                    } NGN`}
+                    value={formatMoney(
+                      storeDetails?.item?.price,
+                      storeDetails?.item?.currency,
+                    )}
                     fz={16}
                   />
 

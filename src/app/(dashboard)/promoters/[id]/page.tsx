@@ -18,14 +18,12 @@ import { useParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
 import { GetPromoter, SetPromoterActive } from "@/services/api";
-import type { PromotionStatus } from "@/services/api/promoters/promoter.types";
-import { PpTable, StatBar } from "@/components";
+import { PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatCommission,
   formatFcfa,
   formatDateTime,
-  formatStatusLabel,
   getApiErrorMessage,
   isEndpointUnavailable,
   retryUnlessUnavailable,
@@ -34,14 +32,6 @@ import { IconNoTransactions, IconPromoters } from "@/config/icons";
 import { mockPromoterDetail } from "@/mocks";
 
 /** One accent per stage, matching the app's promoter and owner screens. */
-const promotionColor: Record<PromotionStatus, string> = {
-  pending: "gray",
-  offered: "orange",
-  active: "teal",
-  declined: "red",
-  cancelled: "red",
-  expired: "dark",
-};
 
 const promotionHeaders = [
   "Event",
@@ -134,9 +124,7 @@ export default function PromoterDetailPage() {
           </Text>
         </Table.Td>
         <Table.Td>
-          <Badge variant="light" color={promotionColor[promotion.status]}>
-            {formatStatusLabel(promotion.status)}
-          </Badge>
+          <StatusBadge status={promotion.status} />
         </Table.Td>
         <Table.Td>{commission || "Not offered yet"}</Table.Td>
         <Table.Td ff="monospace" fz="sm">
@@ -155,30 +143,17 @@ export default function PromoterDetailPage() {
         {entry.reference}
       </Table.Td>
       <Table.Td maw={280}>
-        <Badge
-          variant="light"
-          color={entry.type === "credit" ? "teal" : "orange"}
-        >
-          {entry.type === "credit" ? "Commission" : "Withdrawal"}
-        </Badge>
+        <StatusBadge
+          status={entry.type}
+          label={entry.type === "credit" ? "Commission" : "Withdrawal"}
+        />
         <Text c="var(--fj-text-muted)" fz="xs" mt={4} lineClamp={1}>
           {entry.narration || entry.eventName || "No narration"}
         </Text>
       </Table.Td>
       <Table.Td fw={650}>{formatFcfa(entry.amount)}</Table.Td>
       <Table.Td>
-        <Badge
-          variant="light"
-          color={
-            entry.status === "success"
-              ? "teal"
-              : entry.status === "pending"
-                ? "yellow"
-                : "red"
-          }
-        >
-          {formatStatusLabel(entry.status)}
-        </Badge>
+        <StatusBadge status={entry.status} />
       </Table.Td>
       <Table.Td>{formatDateTime(entry.created_at)}</Table.Td>
     </Table.Tr>
@@ -202,12 +177,12 @@ export default function PromoterDetailPage() {
                       <Text fw={700} fz="lg">
                         {promoter.name}
                       </Text>
-                      <Badge
-                        variant="light"
-                        color={promoter.isActive ? "teal" : "gray"}
-                      >
-                        {promoter.isActive ? "Profile active" : "Profile off"}
-                      </Badge>
+                      <StatusBadge
+                        status={promoter.isActive ? "active" : "off"}
+                        label={
+                          promoter.isActive ? "Profile active" : "Profile off"
+                        }
+                      />
                     </Group>
                     <Text c="var(--fj-text-muted)" fz="sm">
                       {promoter.email || "No email"} ·{" "}

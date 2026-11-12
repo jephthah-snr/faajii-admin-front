@@ -1,6 +1,8 @@
 "use client";
 
-import { Badge, Stack, Table, Text } from "@mantine/core";
+import StatusBadge from "@/components/elements/status-badge";
+
+import { Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventTasks } from "@/services/api";
 import { TaskStatus } from "@/services/api/event-ops/event-ops.types";
@@ -31,13 +33,13 @@ const taskEmptyState = {
   icon: IconNoTasks,
 };
 
-const statusColor: Record<TaskStatus, string> = {
-  pending: "gray",
-  in_progress: "blue",
-  completed: "teal",
-  overdue: "red",
-  cancelled: "dark",
-};
+const taskStatuses: TaskStatus[] = [
+  "pending",
+  "in_progress",
+  "completed",
+  "overdue",
+  "cancelled",
+];
 
 /** Mirrors the Task Tracker screen the host and co-planners share in the app. */
 const Tasks = ({ eventId }: { eventId: string }) => {
@@ -71,9 +73,7 @@ const Tasks = ({ eventId }: { eventId: string }) => {
       <Table.Td>{task.createdByName || "—"}</Table.Td>
       <Table.Td>{formatDateTime(task.deadline, "No deadline")}</Table.Td>
       <Table.Td>
-        <Badge variant="light" color={statusColor[task.status]}>
-          {formatStatusLabel(task.status)}
-        </Badge>
+        <StatusBadge status={task.status} />
       </Table.Td>
     </Table.Tr>
   ));
@@ -84,7 +84,7 @@ const Tasks = ({ eventId }: { eventId: string }) => {
     <Stack gap="xl">
       <StatBar
         minCellWidth={120}
-        items={(Object.keys(statusColor) as TaskStatus[]).map((status) => ({
+        items={taskStatuses.map((status) => ({
           label: formatStatusLabel(status),
           value: counts[status] || 0,
         }))}

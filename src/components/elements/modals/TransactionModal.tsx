@@ -81,14 +81,11 @@ const TransactionModal = ({
           >
             <Flex direction="column" align="center" justify="center" gap={10}>
               <Text fz={24} fw={500} c="#fff">
-                {formatMoney(formattedAmount || 0, transactionData?.currency || "NGN")}
+                {formatMoney(formattedAmount, transactionData?.currency)}
               </Text>
 
               <StatusBadge
                 status={transactionData?.transactionStatus || ""}
-                isTransparent={false}
-                isTransaction
-                useAltColor
                 size="xl"
                 px={20}
                 fz={13}

@@ -35,10 +35,14 @@ import {
   ImportGuestsDrawer,
   PpTable,
   StatBar,
+  StatusBadge,
 } from "@/components";
 import {
+  buildEventGuestFilters,
   formatDateTime as formatDate,
   formatMoney,
+  normalizeStatusKey,
+  searchEmptyState,
   transactionEmptyState,
 } from "@/utils";
 import { IconNoTickets, IconNoUsers, IconUpload } from "@/config/icons";
@@ -96,6 +100,8 @@ export default function EventDetailsPage() {
   const [partyStoreSearch, setPartyStoreSearch] = useState("");
   const [importOpened, { open: openImport, close: closeImport }] =
     useDisclosure(false);
+  const [guestSearch, setGuestSearch] = useState("");
+  const [guestFilters, setGuestFilters] = useState<Record<string, string>>({});
 
   const overviewQuery = useQuery({
     queryKey: ["admin-event-overview", id],
@@ -148,6 +154,40 @@ export default function EventDetailsPage() {
     }
     return grouped;
   }, [tickets]);
+  const guestFilterConfig = useMemo(
+    () =>
+      buildEventGuestFilters(
+        [...new Set(guests.map((guest) => guest.status).filter(Boolean))],
+      ),
+    [guests],
+  );
+
+  // The guest endpoint returns the whole list, so search and filters run here.
+  const filteredGuests = useMemo(() => {
+    const search = guestSearch.trim().toLowerCase();
+    const { status, ticket, startDate, endDate } = guestFilters;
+    const from = startDate ? new Date(startDate).getTime() : null;
+    // The picked end day is inclusive.
+    const to = endDate ? new Date(endDate).getTime() + 86_400_000 : null;
+
+    return guests.filter((guest) => {
+      const added = new Date(guest.createdAt).getTime();
+      const hasTicket = ticketsByGuest.has(guest.id);
+      return (
+        (!search ||
+          [guest.name, guest.email, guest.phone, guest.ref, guest.group].some(
+            (value) => value?.toLowerCase().includes(search),
+          )) &&
+        (!status || normalizeStatusKey(guest.status) === status) &&
+        (!ticket || (ticket === "has ticket") === hasTicket) &&
+        (from === null || added >= from) &&
+        (to === null || added < to)
+      );
+    });
+  }, [guests, guestSearch, guestFilters, ticketsByGuest]);
+  const isGuestListFiltered =
+    Boolean(guestSearch.trim()) || Object.values(guestFilters).some(Boolean);
+
   const transactions = asArray(transactionsQuery.data?.data);
   const partyStoreItems = useMemo(() => {
     const data = partyStoreQuery.data?.data;
@@ -174,7 +214,7 @@ export default function EventDetailsPage() {
     });
   }, [partyStoreFilter, partyStoreItems, partyStoreSearch]);
 
-  const guestRows = guests.map((guest) => (
+  const guestRows = filteredGuests.map((guest) => (
     <Table.Tr key={guest.id}>
       <Table.Td fw={600}>{guest.name}</Table.Td>
       <Table.Td>
@@ -200,7 +240,7 @@ export default function EventDetailsPage() {
         )}
       </Table.Td>
       <Table.Td>
-        <Badge variant="light">{guest.status}</Badge>
+        <StatusBadge status={guest.status} />
       </Table.Td>
       <Table.Td>{formatDate(guest.createdAt)}</Table.Td>
     </Table.Tr>
@@ -231,18 +271,10 @@ export default function EventDetailsPage() {
         {formatMoney(ticket.ticket.price, ticket.ticket.currency)}
       </Table.Td>
       <Table.Td>
-        <Badge
-          variant="light"
-          color={
-            ticket.status === "used"
-              ? "teal"
-              : ticket.status === "cancelled"
-                ? "red"
-                : "blue"
-          }
-        >
-          {ticket.status === "used" ? "Checked in" : ticket.status}
-        </Badge>
+        <StatusBadge
+          status={ticket.status}
+          label={ticket.status === "used" ? "Checked in" : undefined}
+        />
       </Table.Td>
       <Table.Td>{formatDate(ticket.createdAt)}</Table.Td>
     </Table.Tr>
@@ -257,7 +289,7 @@ export default function EventDetailsPage() {
         {formatMoney(transaction.amount, transaction.currency)}
       </Table.Td>
       <Table.Td>
-        <Badge variant="light">{transaction.status}</Badge>
+        <StatusBadge status={transaction.status} />
       </Table.Td>
       <Table.Td>{formatDate(transaction.createdAt)}</Table.Td>
     </Table.Tr>
@@ -322,27 +354,41 @@ export default function EventDetailsPage() {
             ]}
           />
 
-          <Group justify="space-between" mb="sm">
+          <Group justify="space-between" gap="xs">
             <Text fw={700} fz="lg">Guest directory</Text>
-            <Button
-              h={38}
-              px={14}
-              radius="md"
-              className={classes.btnWhite}
-              leftSection={
-                <IconUpload size={18} color="currentColor" variant="Linear" />
-              }
-              onClick={openImport}
-            >
-              Import guests
-            </Button>
+            {isGuestListFiltered && (
+              <Text c="var(--fj-text-muted)" fz="sm">
+                {filteredGuests.length} of {guests.length} guests
+              </Text>
+            )}
           </Group>
           <PpTable
             headers={guestHeaders}
             rowData={guestRows}
             showPagination={false}
             isLoading={guestsQuery.isFetching}
-            emptyState={guestEmptyState}
+            emptyState={isGuestListFiltered ? searchEmptyState : guestEmptyState}
+            hasActions
+            query={guestSearch}
+            handleQuery={setGuestSearch}
+            searchPlaceholder="Search name, email, phone"
+            filters={guestFilterConfig}
+            onFilterChange={setGuestFilters}
+            toolbarAction={
+              <Button
+                h={40}
+                px={14}
+                radius="md"
+                className={classes.btnWhite}
+                w={{ base: "100%", sm: "auto" }}
+                leftSection={
+                  <IconUpload size={18} color="currentColor" variant="Linear" />
+                }
+                onClick={openImport}
+              >
+                Import guests
+              </Button>
+            }
           />
 
           <Group justify="space-between" mt="xl" mb="sm">

@@ -60,14 +60,11 @@ const EventTransactionModal = ({
         >
           <Flex direction="column" align="center" justify="center" gap={10}>
             <Text fz={24} fw={500} c="#fff">
-              {formatMoney(transactionData?.amount || 0, transactionData?.currency || "NGN")}
+              {formatMoney(transactionData?.amount, transactionData?.currency)}
             </Text>
 
             <StatusBadge
               status={transactionData?.status || ""}
-              isTransparent={false}
-              isTransaction
-              useAltColor
               size="xl"
               px={20}
               fz={13}

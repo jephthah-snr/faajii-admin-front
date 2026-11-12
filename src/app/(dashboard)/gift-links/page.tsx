@@ -22,7 +22,7 @@ import {
   GiftLinkStatus,
   GiftLinkType,
 } from "@/services/api/gift-links/gift-links.types";
-import { PpTable, TableSkeleton } from "@/components";
+import { PpTable, TableSkeleton, StatusBadge } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -35,12 +35,6 @@ import {
 } from "@/utils";
 import { IconGiftLinks } from "@/config/icons";
 import { mockGiftLinkDetail, mockGiftLinks } from "@/mocks";
-
-const statusColor: Record<GiftLinkStatus, string> = {
-  active: "teal",
-  closed: "gray",
-  suspended: "red",
-};
 
 const typeLabel: Record<GiftLinkType, string> = {
   secretSanta: "Secret Santa",
@@ -153,9 +147,7 @@ export default function GiftLinksPage() {
       </Table.Td>
       <Table.Td>{link.contributorCount}</Table.Td>
       <Table.Td>
-        <Badge variant="light" color={statusColor[link.status]}>
-          {link.status}
-        </Badge>
+        <StatusBadge status={link.status} />
       </Table.Td>
       <Table.Td>{formatDateTime(link.created_at)}</Table.Td>
     </Table.Tr>

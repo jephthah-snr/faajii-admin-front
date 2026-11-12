@@ -13,7 +13,7 @@ import {
   buildDefaultFilters,
   eventEmptyState,
   eventFilters,
-  formatStringAmount,
+  formatMoney,
   initialsColors,
   rowsPerPage,
 } from "@/utils";
@@ -132,7 +132,7 @@ const EventManagement = () => {
             </Text>
           </Flex>
         </Table.Td>
-        <Table.Td>₦{formatStringAmount(data?.eventBudget) || "0.00"}</Table.Td>
+        <Table.Td>{formatMoney(data?.eventBudget, data?.currency)}</Table.Td>
         <Table.Td>
           <FormatDate data={data?.startDate} formatType="fullDate" />
         </Table.Td>

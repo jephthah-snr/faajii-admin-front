@@ -1,7 +1,8 @@
 "use client";
 
+import StatusBadge from "../../elements/status-badge";
+
 import {
-  Badge,
   Button,
   Progress,
   Stack,
@@ -134,9 +135,7 @@ const CheckIns = ({ eventId }: { eventId: string }) => {
         </Text>
       </Table.Td>
       <Table.Td>
-        <Badge variant="light" color={record.checkedIn ? "teal" : "gray"}>
-          {record.checkedIn ? "Checked in" : "Not arrived"}
-        </Badge>
+        <StatusBadge status={record.checkedIn ? "Checked in" : "Not arrived"} />
       </Table.Td>
       <Table.Td>{formatDateTime(record.checkedInAt, "—")}</Table.Td>
       <Table.Td>{record.checkedInBy || "—"}</Table.Td>

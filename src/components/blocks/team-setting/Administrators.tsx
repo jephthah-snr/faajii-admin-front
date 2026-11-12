@@ -187,16 +187,13 @@ const Administrators = () => {
         <Table.Td>
           <StatusBadge
             status={data?.roleName || data?.adminRole || "Admin"}
-            variant="light"
             px={10}
-            isTransparent={false}
           />
         </Table.Td>
 
         <Table.Td>
           <StatusBadge
             status={data?.isSuspended ? "Suspended" : "Active"}
-            useAltColor
           />
         </Table.Td>
 

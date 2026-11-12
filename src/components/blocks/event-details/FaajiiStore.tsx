@@ -1,7 +1,12 @@
 "use client";
 
 import { IconChevronDown, IconMore, IconSearch } from "@/config/icons";
-import { eventStoreHeaders, getStatusColor, rowsPerPage } from "@/utils";
+import {
+  eventStoreHeaders,
+  formatMoney,
+  getStatusColor,
+  rowsPerPage,
+} from "@/utils";
 import {
   ActionIcon,
   Box,
@@ -202,7 +207,7 @@ const FaajiiStore = ({
           </Box>
         </Flex>
       </Table.Td>
-      <Table.Td>₦{Number(item?.price)?.toLocaleString()}</Table.Td>
+      <Table.Td>{formatMoney(item?.price, item?.currency)}</Table.Td>
       <Table.Td>
         <Text tt="capitalize" c={getStatusColor(item?.category?.toLowerCase())}>
           {item?.category}

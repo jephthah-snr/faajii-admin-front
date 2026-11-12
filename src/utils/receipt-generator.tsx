@@ -1,7 +1,7 @@
 import html2canvas from "html2canvas";
 import { formatMoney } from "./valueFormatter";
 import { TransactionDetails } from "@/services/api/transaction/transaction.types";
-import { getStatusColorAlt } from "./getStatusColor";
+import { getStatusColor } from "./getStatusColor";
 import { Edges } from "@/services/api/event/event.types";
 import { Logo } from "@/images";
 
@@ -18,7 +18,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
   // multiple currencies, so its reference is not a safe currency signal.
   const formattedAmount = formatMoney(
     transaction?.transactionAmount || 0,
-    transaction?.currency || "NGN",
+    transaction?.currency,
   );
 
   const formattedDate = new Date(transaction.created_at).toLocaleString(
@@ -102,10 +102,7 @@ export const generateReceipt = async (transaction: TransactionDetails) => {
             padding: 6px 22px;
             padding-bottom: 12px;
             border-radius: 50px;
-            background-color: ${getStatusColorAlt(
-              transaction.transactionStatus,
-              true,
-            )};
+            background-color: ${getStatusColor(transaction.transactionStatus)};
           "
         >
           <div
@@ -250,7 +247,7 @@ export const generateReceipt2 = async (transaction: Edges) => {
   // Event wallet receipts use the provider's recorded currency directly.
   const formattedAmount = formatMoney(
     transaction.amount || 0,
-    transaction.currency || "NGN",
+    transaction.currency,
   );
   const formattedDate = new Date(transaction.created_at).toLocaleString(
     "en-GB",
@@ -333,7 +330,7 @@ export const generateReceipt2 = async (transaction: Edges) => {
             padding: 6px 22px;
             padding-bottom: 12px;
             border-radius: 50px;
-            background-color: ${getStatusColorAlt(transaction.status, true)};
+            background-color: ${getStatusColor(transaction.status)};
           "
         >
           <div

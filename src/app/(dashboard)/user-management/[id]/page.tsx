@@ -32,7 +32,7 @@ import {
   asList,
   eventEmptyState,
   eventFilters,
-  formatStringAmount,
+  formatMoney,
   initialsColors,
   rowsPerPage,
   transactionEmptyState,
@@ -355,7 +355,7 @@ const UserDetails = () => {
           </Flex>
         </Table.Td>
         <Table.Td>
-          ₦{formatStringAmount(data?.transactionAmount) || "0.00"}
+          {formatMoney(data?.transactionAmount, data?.currency)}
         </Table.Td>
         <Table.Td>
           <FormatDate data={data?.created_at} formatType="datePipeTime" />
@@ -377,7 +377,7 @@ const UserDetails = () => {
         <Table.Td>#{data?.eventId || "N/A"}</Table.Td>
         <Table.Td>{data?.name || "N/A"}</Table.Td>
         <Table.Td tt="capitalize">{data?.role || "N/A"}</Table.Td>
-        <Table.Td>₦{formatStringAmount(data?.eventBudget || "0.00")}</Table.Td>
+        <Table.Td>{formatMoney(data?.eventBudget, data?.currency)}</Table.Td>
         <Table.Td>
           <FormatDate data={data?.startDate} formatType="fullDate" />
         </Table.Td>
@@ -417,7 +417,7 @@ const UserDetails = () => {
           </Flex>
         </Table.Td>
         <Table.Td>
-          ₦{formatStringAmount(data?.transactionAmount) || "0.00"}
+          {formatMoney(data?.transactionAmount, data?.currency)}
         </Table.Td>
         <Table.Td>
           <FormatDate data={data?.created_at} formatType="datePipeTime" />
@@ -643,9 +643,7 @@ const UserDetails = () => {
                         />
                         <StatTile
                           label="Total spent"
-                          value={`₦${formatStringAmount(
-                            quickStats?.totalAmountSpent || 0,
-                          )}`}
+                          value={formatMoney(quickStats?.totalAmountSpent)}
                         />
                         <StatTile
                           label="Gifts sent"

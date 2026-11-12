@@ -22,9 +22,10 @@ import {
   GetPurchaseStatistics,
 } from "@/services/api";
 import { PurchaseChannel } from "@/services/api/purchases/purchase.types";
-import { PpTable, StatBar } from "@/components";
+import { PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
+  formatMoney,
   purchaseEmptyState,
   purchaseFilters,
   rowsPerPage,
@@ -41,21 +42,6 @@ const tableHeaders = [
   "Status",
   "Date",
 ];
-
-function money(amount: number, currency: string) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-function statusColor(status: string) {
-  if (status === "paid") return "teal";
-  if (status === "pending") return "yellow";
-  if (status === "failed") return "red";
-  return "gray";
-}
 
 export default function PurchasesPage() {
   const [page, setPage] = useState(1);
@@ -121,14 +107,14 @@ export default function PurchasesPage() {
         <Badge variant="light">{purchase.channel}</Badge>
       </Table.Td>
       <Table.Td>{purchase.ticketCount}</Table.Td>
-      <Table.Td>{money(purchase.amount, purchase.currency)}</Table.Td>
+      <Table.Td>{formatMoney(purchase.amount, purchase.currency)}</Table.Td>
       <Table.Td>
         <Badge variant="outline">
           {purchase.countryCode || "—"} · {purchase.currency}
         </Badge>
       </Table.Td>
       <Table.Td>
-        <Badge color={statusColor(purchase.status)}>{purchase.status}</Badge>
+        <StatusBadge status={purchase.status} />
       </Table.Td>
       <Table.Td>
         {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
@@ -153,7 +139,7 @@ export default function PurchasesPage() {
           },
           ...paidTotals.map((total) => ({
             label: `Paid volume · ${total.currency}`,
-            value: money(total.amount, total.currency),
+            value: formatMoney(total.amount, total.currency),
             hint: `${total.purchases} successful purchases`,
           })),
         ]}
@@ -247,7 +233,7 @@ export default function PurchasesPage() {
                     />
                     <Fact
                       label="Amount"
-                      value={money(purchase.amount, purchase.currency)}
+                      value={formatMoney(purchase.amount, purchase.currency)}
                     />
                     <Fact
                       label="Market"
@@ -269,8 +255,8 @@ export default function PurchasesPage() {
                     {purchase.reconciliations?.map((item) => (
                       <Text key={item.id} fz="sm">
                         {item.kind}: expected{" "}
-                        {money(item.expectedAmount, item.currency)}, received{" "}
-                        {money(item.receivedAmount, item.currency)} ·{" "}
+                        {formatMoney(item.expectedAmount, item.currency)}, received{" "}
+                        {formatMoney(item.receivedAmount, item.currency)} ·{" "}
                         {item.status}
                       </Text>
                     ))}
@@ -325,7 +311,7 @@ export default function PurchasesPage() {
                     />
                     <Fact
                       label="Credited amount"
-                      value={money(
+                      value={formatMoney(
                         purchase.walletCredit.amount,
                         purchase.walletCredit.currency,
                       )}

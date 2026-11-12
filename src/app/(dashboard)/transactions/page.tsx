@@ -118,7 +118,7 @@ const Transactions = () => {
           </Flex>
         </Table.Td>
         <Table.Td>
-          {formatMoney(data?.transactionAmount || 0, data?.currency || "NGN")}
+          {formatMoney(data?.transactionAmount, data?.currency)}
         </Table.Td>
         <Table.Td>
           <FormatDate data={data?.created_at} formatType="fullDate" />

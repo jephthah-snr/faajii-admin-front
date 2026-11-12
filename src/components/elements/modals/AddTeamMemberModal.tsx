@@ -153,9 +153,7 @@ const AddTeamMemberModal = ({ opened, onClose }: AddTeamMemberModalProps) => {
                       {selectedRole ? (
                         <StatusBadge
                           status={selectedRole.label}
-                          variant="light"
                           px={10}
-                          isTransparent={false}
                         />
                       ) : (
                         <Text fz={14} c="#c4c4c4">
@@ -184,9 +182,7 @@ const AddTeamMemberModal = ({ opened, onClose }: AddTeamMemberModalProps) => {
                       >
                         <StatusBadge
                           status={role.label}
-                          variant="light"
                           px={10}
-                          isTransparent={false}
                         />
                       </Menu.Item>
                     );

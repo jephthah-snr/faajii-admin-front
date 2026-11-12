@@ -23,7 +23,7 @@ import React, { useState } from "react";
 import classes from "@/styles/General.module.css";
 import ConfirmationModal from "./ConfirmationModal";
 import { ConfirmationModalTypes } from "@/services/api/utils/utils.types";
-import { createGuest, formatStringAmount } from "@/utils";
+import { createGuest, formatMoney } from "@/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { NoImageS } from "@/images";
 import { AddEventGuest, GetEventDetails } from "@/services/api";
@@ -348,7 +348,7 @@ const AddGuestModal = ({ opened, close, eventId }: AddGuestModalProps) => {
                                       {item?.name}
                                     </Text>
                                     <Text fz={13} c="#D9D9D9B2">
-                                      ₦ {formatStringAmount(item?.price)}
+                                      {formatMoney(item?.price, item?.currency)}
                                     </Text>
                                   </Flex>
                                 </Flex>

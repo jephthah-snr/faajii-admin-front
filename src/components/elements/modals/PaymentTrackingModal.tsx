@@ -25,7 +25,7 @@ import { notifications } from "@mantine/notifications";
 import StatusBadge from "../status-badge";
 import FormatDate from "../format-date";
 import { IconCopy } from "@/config/icons";
-import { formatStringAmount } from "@/utils";
+import { formatMoney } from "@/utils";
 import {
   PaymentTracking,
   SERVICE_ID_LABELS,
@@ -210,7 +210,8 @@ const PaymentTrackingModal = ({
 
   const formatAmount = (amount?: number) => {
     if (!amount && amount !== 0) return "N/A";
-    return `₦${formatStringAmount(amount / 100)}`;
+    // Stored in minor units, in the payment's own currency.
+    return formatMoney(amount / 100, payment.currency);
   };
 
   const metadata = payment.metadata;
@@ -313,8 +314,6 @@ const PaymentTrackingModal = ({
             </Text>
             <StatusBadge
               status={payment.status}
-              isTransparent={false}
-              useAltColor
               size="xl"
               px={20}
               fz={13}

@@ -15,7 +15,7 @@ import { AppLayout } from "@/layout";
 import { GetAllOrders } from "@/services/api";
 import { Order } from "@/services/api/order-management/order.types";
 import {
-  convertToNaira,
+  formatKobo,
   formatLocalDate,
   formatStatusLabel,
   formatStringAmount,
@@ -239,7 +239,7 @@ const OrderManagement = () => {
         </Table.Td>
 
         <Table.Td>
-          ₦ {formatStringAmount(convertToNaira(data?.orderAmount) || "0.00")}
+          {formatKobo(data?.orderAmount)}
         </Table.Td>
 
         <Table.Td>{data?.receiver?.email || "N/A"}</Table.Td>
@@ -260,7 +260,7 @@ const OrderManagement = () => {
                   {data?.items?.[0]?.name || "-"}
                 </Text>
                 <Text fz={13} c="#FFFFFF80">
-                  ₦ {formatStringAmount(data?.items?.[0]?.price || "0.00")}
+                  {formatMoney(data?.items?.[0]?.price, "NGN")}
                 </Text>
               </Flex>
             </Flex>
@@ -303,7 +303,6 @@ const OrderManagement = () => {
                 <StatusBadge
                   status={badgeStatus}
                   px={0}
-                  useAltColor
                   hasDropdown
                   fullWidth
                 />
@@ -326,7 +325,7 @@ const OrderManagement = () => {
                       handleOpenStatusModal(data, status);
                     }}
                   >
-                    <StatusBadge status={status} useAltColor hasDot />
+                    <StatusBadge status={status} hasDot />
                   </Menu.Item>
 
                   {index !== orderStatuses.length - 1 && (

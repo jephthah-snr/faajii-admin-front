@@ -19,9 +19,8 @@ import { GetPublication } from "@/services/api";
 import type {
   PublicationChannel,
   PublicationSelectionReason,
-  PublicationStatus,
 } from "@/services/api/publications/publication.types";
-import { PpTable, StatBar } from "@/components";
+import { PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatCount,
@@ -35,14 +34,6 @@ import {
 } from "@/utils";
 import { IconNoUsers } from "@/config/icons";
 import { mockPublicationDetail } from "@/mocks";
-
-const statusColor: Record<PublicationStatus, string> = {
-  pending_payment: "yellow",
-  paid: "blue",
-  sending: "grape",
-  completed: "teal",
-  failed: "red",
-};
 
 const channelLabel: Record<PublicationChannel, string> = {
   push: "Push",
@@ -147,9 +138,7 @@ export default function EventReachDetailPage() {
                     <Badge variant="light">
                       {channelLabel[campaign.channel]}
                     </Badge>
-                    <Badge variant="light" color={statusColor[campaign.status]}>
-                      {formatStatusLabel(campaign.status)}
-                    </Badge>
+                    <StatusBadge status={campaign.status} />
                     {campaign.countryCode && (
                       <Badge variant="light">{campaign.countryCode}</Badge>
                     )}

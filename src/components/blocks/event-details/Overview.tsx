@@ -3,6 +3,7 @@
 import {
   EventDetailsSkeleton,
   FormatDate,
+  StatusBadge,
   SummaryItem,
 } from "@/components/elements";
 import EmptyState from "../empty-state";
@@ -10,7 +11,8 @@ import EventSponsors from "./Sponsors";
 import { IconChevronDown, IconLink, IconVendors } from "@/config/icons";
 import { NoImageP } from "@/images";
 import { EventDetails } from "@/services/api/event/event.types";
-import { formatStringAmount, getStatusColor, initialsColors } from "@/utils";
+import { formatMoney, initialsColors } from "@/utils";
+import { useEventCurrency } from "@/hooks";
 import {
   Avatar,
   BackgroundImage,
@@ -72,6 +74,7 @@ const EventOverview = ({
   eventId,
 }: EventOverviewProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const eventCurrency = useEventCurrency(eventId);
   const [visibility, setVisibility] = useState(eventData?.visibility);
 
   const handleVisibilityChange = async (next: string) => {
@@ -114,20 +117,7 @@ const EventOverview = ({
                   {eventData?.name || "Untitled event"}
                 </Text>
                 <Group gap={8}>
-                  <Badge
-                    variant="light"
-                    radius="sm"
-                    tt="capitalize"
-                    styles={{
-                      root: {
-                        color: getStatusColor(
-                          eventData?.status?.toLowerCase() || "",
-                        ),
-                      },
-                    }}
-                  >
-                    {eventData?.status || "Unknown"}
-                  </Badge>
+                  <StatusBadge status={eventData?.status} />
                   <Text fz={12} c="var(--fj-text-muted)" ff="monospace">
                     #{eventData?.eventId}
                   </Text>
@@ -211,7 +201,7 @@ const EventOverview = ({
               />
               <SummaryItem
                 label="Estimated budget"
-                value={`₦${formatStringAmount(eventData?.eventBudget || 0.0)}`}
+                value={formatMoney(eventData?.eventBudget, eventCurrency)}
               />
               <SummaryItem
                 label="Creator"

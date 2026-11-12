@@ -1,9 +1,10 @@
 "use client";
 
-import { Avatar, Badge, Group, Stack, Table, Text } from "@mantine/core";
+import StatusBadge from "@/components/elements/status-badge";
+
+import { Avatar, Group, Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventPromotions } from "@/services/api";
-import type { PromotionStatus } from "@/services/api/promoters/promoter.types";
 import PpTable from "../table";
 import StatBar from "../stat-bar";
 import {
@@ -12,21 +13,11 @@ import {
   formatCount,
   formatFcfa,
   formatDateTime,
-  formatStatusLabel,
   isEndpointUnavailable,
   promotionEmptyState,
   retryUnlessUnavailable,
 } from "@/utils";
 import { mockEventPromotions } from "@/mocks";
-
-const statusColor: Record<PromotionStatus, string> = {
-  pending: "gray",
-  offered: "orange",
-  active: "teal",
-  declined: "red",
-  cancelled: "red",
-  expired: "dark",
-};
 
 const tableHeaders = [
   "Promoter",
@@ -99,9 +90,7 @@ const Promoters = ({ eventId }: { eventId: string }) => {
           </Group>
         </Table.Td>
         <Table.Td>
-          <Badge variant="light" color={statusColor[promotion.status]}>
-            {formatStatusLabel(promotion.status)}
-          </Badge>
+          <StatusBadge status={promotion.status} />
         </Table.Td>
         <Table.Td>{commission || "Not offered yet"}</Table.Td>
         <Table.Td ff="monospace" fz="sm">

@@ -90,7 +90,6 @@ const SummaryCard = ({
 
         <Flex align="flex-end" justify="space-between" gap={8}>
           <Text c="var(--fj-text-primary)" fw={700} fz={28} lh={1.1}>
-            {isCurrency ? "₦" : ""}
             {value?.toLocaleString() ?? 0}
           </Text>
 
