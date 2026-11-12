@@ -477,6 +477,22 @@
   &:hover {
     background: var(--fj-surface);
   }
+
+  /* Drag feedback. The tones arrive as variables from the status palette, so
+     an accepted file reads exactly like a "Confirmed" badge. */
+  &[data-accept] {
+    background: var(--dropzone-accept-bg);
+    border-color: var(--dropzone-accept-bd);
+    border-style: solid;
+    color: var(--dropzone-accept-color);
+  }
+
+  &[data-reject] {
+    background: var(--dropzone-reject-bg);
+    border-color: var(--dropzone-reject-bd);
+    border-style: solid;
+    color: var(--dropzone-reject-color);
+  }
 }
 
 .ratingProgress {

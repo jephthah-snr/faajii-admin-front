@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   ActionIcon,
+  alpha,
   Box,
   Button,
   Drawer,
@@ -17,7 +18,7 @@ import { notifications } from "@mantine/notifications";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ImportEventGuestsCsv } from "@/services/api";
 import { ImportGuestsCsvResult } from "@/services/api/event/event.types";
-import { getApiErrorMessage } from "@/utils";
+import { getApiErrorMessage, STATUS_PALETTE } from "@/utils";
 import { IconClose, IconDocument, IconUpload } from "@/config/icons";
 import classes from "@/styles/General.module.css";
 import PpTable from "../table";
@@ -30,6 +31,17 @@ const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const CSV_MIME_TYPES = [MIME_TYPES.csv, "application/vnd.ms-excel"];
 
 const issueHeaders = ["Row", "Email", "Outcome", "Reason"];
+
+// Same tint and border strengths as StatusBadge, so a valid drag reads as
+// "Confirmed" and an invalid one as "Failed".
+const dropzoneTones = {
+  "--dropzone-accept-bg": alpha(STATUS_PALETTE.success, 0.14),
+  "--dropzone-accept-bd": alpha(STATUS_PALETTE.success, 0.32),
+  "--dropzone-accept-color": STATUS_PALETTE.success,
+  "--dropzone-reject-bg": alpha(STATUS_PALETTE.danger, 0.14),
+  "--dropzone-reject-bd": alpha(STATUS_PALETTE.danger, 0.32),
+  "--dropzone-reject-color": STATUS_PALETTE.danger,
+} as React.CSSProperties;
 
 interface ImportGuestsDrawerProps {
   opened: boolean;
@@ -209,13 +221,26 @@ const ImportGuestsDrawer = ({
               maxSize={MAX_FILE_SIZE}
               multiple={false}
               classNames={{ root: classes.dropzoneRoot }}
+              style={dropzoneTones}
             >
               <Flex direction="column" align="center" gap={8} py={30}>
                 <IconUpload size={32} color="currentColor" variant="Linear" />
-                <Text fz="sm">Drag a CSV here or click to browse</Text>
-                <Text fz="xs" c="var(--fj-text-muted)">
-                  .csv only, up to 50 MB
-                </Text>
+                <Dropzone.Accept>
+                  <Text fz="sm" fw={500} c="inherit">
+                    Drop file here
+                  </Text>
+                </Dropzone.Accept>
+                <Dropzone.Reject>
+                  <Text fz="sm" fw={500} c="inherit">
+                    Only a single .csv file can be uploaded
+                  </Text>
+                </Dropzone.Reject>
+                <Dropzone.Idle>
+                  <Text fz="sm">Drag a CSV here or click to browse</Text>
+                  <Text fz="xs" c="var(--fj-text-muted)">
+                    .csv only, up to 50 MB
+                  </Text>
+                </Dropzone.Idle>
               </Flex>
             </Dropzone>
           )}
