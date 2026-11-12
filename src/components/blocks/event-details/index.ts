@@ -11,3 +11,4 @@ export { default as EventDiscountCodes } from "./DiscountCodes";
 export { default as EventWallet } from "./Wallet";
 export { default as EventPromoters } from "./Promoters";
 export { default as EventReach } from "./Reach";
+export { default as ImportGuestsDrawer } from "./ImportGuestsDrawer";
