@@ -2,6 +2,7 @@
 
 import {
   Badge,
+  Button,
   Group,
   Stack,
   Table,
@@ -31,6 +32,7 @@ import {
   EventTasks,
   EventWallet,
   FaajiiStore,
+  ImportGuestsDrawer,
   PpTable,
   StatBar,
 } from "@/components";
@@ -39,7 +41,9 @@ import {
   formatMoney,
   transactionEmptyState,
 } from "@/utils";
-import { IconNoTickets, IconNoUsers } from "@/config/icons";
+import { IconNoTickets, IconNoUsers, IconUpload } from "@/config/icons";
+import { useDisclosure } from "@mantine/hooks";
+import classes from "@/styles/General.module.css";
 import { useMemo, useState } from "react";
 
 const guestHeaders = [
@@ -90,6 +94,8 @@ export default function EventDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const [partyStoreFilter, setPartyStoreFilter] = useState("All");
   const [partyStoreSearch, setPartyStoreSearch] = useState("");
+  const [importOpened, { open: openImport, close: closeImport }] =
+    useDisclosure(false);
 
   const overviewQuery = useQuery({
     queryKey: ["admin-event-overview", id],
@@ -316,7 +322,21 @@ export default function EventDetailsPage() {
             ]}
           />
 
-          <Text fw={700} fz="lg" mb="sm">Guest directory</Text>
+          <Group justify="space-between" mb="sm">
+            <Text fw={700} fz="lg">Guest directory</Text>
+            <Button
+              h={38}
+              px={14}
+              radius="md"
+              className={classes.btnWhite}
+              leftSection={
+                <IconUpload size={18} color="currentColor" variant="Linear" />
+              }
+              onClick={openImport}
+            >
+              Import guests
+            </Button>
+          </Group>
           <PpTable
             headers={guestHeaders}
             rowData={guestRows}
@@ -405,6 +425,12 @@ export default function EventDetailsPage() {
           />
         </Tabs.Panel>
       </Tabs>
+
+      <ImportGuestsDrawer
+        opened={importOpened}
+        close={closeImport}
+        eventId={id}
+      />
     </AppLayout>
   );
 }

@@ -11,6 +11,8 @@ import {
   EventTrxDetails,
   Guest,
   GuestDetails,
+  ImportGuestsCsvPayload,
+  ImportGuestsCsvResult,
   IWishlist,
   Store,
   StoreDetails,
@@ -113,6 +115,24 @@ export const DeleteEvent = async (id: string): Promise<any> => {
     throw err;
   }
 };
+
+/**
+ * Bulk-invites guests from a CSV (name, email, optional phone). Rows are
+ * imported one by one, so a 200 can still carry skipped and failed rows.
+ */
+export async function ImportEventGuestsCsv({
+  file,
+  eventId,
+  sendInviteEmails,
+}: ImportGuestsCsvPayload): Promise<ApiResponse<ImportGuestsCsvResult>> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("eventId", eventId);
+  formData.append("sendInviteEmails", String(sendInviteEmails));
+
+  const response = await axios.post("/tooling/guests/import-csv", formData);
+  return response.data;
+}
 
 export async function GetAdminEventGuests(
   id: string,
