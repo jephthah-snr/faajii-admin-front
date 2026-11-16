@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import {
   Badge,
   Box,
@@ -231,10 +232,12 @@ export default function PurchasesPage() {
                   <SimpleGrid cols={{ base: 1, sm: 2 }}>
                     <Fact
                       label="Checkout reference"
+                      copyable
                       value={purchase.reference}
                     />
                     <Fact
                       label="Provider reference"
+                      copyable={Boolean(purchase.paymentProviderReference)}
                       value={
                         purchase.paymentProviderReference || "Not recorded"
                       }
@@ -340,6 +343,7 @@ export default function PurchasesPage() {
                   <SimpleGrid cols={{ base: 1, sm: 2 }}>
                     <Fact
                       label="Credit reference"
+                      copyable
                       value={purchase.walletCredit.reference}
                     />
                     <Fact
@@ -389,15 +393,26 @@ function Evidence({ label, ok }: { label: string; ok: boolean }) {
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({
+  label,
+  value,
+  copyable = false,
+}: {
+  label: string;
+  value: string;
+  copyable?: boolean;
+}) {
   return (
     <div>
       <Text fz="xs" c="dimmed">
         {label}
       </Text>
-      <Text fw={600} style={{ overflowWrap: "anywhere" }}>
-        {value}
-      </Text>
+      <Group gap={2} wrap="nowrap" align="flex-start">
+        <Text fw={600} style={{ overflowWrap: "anywhere" }}>
+          {value}
+        </Text>
+        {copyable && <CopyIconButton value={value} />}
+      </Group>
     </div>
   );
 }

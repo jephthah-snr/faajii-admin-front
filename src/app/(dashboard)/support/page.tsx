@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import {
   Avatar,
   Badge,
@@ -311,9 +312,12 @@ export default function SupportPage() {
                   </Text>
                 </Stack>
               </Group>
-              <Text c="var(--fj-text-muted)" fz="xs" ff="monospace">
-                {detail.ref}
-              </Text>
+              <Group gap={2} wrap="nowrap">
+                <Text c="var(--fj-text-muted)" fz="xs" ff="monospace">
+                  {detail.ref}
+                </Text>
+                <CopyIconButton value={detail.ref} size={14} />
+              </Group>
             </Group>
 
             <Group gap="sm">

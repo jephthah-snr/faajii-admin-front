@@ -25,7 +25,7 @@ import { notifications } from "@mantine/notifications";
 import StatusBadge from "../status-badge";
 import FormatDate from "../format-date";
 import { IconCopy } from "@/config/icons";
-import { formatMoney } from "@/utils";
+import { formatMoney, fromMinorUnits } from "@/utils";
 import {
   PaymentTracking,
   SERVICE_ID_LABELS,
@@ -211,7 +211,10 @@ const PaymentTrackingModal = ({
   const formatAmount = (amount?: number) => {
     if (!amount && amount !== 0) return "N/A";
     // Stored in minor units, in the payment's own currency.
-    return formatMoney(amount / 100, payment.currency);
+    return formatMoney(
+      fromMinorUnits(amount, payment.currency),
+      payment.currency,
+    );
   };
 
   const metadata = payment.metadata;
@@ -821,7 +824,11 @@ const PaymentTrackingModal = ({
                             </Flex>
                             <GridItem label="Email" value={guest.email} dark />
                             <GridItem label="Phone" value={guest.phone} dark />
-                            <GridItem label="Ref" value={guest.ref} dark />
+                            <GridItem
+                              label="Ref"
+                              value={<CopyableValue value={guest.ref} />}
+                              dark
+                            />
                           </Box>
                         ),
                       )}

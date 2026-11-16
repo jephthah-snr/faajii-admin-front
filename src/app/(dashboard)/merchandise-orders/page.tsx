@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import StatusBadge from "@/components/elements/status-badge";
 import MobileRow from "@/components/blocks/table/MobileRow";
 
@@ -44,7 +45,7 @@ export default function MerchandiseOrdersPage() {
       </Table.ScrollContainer>
     </Stack>
     <Drawer opened={selectedId != null} onClose={() => setSelectedId(null)} title="Merchandise order" position="right" size="lg">
-      {detail ? <Stack><Title order={4}>{detail.orderReference}</Title><Text><b>Event:</b> {detail.eventName}</Text><Text><b>Checkout:</b> {detail.checkoutReference}</Text><Text><b>Buyer:</b> {detail.buyer.name} · {detail.buyer.email}</Text><Text><b>Payment phone:</b> {detail.buyer.paymentPhone || '—'}</Text><Text><b>Delivery:</b> {detail.buyer.deliveryPhone}<br/>{detail.buyer.deliveryAddress}</Text><StatusBadge status={detail.status} /><Title order={5}>Items</Title>{detail.items.map(item => <Group key={item.id} justify="space-between"><Text>{item.quantity} × {item.name}</Text><Text>{formatMoney(item.lineTotal, detail.currency)}</Text></Group>)}</Stack> : <Text>Loading order…</Text>}
+      {detail ? <Stack><Group gap={4}><Title order={4}>{detail.orderReference}</Title><CopyIconButton value={detail.orderReference}/></Group><Text><b>Event:</b> {detail.eventName}</Text><Group gap={4}><Text><b>Checkout:</b> {detail.checkoutReference}</Text><CopyIconButton value={detail.checkoutReference}/></Group><Text><b>Buyer:</b> {detail.buyer.name} · {detail.buyer.email}</Text><Text><b>Payment phone:</b> {detail.buyer.paymentPhone || '—'}</Text><Text><b>Delivery:</b> {detail.buyer.deliveryPhone}<br/>{detail.buyer.deliveryAddress}</Text><StatusBadge status={detail.status} /><Title order={5}>Items</Title>{detail.items.map(item => <Group key={item.id} justify="space-between"><Text>{item.quantity} × {item.name}</Text><Text>{formatMoney(item.lineTotal, detail.currency)}</Text></Group>)}</Stack> : <Text>Loading order…</Text>}
     </Drawer>
   </AppLayout>;
 }

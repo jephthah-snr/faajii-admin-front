@@ -19,6 +19,7 @@ import {
   buildDefaultFilters,
   formatMoney,
   formatStringAmount,
+  fromMinorUnits,
   isEndpointUnavailable,
   paymentTrackingEmptyState,
   paymentTrackingFilters,
@@ -99,7 +100,7 @@ const PaymentTrackingPage = () => {
   // Tracked amounts are stored in minor units, in the payment's currency.
   const formatAmount = (amount?: number, currency?: string) => {
     if (!amount) return "N/A";
-    return formatMoney(amount / 100, currency);
+    return formatMoney(fromMinorUnits(amount, currency), currency);
   };
 
   const handleDownloadCSV = async () => {
@@ -153,9 +154,21 @@ const PaymentTrackingPage = () => {
           `${data.accountNumber} - ${data.bankName}`,
           data.bankName || "N/A",
           SERVICE_ID_LABELS[data.serviceId || ""] || data.serviceId || "N/A",
-          formatStringAmount(expectedAmount),
-          formatStringAmount(feeAmount),
-          formatStringAmount(actualAmount),
+          formatStringAmount(
+            expectedAmount == null
+              ? expectedAmount
+              : fromMinorUnits(expectedAmount, data.currency),
+          ),
+          formatStringAmount(
+            feeAmount == null
+              ? feeAmount
+              : fromMinorUnits(feeAmount, data.currency),
+          ),
+          formatStringAmount(
+            actualAmount == null
+              ? actualAmount
+              : fromMinorUnits(actualAmount, data.currency),
+          ),
           data.status || "N/A",
           data.created_at || "N/A",
         ];

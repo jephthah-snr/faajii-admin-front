@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "../../elements/button/CopyIconButton";
 import {
   EventDetailsSkeleton,
   FormatDate,
@@ -118,9 +119,12 @@ const EventOverview = ({
                 </Text>
                 <Group gap={8}>
                   <StatusBadge status={eventData?.status} />
-                  <Text fz={12} c="var(--fj-text-muted)" ff="monospace">
-                    #{eventData?.eventId}
-                  </Text>
+                  <Group gap={2}>
+                    <Text fz={12} c="var(--fj-text-muted)" ff="monospace">
+                      #{eventData?.eventId}
+                    </Text>
+                    <CopyIconButton value={eventData?.eventId} size={14} />
+                  </Group>
                 </Group>
               </Stack>
 

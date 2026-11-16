@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import { EditEventGuestDetails, GetEventGuestDetails } from "@/services/api";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -91,7 +92,14 @@ const GuestDetailsModal = ({
                     </Flex>
                     <SummaryItem
                       label="RSVP Code"
-                      value={guestDetails?.rsvp?.reference || "N/A"}
+                      value={
+                        <Flex align="center" gap={4}>
+                          <Text fw={600} fz={16}>
+                            {guestDetails?.rsvp?.reference || "N/A"}
+                          </Text>
+                          <CopyIconButton value={guestDetails?.rsvp?.reference} />
+                        </Flex>
+                      }
                       fz={16}
                     />
 

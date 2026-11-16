@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import { Order } from "@/services/api/order-management/order.types";
 import {
   Button,
@@ -139,9 +140,12 @@ const OrderStatusModal = ({
         title={
           <Flex justify="space-between" px="sm">
             <Flex direction="column" align="flex-start">
-              <Text fz={18} fw={700}>
-                {`Reference #${order?.reference}`}
-              </Text>
+              <Flex align="center" gap={4}>
+                <Text fz={18} fw={700}>
+                  {`Reference #${order?.reference}`}
+                </Text>
+                <CopyIconButton value={order?.reference} />
+              </Flex>
 
               <Link
                 target="_blank"

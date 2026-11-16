@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import {
   Anchor,
   Badge,
@@ -195,9 +196,12 @@ export default function EventReachDetailPage() {
                 </Stack>
 
                 <Stack gap={2} align="flex-end">
-                  <Text c="var(--fj-text-muted)" fz="xs" ff="monospace">
-                    {campaign.reference}
-                  </Text>
+                  <Group gap={2}>
+                    <Text c="var(--fj-text-muted)" fz="xs" ff="monospace">
+                      {campaign.reference}
+                    </Text>
+                    <CopyIconButton value={campaign.reference} size={14} />
+                  </Group>
                   <Text c="var(--fj-text-muted)" fz="xs">
                     Paid {formatDateTime(campaign.paidAt, "not yet")}
                   </Text>

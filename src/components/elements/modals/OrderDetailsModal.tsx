@@ -1,5 +1,6 @@
 "use client";
 
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import { Box, Divider, Drawer, Flex, Loader, Menu, Text } from "@mantine/core";
 import SummaryItem from "../summary-item";
 import StatusBadge from "../status-badge";
@@ -67,9 +68,12 @@ const OrderDetailsModal = ({
         size="md"
         title={
           <Flex direction="column" align="flex-start">
-            <Text c="#fff" fz={18} fw={500}>
-              {`Reference #${data?.reference}`}
-            </Text>
+            <Flex align="center" gap={4}>
+              <Text c="#fff" fz={18} fw={500}>
+                {`Reference #${data?.reference}`}
+              </Text>
+              <CopyIconButton value={data?.reference} />
+            </Flex>
 
             <Link
               target="_blank"

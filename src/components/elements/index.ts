@@ -21,6 +21,7 @@ export { default as CreateRoleModal } from "./modals/CreateRoleModal";
 
 export { default as FilterButton } from "./button/FilterButton";
 export { default as DownloadCsvButton } from "./button/DownloadCsvButton";
+export { default as CopyIconButton } from "./button/CopyIconButton";
 export { default as DateFilter } from "./date-filter";
 export { default as AuthAlert } from "./auth-alert";
 export { default as SummaryItem } from "./summary-item";

@@ -391,6 +391,7 @@ const Administrators = () => {
         <Tabs.Panel value={activeRole}>
           <TeamMemberTable
             data={rows}
+            mobileData={mobileRows}
             totalItems={totalItems}
             activePage={activePage}
             setActivePage={setActivePage}
@@ -409,6 +410,7 @@ export default Administrators;
 
 interface TeamMemberTableProps {
   data: any[];
+  mobileData?: React.ReactNode[];
   totalItems: number;
   activePage: number;
   setActivePage: (page: any) => void;
@@ -417,6 +419,7 @@ interface TeamMemberTableProps {
 
 const TeamMemberTable = ({
   data,
+  mobileData,
   totalItems,
   activePage,
   setActivePage,
@@ -427,6 +430,7 @@ const TeamMemberTable = ({
       <PpTable
         headers={tableHeaders}
         rowData={data}
+        mobileRows={mobileData}
         totalItems={totalItems}
         activePage={activePage}
         setActivePage={setActivePage}
@@ -436,18 +440,6 @@ const TeamMemberTable = ({
         mt={-10}
       />
 
-      {/* <PpTable
-        headers={tableHeaders}
-        rowData={rows}
-        mobileRows={mobileRows}
-        totalItems={totalItems}
-        activePage={activePage}
-        setActivePage={setActivePage}
-        isLoading={isFetchingAdmins}
-        rowsPerPage={rowsPerPage}
-        addOnStyle="noRowBorders"
-        mt={20}
-      /> */}
     </>
   );
 };

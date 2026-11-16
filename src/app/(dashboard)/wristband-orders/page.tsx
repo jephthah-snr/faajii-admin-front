@@ -32,6 +32,7 @@ import type {
   WristbandOrderStatus,
   WristbandPaymentState,
 } from '@/services/api/wristbands/wristband.types';
+import CopyIconButton from "@/components/elements/button/CopyIconButton";
 import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
@@ -225,10 +226,10 @@ export default function WristbandOrdersPage() {
         emptyState={wristbandEmptyState}
       />
 
-      <Drawer opened={selected != null} onClose={() => setSelected(null)} position="right" size="xl" title={detail ? `Order ${detail.reference}` : 'Wristband order'}>
+      <Drawer opened={selected != null} onClose={() => setSelected(null)} position="right" size="xl" title={detail ? <Group gap={4}>Order {detail.reference}<CopyIconButton value={detail.reference}/></Group> : 'Wristband order'}>
         {detailQuery.isLoading ? <Text>Loading order…</Text> : detail ? <Stack gap="lg">
           <SimpleGrid cols={2}><Card><Text c="var(--fj-text-muted)" fz="xs">Payment</Text><StatusBadge status={detail.paymentState} /><Text mt="xs">{formatMoney(detail.amount, detail.currency)}</Text></Card><Card><Text c="var(--fj-text-muted)" fz="xs">Fulfillment</Text><StatusBadge status={detail.status} /><Text mt="xs">{detail.totalQuantity} bands</Text></Card></SimpleGrid>
-          <Card><Text fw={700}>Customer and event</Text><Text mt="sm">{detail.customerName} · {detail.customerEmail}</Text><Text>{detail.eventName} · {detail.eventRef}</Text><Text c="var(--fj-text-muted)" fz="sm">Provider reference: {detail.paymentProviderRef || 'Not recorded'}</Text></Card>
+          <Card><Text fw={700}>Customer and event</Text><Text mt="sm">{detail.customerName} · {detail.customerEmail}</Text><Group gap={4}><Text>{detail.eventName} · {detail.eventRef}</Text><CopyIconButton value={detail.eventRef}/></Group><Group gap={4}><Text c="var(--fj-text-muted)" fz="sm">Provider reference: {detail.paymentProviderRef || 'Not recorded'}</Text><CopyIconButton value={detail.paymentProviderRef}/></Group></Card>
 
           <Card><Text fw={700} mb="sm">Order items</Text>{detail.items.map(item => <Group key={item.id} justify="space-between" py="xs"><div><Text fw={600}>{item.productName}</Text><Text c="var(--fj-text-muted)" fz="xs">{item.quantity} × {formatMoney(item.unitPrice, detail.currency)} · {item.color}</Text></div><Button component="a" href={item.designSourceUrl || item.designUrl} target="_blank" variant="light" size="xs">Artwork</Button></Group>)}</Card>
 

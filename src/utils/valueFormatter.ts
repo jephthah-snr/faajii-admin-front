@@ -61,6 +61,19 @@ const fractionDigits = (code: string): number => {
 };
 
 /**
+ * Converts a stored minor-unit amount into the major unit for its currency.
+ * Not always ÷100: naira and cedi have 2 decimals (kobo, pesewas), but XOF/XAF
+ * have none, so 7000 stored for XOF is 7,000 XOF — dividing it would show 70.
+ */
+export const fromMinorUnits = (
+  amount: number | string | null | undefined,
+  currency?: string | null,
+): number => {
+  const code = (currency || DEFAULT_CURRENCY).trim().toUpperCase();
+  return Number(amount) / 10 ** fractionDigits(code);
+};
+
+/**
  * The one money formatter. Mirrors the mobile app so both products print an
  * amount identically: "₦1,000.00" / "$25.00" with a prefix symbol, and every
  * other currency as the figure followed by its code — "25,000 XOF".
