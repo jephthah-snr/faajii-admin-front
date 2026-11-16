@@ -4,6 +4,7 @@ import {
   ChartSkeleton,
   EmptyState,
   FormatDate,
+  MobileRow,
   PpTable,
   SummaryCard,
   SummaryCardSkeleton,
@@ -214,6 +215,36 @@ const Dashboard = () => {
           <FormatDate data={data?.created_at} formatType="time" />
         </Table.Td>
       </Table.Tr>
+    );
+  });
+
+  const mobileRows = recentTransactions.map((data) => {
+    const isPvb = data?.reference?.startsWith("PVB");
+    const formattedAmount = isPvb
+      ? convertToNaira(data?.transactionAmount || 0)
+      : data?.transactionAmount;
+
+    return (
+      <MobileRow
+        key={data?.transactionId}
+        onClick={() => handleOpenModal(String(data.transactionId))}
+        title={data?.narration || "-"}
+        subtitle={data?.user?.name || "-"}
+        caption={<FormatDate data={data?.created_at} formatType="fullDate" />}
+        value={
+          <Text
+            fz={14}
+            fw={600}
+            c={
+              data?.direction === "CREDIT"
+                ? "var(--fj-success)"
+                : "var(--fj-danger)"
+            }
+          >
+            {formatMoney(formattedAmount, data?.currency)}
+          </Text>
+        }
+      />
     );
   });
 
@@ -528,6 +559,7 @@ const Dashboard = () => {
               <PpTable
                 headers={tableHeaders}
                 rowData={rows}
+                mobileRows={mobileRows}
                 totalItems={recentTransactions.length}
                 activePage={activePage}
                 setActivePage={setActivePage}

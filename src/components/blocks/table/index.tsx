@@ -9,6 +9,7 @@ import { FilterItem } from "@/utils";
 import { useDisclosure } from "@mantine/hooks";
 import TableToolbar from "../table-toolbar";
 import type { EmptyStateProps } from "../empty-state";
+import { MobileRowSkeleton } from "./MobileRow";
 
 interface PpTableProps extends BoxProps {
   headers?: string[];
@@ -34,6 +35,11 @@ interface PpTableProps extends BoxProps {
   emptyState?: Pick<EmptyStateProps, "title" | "description" | "icon">;
   /** Number of skeleton rows while loading. */
   skeletonRows?: number;
+  /**
+   * Compact rows (see `MobileRow`) shown instead of the table below `lg`.
+   * Without them the table falls back to horizontal scrolling.
+   */
+  mobileRows?: React.ReactNode[];
 }
 
 const PpTable = ({
@@ -57,9 +63,11 @@ const PpTable = ({
   searchPlaceholder = "Search",
   emptyState,
   skeletonRows = 8,
+  mobileRows,
   ...props
 }: PpTableProps) => {
   const [opened, { close }] = useDisclosure(false);
+  const hasMobileLayout = Boolean(mobileRows);
 
   return (
     <Box p={0} {...props}>
@@ -76,7 +84,16 @@ const PpTable = ({
       )}
 
       {isLoading ? (
-        <TableSkeleton rows={skeletonRows} columns={headers.length || 6} />
+        <>
+          <Box visibleFrom={hasMobileLayout ? "lg" : undefined}>
+            <TableSkeleton rows={skeletonRows} columns={headers.length || 6} />
+          </Box>
+          {hasMobileLayout && (
+            <Box hiddenFrom="lg">
+              <MobileRowSkeleton />
+            </Box>
+          )}
+        </>
       ) : rowData.length < 1 ? (
         <EmptyState
           title={emptyState?.title}
@@ -85,7 +102,16 @@ const PpTable = ({
         />
       ) : (
         <>
-          <Table.ScrollContainer minWidth={700}>
+          {hasMobileLayout && (
+            <Box hiddenFrom="lg" mb={20}>
+              {mobileRows}
+            </Box>
+          )}
+
+          <Table.ScrollContainer
+            minWidth={700}
+            visibleFrom={hasMobileLayout ? "lg" : undefined}
+          >
             <Table
               mb={20}
               classNames={{

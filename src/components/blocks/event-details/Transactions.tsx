@@ -8,6 +8,7 @@ import {
 } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import { Avatar, Box, Flex, Table, Text } from "@mantine/core";
 import { EventTransactionModal, FormatDate } from "@/components/elements";
 import { IconCredit, IconDebit } from "@/config/icons";
@@ -115,11 +116,31 @@ const EventTransactions = ({ id }: EventTransactionsProps) => {
     );
   });
 
+  const mobileRows = eventTransactions.map((data) => (
+    <MobileRow
+      key={data.id}
+      onClick={() => handleOpenModal(data)}
+      title={data.description || "N/A"}
+      subtitle={data.user?.name || "--"}
+      caption={<FormatDate data={data.created_at} formatType="fullDate" />}
+      value={
+        <Text
+          fz={14}
+          fw={600}
+          c={data.type === "credit" ? "var(--fj-success)" : "var(--fj-danger)"}
+        >
+          {formatMoney(data?.amount, data?.currency)}
+        </Text>
+      }
+    />
+  ));
+
   return (
     <>
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={activePage}
         setActivePage={setActivePage}

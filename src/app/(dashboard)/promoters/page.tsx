@@ -10,7 +10,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
 import { GetPromoterStatistics, GetPromoters } from "@/services/api";
 import { PromotionStatus } from "@/services/api/promoters/promoter.types";
-import { PpTable, StatBar } from "@/components";
+import { MobileRow, PpTable, StatBar } from "@/components";
 import {
   asList,
   formatCount,
@@ -127,6 +127,22 @@ export default function PromotersPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = promoters.map((promoter) => (
+    <MobileRow
+      key={promoter.id}
+      onClick={() => router.push(`/promoters/${promoter.id}`)}
+      leading={<Avatar size="md" src={promoter.avatar} name={promoter.name} />}
+      title={promoter.name}
+      subtitle={`${formatCount(promoter.activePromotions)} live · ${formatCount(
+        promoter.ticketsSold,
+      )} sold`}
+      value={formatFcfa(promoter.gross)}
+      status={
+        <StatusBadge status={promoter.isActive ? "Active" : "Off"} size="sm" />
+      }
+    />
+  ));
+
   return (
     <AppLayout
       title="Promoters"
@@ -164,6 +180,7 @@ export default function PromotersPage() {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={page}
           setActivePage={setPage}

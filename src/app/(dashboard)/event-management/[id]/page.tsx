@@ -21,6 +21,7 @@ import {
 } from "@/services/api";
 import { EventDetails } from "@/services/api/event/event.types";
 import {
+  MobileRow,
   EventCheckIns,
   EventCoPlanners,
   EventBudget,
@@ -295,6 +296,51 @@ export default function EventDetailsPage() {
     </Table.Tr>
   ));
 
+  const guestMobileRows = filteredGuests.map((guest) => {
+    const held = ticketsByGuest.get(guest.id);
+    return (
+      <MobileRow
+        key={guest.id}
+        title={guest.name}
+        subtitle={guest.email || guest.phone || "No contact"}
+        caption={
+          held
+            ? `${held.count} ticket${held.count === 1 ? "" : "s"}`
+            : "No ticket"
+        }
+        status={<StatusBadge status={guest.status} size="sm" />}
+      />
+    );
+  });
+
+  const ticketMobileRows = tickets.map((ticket) => (
+    <MobileRow
+      key={ticket.id}
+      title={ticket.guest.name}
+      subtitle={ticket.ticket.name}
+      caption={ticket.ticketRef}
+      value={formatMoney(ticket.ticket.price, ticket.ticket.currency)}
+      status={
+        <StatusBadge
+          size="sm"
+          status={ticket.status}
+          label={ticket.status === "used" ? "Checked in" : undefined}
+        />
+      }
+    />
+  ));
+
+  const transactionMobileRows = transactions.map((transaction) => (
+    <MobileRow
+      key={transaction.id}
+      title={transaction.buyer?.name || "Guest checkout"}
+      subtitle={transaction.reference}
+      caption={formatDate(transaction.createdAt)}
+      value={formatMoney(transaction.amount, transaction.currency)}
+      status={<StatusBadge status={transaction.status} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Event details"
@@ -365,6 +411,7 @@ export default function EventDetailsPage() {
           <PpTable
             headers={guestHeaders}
             rowData={guestRows}
+            mobileRows={guestMobileRows}
             showPagination={false}
             isLoading={guestsQuery.isFetching}
             emptyState={isGuestListFiltered ? searchEmptyState : guestEmptyState}
@@ -403,6 +450,7 @@ export default function EventDetailsPage() {
           <PpTable
             headers={ticketHeaders}
             rowData={ticketRows}
+            mobileRows={ticketMobileRows}
             showPagination={false}
             isLoading={ticketsQuery.isFetching}
             emptyState={ticketEmptyState}
@@ -446,6 +494,7 @@ export default function EventDetailsPage() {
           <PpTable
             headers={transactionHeaders}
             rowData={transactionRows}
+            mobileRows={transactionMobileRows}
             showPagination={false}
             isLoading={transactionsQuery.isFetching}
             emptyState={transactionEmptyState}

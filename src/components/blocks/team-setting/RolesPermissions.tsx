@@ -9,7 +9,9 @@ import {
   Loader,
   rem,
   ScrollArea,
+  Select,
   Table,
+  Text,
   TextInput,
 } from "@mantine/core";
 import inputClasses from "@/styles/Input.module.css";
@@ -67,10 +69,16 @@ const RolesPermissions = () => {
     [permissionsData, isSample],
   );
 
+  // Role shown in the small-screen layout; falls back to the first role.
+  const [mobileRoleId, setMobileRoleId] = useState<string | null>(null);
+
   // Build permission state: { [permissionKey]: { [roleId]: boolean } }
   const [permissionsState, setPermissionsState] = useState<
     Record<string, Record<number, boolean>>
   >({});
+
+  const activeRole =
+    roles.find((role) => String(role.id) === mobileRoleId) ?? roles[0];
 
   // Initialize permissions state from fetched roles
   useEffect(() => {
@@ -195,7 +203,57 @@ const RolesPermissions = () => {
             <Loader size="sm" />
           </Flex>
         ) : (
-          <ScrollArea mt={20} pb={20}>
+          <>
+          {/* Small screens: one role at a time instead of a role-per-column grid */}
+          <Box hiddenFrom="lg" mt={20}>
+            <Select
+              label="Role"
+              data={roles.map((role) => ({
+                value: String(role.id),
+                label: role.name,
+              }))}
+              value={String(activeRole?.id ?? "")}
+              onChange={(value) => setMobileRoleId(value)}
+              allowDeselect={false}
+              mb="md"
+            />
+            {activeRole &&
+              permissionGroups.map((group) => (
+                <Box key={group.category} mb="md">
+                  <Text fz={12} fw={600} c="dimmed" tt="uppercase" mb={4}>
+                    {group.category}
+                  </Text>
+                  {group.permissions.map((perm) => (
+                    <Flex
+                      key={perm.key}
+                      align="center"
+                      justify="space-between"
+                      gap={12}
+                      py={10}
+                      className={classes.mobileRow}
+                    >
+                      <Text fz={14}>{perm.label}</Text>
+                      <Checkbox
+                        checked={
+                          permissionsState[perm.key]?.[activeRole.id] || false
+                        }
+                        onChange={(e) =>
+                          handlePermissionChange(
+                            perm.key,
+                            activeRole.id,
+                            e.currentTarget.checked,
+                          )
+                        }
+                        classNames={{ input: inputClasses.roleCheckboxInput }}
+                        iconColor="dark.8"
+                      />
+                    </Flex>
+                  ))}
+                </Box>
+              ))}
+          </Box>
+
+          <ScrollArea mt={20} pb={20} visibleFrom="lg">
             <Table
               c="white"
               style={{ minWidth: 800, borderCollapse: "separate" }}
@@ -303,6 +361,7 @@ const RolesPermissions = () => {
               </Table.Tbody>
             </Table>
           </ScrollArea>
+          </>
         )}
       </Box>
 

@@ -20,7 +20,7 @@ import type {
   PublicationChannel,
   PublicationSelectionReason,
 } from "@/services/api/publications/publication.types";
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatCount,
@@ -120,6 +120,38 @@ export default function EventReachDetailPage() {
       </Table.Td>
       <Table.Td>{formatDateTime(recipient.sentAt, "—")}</Table.Td>
     </Table.Tr>
+  ));
+
+  const recipientMobileRows = asList(detail?.recipients).map((recipient) => (
+    <MobileRow
+      key={recipient.id}
+      title={recipient.name || `User #${recipient.userId}`}
+      subtitle={recipient.email || "No email"}
+      caption={
+        recipient.failureReason ? (
+          <Text span c="#FF8787" fz={12}>
+            {recipient.failureReason}
+          </Text>
+        ) : (
+          formatDateTime(recipient.sentAt, "—")
+        )
+      }
+      status={
+        <Badge
+          variant="light"
+          size="sm"
+          color={
+            recipient.status === "sent"
+              ? "teal"
+              : recipient.status === "failed"
+                ? "red"
+                : "gray"
+          }
+        >
+          {formatStatusLabel(recipient.status)}
+        </Badge>
+      }
+    />
   ));
 
   return (
@@ -312,6 +344,7 @@ export default function EventReachDetailPage() {
                 <PpTable
                   headers={recipientHeaders}
                   rowData={recipientRows}
+                  mobileRows={recipientMobileRows}
                   showPagination={false}
                   isLoading={detailQuery.isFetching && !isSample}
                   emptyState={recipientEmptyState}

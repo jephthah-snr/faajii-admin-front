@@ -18,6 +18,7 @@ import { IconMore, IconRefresh, IconSearch, IconSupport, IconTrash } from "@/con
 import { AddTeamMemberModal, StatusBadge } from "@/components/elements";
 import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import {
   asList,
   rowsPerPage,
@@ -261,6 +262,66 @@ const Administrators = () => {
     );
   });
 
+  const mobileRows = filteredAdmins?.map((data) => {
+    const fullName =
+      `${data?.firstName || ""} ${data?.lastName || ""}`.trim() || "-";
+
+    return (
+      <MobileRow
+        key={data?.id}
+        leading={<Avatar name={fullName} size="md" radius="xl" alt="avatar" />}
+        title={<span className="capitalize">{fullName}</span>}
+        subtitle={data?.email || data?.phoneNumber || "N/A"}
+        caption={data?.roleName || data?.adminRole || "Admin"}
+        status={
+          <StatusBadge
+            status={data?.isSuspended ? "Suspended" : "Active"}
+            size="sm"
+          />
+        }
+        trailing={
+          <Menu position="bottom-end">
+            <Menu.Target>
+              <ActionIcon variant="transparent" aria-label="More">
+                <IconMore size={18} color="currentColor" variant="Linear" />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Label>Change role</Menu.Label>
+              {roles.map((role) => (
+                <Menu.Item
+                  key={role.id}
+                  c="#CECECF"
+                  onClick={() =>
+                    changeRoleMutation.mutate({
+                      adminId: data.id,
+                      roleId: role.id,
+                    })
+                  }
+                >
+                  {role.name}
+                </Menu.Item>
+              ))}
+              <Menu.Divider />
+              <Menu.Item
+                c="#B99F2B"
+                onClick={() => suspendMutation.mutate(String(data.id))}
+              >
+                Suspend
+              </Menu.Item>
+              <Menu.Item
+                c="#A94A55"
+                onClick={() => deleteMutation.mutate(String(data.id))}
+              >
+                Remove User
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        }
+      />
+    );
+  });
+
   return (
     <Box>
       {/* Search + Add team member */}
@@ -378,6 +439,7 @@ const TeamMemberTable = ({
       {/* <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={activePage}
         setActivePage={setActivePage}

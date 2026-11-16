@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmationModal, PpTable, StatusBadge } from "@/components";
+import { MobileRow, ConfirmationModal, PpTable, StatusBadge } from "@/components";
 import { IconMore } from "@/config/icons";
 import { AppLayout } from "@/layout";
 import {
@@ -187,12 +187,63 @@ const UserManagement = () => {
     );
   });
 
+  const mobileRows = usersData?.map((data) => (
+    <MobileRow
+      key={data.ref}
+      onClick={() => router.push(`/user-management/${data.ref}`)}
+      leading={
+        <Avatar
+          size="md"
+          name={data?.name || "U"}
+          color="initials"
+          allowedInitialsColors={initialsColors}
+          src={data?.avatar}
+          alt="avatar"
+        />
+      }
+      title={<span className="capitalize">{data?.name || "N/A"}</span>}
+      subtitle={data?.email || data?.phoneNumber || "-"}
+      caption={`${data?.totalEvents || 0} events · ${data?.activeEvents || 0} active`}
+      status={<StatusBadge status={data?.status} size="sm" />}
+      trailing={
+        <Menu shadow="md">
+          <Menu.Target>
+            <ActionIcon variant="transparent" aria-label="More">
+              <IconMore size={18} color="currentColor" variant="Linear" />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              onClick={() => {
+                setSelectedUserId(String(data.id));
+                openSuspendModal();
+              }}
+            >
+              Suspend
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item
+              color="red"
+              onClick={() => {
+                setSelectedUserId(String(data.id));
+                openDeleteModal();
+              }}
+            >
+              Delete
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    />
+  ));
+
   return (
     <AppLayout title="User Management">
       <Box>
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={activePage}
           setActivePage={setActivePage}

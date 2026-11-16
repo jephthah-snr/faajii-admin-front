@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  MobileRow,
   ConfirmationModal,
   FormatDate,
   PpTable,
@@ -239,6 +240,40 @@ const RejectedVendors = () => {
     );
   });
 
+  const mobileRows = vendorsData?.map((data) => (
+    <MobileRow
+      key={data?.id}
+      onClick={() => router.push(`/vendor-management/rejected/${data?.id}`)}
+      leading={
+        <Avatar
+          size="md"
+          src={data?.avatar || undefined}
+          name={data?.name || "U"}
+          color="initials"
+          allowedInitialsColors={initialsColors}
+          alt="avatar"
+        />
+      }
+      title={<span className="capitalize">{data?.name || "N/A"}</span>}
+      subtitle={data?.title || "N/A"}
+      caption={<FormatDate data={data?.created_at} formatType="fullDate" />}
+      trailing={
+        <Menu shadow="md">
+          <Menu.Target>
+            <ActionIcon variant="transparent" aria-label="More">
+              <IconMore size={18} color="currentColor" variant="Linear" />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => openModal("approve", { vendorId: data.id })}>
+              Approve
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    />
+  ));
+
   return (
     <AppLayout title="Vendors" hasBackButton>
       <Flex direction="column" gap={20}>
@@ -252,7 +287,7 @@ const RejectedVendors = () => {
             my={10}
             py={10}
             gap={16}
-            className="sticky top-14 z-10"
+            className="sticky top-[calc(var(--app-header-height,72px)-1px)] z-20"
           >
             <Flex align="center" gap={16}>
               <Text c="#fff" fw={700} fz={16}>
@@ -282,6 +317,7 @@ const RejectedVendors = () => {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={rejectedVendorsCount}
           activePage={activePage}
           setActivePage={setActivePage}

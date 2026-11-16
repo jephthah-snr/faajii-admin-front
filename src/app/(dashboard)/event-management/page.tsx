@@ -3,6 +3,7 @@
 import {
   ConfirmationModal,
   FormatDate,
+  MobileRow,
   PpTable,
   StatusBadge,
 } from "@/components";
@@ -167,12 +168,39 @@ const EventManagement = () => {
     );
   });
 
+  const mobileRows = eventsData?.map((data) => (
+    <MobileRow
+      key={data.eventId}
+      onClick={() => router.push(`/event-management/${data.id}`)}
+      title={<span className="capitalize">{data?.name || "N/A"}</span>}
+      subtitle={data?.creatorName || "N/A"}
+      caption={<FormatDate data={data?.startDate} formatType="fullDate" />}
+      value={formatMoney(data?.eventBudget, data?.currency)}
+      status={<StatusBadge status={data?.status} size="sm" />}
+      trailing={
+        <Menu shadow="md">
+          <Menu.Target>
+            <ActionIcon variant="transparent" aria-label="More">
+              <IconMore size={18} color="currentColor" variant="Linear" />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => handleOpen(String(data.id))}>
+              Delete
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    />
+  ));
+
   return (
     <AppLayout title="Event Management">
       <Box>
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={activePage}
           setActivePage={setActivePage}

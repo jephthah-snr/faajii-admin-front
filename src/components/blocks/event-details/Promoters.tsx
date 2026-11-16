@@ -6,6 +6,7 @@ import { Avatar, Group, Stack, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GetEventPromotions } from "@/services/api";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import StatBar from "../stat-bar";
 import {
   asList,
@@ -104,6 +105,25 @@ const Promoters = ({ eventId }: { eventId: string }) => {
     );
   });
 
+  const mobileRows = promotions.map((promotion) => (
+    <MobileRow
+      key={promotion.id}
+      leading={
+        <Avatar
+          size="md"
+          src={promotion.promoter?.avatar}
+          name={promotion.promoter?.name || "Promoter"}
+        />
+      }
+      title={promotion.promoter?.name || "Promoter request"}
+      subtitle={`${formatCount(promotion.ticketsSold)} sold · ${formatFcfa(
+        promotion.earned,
+      )} earned`}
+      value={formatFcfa(promotion.gross)}
+      status={<StatusBadge status={promotion.status} size="sm" />}
+    />
+  ));
+
   return (
     <Stack gap="xl">
       <StatBar
@@ -130,6 +150,7 @@ const Promoters = ({ eventId }: { eventId: string }) => {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         showPagination={false}
         isLoading={isFetching && !isSample}
         emptyState={promotionEmptyState}

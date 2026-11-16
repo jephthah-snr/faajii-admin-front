@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  MobileRow,
   ConfirmationModal,
   FilterPill,
   FormatDate,
@@ -277,6 +278,44 @@ const VendorManagement = () => {
     </Table.Tr>
   ));
 
+  const mobileRows = vendorsData?.map((data) => (
+    <MobileRow
+      key={data?.id}
+      onClick={() => router.push(`/vendor-management/${data?.id}`)}
+      leading={
+        <Avatar
+          size="md"
+          src={data?.avatar || undefined}
+          name={data?.name || "U"}
+          color="initials"
+          allowedInitialsColors={initialsColors}
+          alt="avatar"
+        />
+      }
+      title={<span className="capitalize">{data?.name || "N/A"}</span>}
+      subtitle={data?.title || "N/A"}
+      caption={`${data?.ratingValue || 0}/5 rating`}
+      trailing={
+        <Menu shadow="md">
+          <Menu.Target>
+            <ActionIcon variant="transparent" aria-label="More">
+              <IconMore size={18} color="currentColor" variant="Linear" />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => openModal("suspend", { vendorId: data.id })}>
+              Suspend
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item onClick={() => openModal("delete", { vendorId: data.id })}>
+              Delete
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    />
+  ));
+
   return (
     <AppLayout title="Vendor Management">
       <Flex direction="column" gap={20}>
@@ -384,6 +423,7 @@ const VendorManagement = () => {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={activeVendorsCount}
           activePage={activePage}
           setActivePage={setActivePage}

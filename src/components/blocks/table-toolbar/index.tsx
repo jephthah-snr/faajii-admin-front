@@ -66,7 +66,6 @@ const TableToolbar = ({
       <Flex
         ref={stickyRef}
         className={`${classes.toolbar} ${isStuck ? classes.toolbarStuck : ""}`}
-        style={{ top: stickyOffset }}
       >
         <Flex align="center" gap={10} wrap="wrap">
           {isExpandable && (

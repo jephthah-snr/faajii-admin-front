@@ -22,6 +22,7 @@ import { getApiErrorMessage, STATUS_PALETTE } from "@/utils";
 import { IconClose, IconDocument, IconUpload } from "@/config/icons";
 import classes from "@/styles/General.module.css";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import StatBar from "../stat-bar";
 
 /** Matches the server's multer limit, so an oversize file fails before upload. */
@@ -120,6 +121,20 @@ const ImportGuestsDrawer = ({
     </Table.Tr>
   ));
 
+  const issueMobileRows = issues.map((issue) => (
+    <MobileRow
+      key={`${issue.outcome}-${issue.row}`}
+      title={issue.email || "N/A"}
+      subtitle={issue.reason}
+      caption={`Row ${issue.row}`}
+      status={
+        <Text fz="sm" c={issue.outcome === "Failed" ? "red" : "var(--fj-accent)"}>
+          {issue.outcome}
+        </Text>
+      }
+    />
+  ));
+
   return (
     <Drawer
       opened={opened}
@@ -145,6 +160,7 @@ const ImportGuestsDrawer = ({
               <PpTable
                 headers={issueHeaders}
                 rowData={issueRows}
+                mobileRows={issueMobileRows}
                 showPagination={false}
               />
             </Flex>

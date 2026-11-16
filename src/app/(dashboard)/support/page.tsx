@@ -31,6 +31,7 @@ import {
   SupportStatus,
 } from "@/services/api/support/support.types";
 import {
+  MobileRow,
   PpTable,
   StatBar,
   TableSkeleton,
@@ -215,6 +216,26 @@ export default function SupportPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = tickets.map((ticket) => (
+    <MobileRow
+      key={ticket.id}
+      onClick={() => openTicket(ticket.id)}
+      title={ticket.subject}
+      subtitle={ticket.userName || "Guest"}
+      caption={
+        ticket.assignedToName ? (
+          formatDateTime(ticket.lastMessageAt || ticket.created_at)
+        ) : (
+          <Text span c="#FF8787" fz={12}>
+            Unassigned
+          </Text>
+        )
+      }
+      status={<StatusBadge status={ticket.status} size="sm" />}
+      value={<StatusBadge status={ticket.priority} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Support"
@@ -244,6 +265,7 @@ export default function SupportPage() {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={page}
           setActivePage={setPage}

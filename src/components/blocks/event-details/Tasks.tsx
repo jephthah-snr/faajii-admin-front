@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GetEventTasks } from "@/services/api";
 import { TaskStatus } from "@/services/api/event-ops/event-ops.types";
 import PpTable from "../../blocks/table";
+import MobileRow from "../../blocks/table/MobileRow";
 import StatBar from "../../blocks/stat-bar";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
@@ -80,6 +81,16 @@ const Tasks = ({ eventId }: { eventId: string }) => {
 
   if (isFetching && !isSample) return <TableSkeleton />;
 
+  const mobileRows = tasks.map((task) => (
+    <MobileRow
+      key={task.id}
+      title={task.title}
+      subtitle={task.assigneeName || "Unassigned"}
+      caption={formatDateTime(task.deadline, "No deadline")}
+      status={<StatusBadge status={task.status} size="sm" />}
+    />
+  ));
+
   return (
     <Stack gap="xl">
       <StatBar
@@ -93,6 +104,7 @@ const Tasks = ({ eventId }: { eventId: string }) => {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         showPagination={false}
         isLoading={isFetching && !isSample}
         emptyState={taskEmptyState}

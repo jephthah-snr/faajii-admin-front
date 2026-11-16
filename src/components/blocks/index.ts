@@ -4,6 +4,7 @@ export { default as SummaryCard } from "./summary-card";
 export { default as StatTile } from "./stat-tile";
 export { default as StatBar } from "./stat-bar";
 export { default as PpTable } from "./table";
+export { default as MobileRow } from "./table/MobileRow";
 export { default as TableToolbar } from "./table-toolbar";
 export { default as EmptyState } from "./empty-state";
 export * from "./event-details";

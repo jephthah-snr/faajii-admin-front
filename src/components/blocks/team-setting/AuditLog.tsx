@@ -11,6 +11,7 @@ import {
   Text,
 } from "@mantine/core";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import { IconCheck, IconChevronDown, IconChevronUp } from "@/config/icons";
 import {
   asList,
@@ -168,6 +169,20 @@ const AuditLog = () => {
     setOpenedPicker(false);
   };
 
+  const mobileRows = auditData?.map((data) => (
+    <MobileRow
+      key={data?.id}
+      title={data?.action || "N/A"}
+      subtitle={data?.adminName || "-"}
+      caption={
+        data?.created_at
+          ? dayjs(data.created_at).format("DD/MM/YYYY; hh:mm A")
+          : "N/A"
+      }
+      status={<StatusBadge status={data?.adminRole} size="sm" />}
+    />
+  ));
+
   return (
     <Flex direction="column" gap={20}>
 
@@ -301,6 +316,7 @@ const AuditLog = () => {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={activePage}
         setActivePage={setActivePage}

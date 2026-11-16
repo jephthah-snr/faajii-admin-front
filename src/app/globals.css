@@ -29,7 +29,9 @@ body {
   background: var(--background) !important;
   color: var(--foreground) !important;
   font-family: var(--font-grotesk), system-ui, sans-serif;
-  overflow-x: hidden;
+  /* `clip`, not `hidden`: hidden on both html and body makes body a scroll
+     container, which silently disables every `position: sticky` below it. */
+  overflow-x: clip;
 }
 
 /* This hides the native scrollbar */

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  MobileRow,
   DateFilter,
   DownloadCsvButton,
   FormatDate,
@@ -340,6 +341,61 @@ const OrderManagement = () => {
     );
   });
 
+  const mobileRows = ordersData?.map((data) => {
+    const isConvertedToCash = data?.status === "Converted to Cash";
+    const badgeStatus = isConvertedToCash
+      ? data?.status
+      : formatStatusLabel(data?.deliveryStatus || "");
+
+    return (
+      <MobileRow
+        key={data?.id}
+        onClick={() => handleOpenModal(data)}
+        title={data?.receiver?.name || "-"}
+        subtitle={`#${data?.reference || "N/A"}`}
+        caption={<FormatDate data={data?.createdAt} formatType="fullDate" />}
+        value={formatKobo(data?.orderAmount)}
+        status={
+          <Menu position="bottom-end" disabled={isConvertedToCash}>
+            <Menu.Target>
+              <Flex
+                onClick={(e) => e.stopPropagation()}
+                align="center"
+                gap={2}
+                className="cursor-pointer"
+              >
+                <StatusBadge
+                  status={badgeStatus}
+                  size="sm"
+                  px={0}
+                  hasDropdown
+                />
+              </Flex>
+            </Menu.Target>
+
+            <Menu.Dropdown
+              bg="var(--fj-surface-elevated)"
+              style={{ border: "1px solid #1C1C1C", borderRadius: "12px" }}
+            >
+              {orderStatuses.map((status) => (
+                <Menu.Item
+                  key={status}
+                  ta="left"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenStatusModal(data, status);
+                  }}
+                >
+                  <StatusBadge status={status} hasDot />
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+        }
+      />
+    );
+  });
+
   return (
     <AppLayout title="Order Tracking">
       <Flex direction="column" gap={20}>
@@ -386,7 +442,7 @@ const OrderManagement = () => {
             gap={10}
             bg="var(--fj-bg)"
             py={10}
-            className="sticky top-14 z-10"
+            className="sticky top-[calc(var(--app-header-height,72px)-1px)] z-20"
             wrap="wrap"
           >
             <Flex align="center" gap={16} wrap="wrap">
@@ -421,6 +477,7 @@ const OrderManagement = () => {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={activePage}
           setActivePage={setActivePage}

@@ -603,6 +603,8 @@
 
 .toolbar {
   position: sticky;
+  /* Tuck 1px under the header so no gap shows while scrolling. */
+  top: calc(var(--app-header-height, 72px) - 1px);
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
@@ -617,4 +619,40 @@
    it — without it the sticky row and the table head merge into one block. */
 .toolbarStuck {
   border-bottom: 1px solid var(--fj-border);
+}
+
+/* ------------------------------------------------------------- Mobile rows */
+/* Compact stand-in for a table row below the `lg` breakpoint. */
+
+.mobileRow {
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--fj-border-subtle);
+  transition: background-color 120ms ease;
+
+  &:last-child {
+    border-bottom: 1px solid transparent;
+  }
+}
+
+.mobileRowClickable {
+  cursor: pointer;
+
+  &:active {
+    background: var(--fj-border-subtle);
+  }
+}
+
+.mobileRowDetails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background-color: var(--fj-surface-elevated);
+  border: 1px solid var(--fj-border-subtle);
+}
+
+.mobileRowActions > * {
+  flex: 1;
 }

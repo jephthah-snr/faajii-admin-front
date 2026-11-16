@@ -19,6 +19,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import inputClasses from "@/styles/Input.module.css";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
@@ -275,6 +276,39 @@ const EventGuests = ({
     }
   };
 
+  const guestMobileRows = guestsData?.map((guest, index) => (
+    <MobileRow
+      key={index}
+      onClick={() => handleOpenModal(String(guest?.id))}
+      title={<span className="capitalize">{guest?.name || "N/A"}</span>}
+      subtitle={guest?.email || guest?.phone || "N/A"}
+      caption={<FormatDate data={guest?.created_at} formatType="fullDate" />}
+      status={
+        <Text fz={13} c={getStatusColor(guest?.status?.toLowerCase())}>
+          {capitalizeString(guest?.status) || "N/A"}
+        </Text>
+      }
+      trailing={
+        <Menu shadow="md">
+          <Menu.Target>
+            <ActionIcon variant="transparent" aria-label="More">
+              <IconMore size={18} color="currentColor" variant="Linear" />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => handleResendRSVP(String(guest?.id))}>
+              Resend RSVP
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item onClick={() => confirmRemoveGuest(String(guest?.id))}>
+              Remove guest
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    />
+  ));
+
   return (
     <>
       {/* Filter & search */}
@@ -288,7 +322,7 @@ const EventGuests = ({
           py={10}
           wrap="wrap"
           bg="var(--fj-bg)"
-          className="sticky top-14 z-10"
+          className="sticky top-[calc(var(--app-header-height,72px)-1px)] z-20"
         >
           <Flex align="center" gap={16} wrap="wrap">
             <Card radius={6} p={10} h={40} bg="var(--fj-surface-card)">
@@ -412,6 +446,7 @@ const EventGuests = ({
       <PpTable
         headers={eventGuestHeaders}
         rowData={guestRows}
+        mobileRows={guestMobileRows}
         //totalItems={totalItems}
         //activePage={activePage}
         //setActivePage={setActivePage}

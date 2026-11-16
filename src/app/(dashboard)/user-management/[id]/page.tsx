@@ -18,6 +18,7 @@ import {
 } from "@mantine/core";
 import classes from "@/styles/General.module.css";
 import {
+  MobileRow,
   ConfirmationModal,
   EditUserModal,
   FormatDate,
@@ -456,6 +457,90 @@ const UserDetails = () => {
     );
   });
 
+  const eventsFilteredMobileRows = userFilteredEvents?.map((data, index) => (
+    <MobileRow
+      key={index}
+      title={data?.name || "N/A"}
+      subtitle={<FormatDate data={data?.startDate} formatType="fullDate" />}
+      caption={`${data?.invitedCount || 0} invited · ${data?.vendorsCount || 0} vendors`}
+      status={<StatusBadge status={data?.status} size="sm" />}
+    />
+  ));
+
+  const recentMobileRows = recentTransactions?.map((data) => (
+    <MobileRow
+      key={data.ref}
+      onClick={() => handleRecentTransaction(data.ref)}
+      title={data?.narration || "N/A"}
+      subtitle={`#${data?.transactionRef || "N/A"}`}
+      caption={<FormatDate data={data?.created_at} formatType="fullDate" />}
+      value={
+        <Text
+          fz={14}
+          fw={600}
+          c={
+            data?.direction === "CREDIT"
+              ? "var(--fj-success)"
+              : "var(--fj-danger)"
+          }
+        >
+          {formatMoney(data?.transactionAmount, data?.currency)}
+        </Text>
+      }
+      status={<StatusBadge status={data?.transactionStatus} size="sm" />}
+    />
+  ));
+
+  const profileEventsMobileRows = userEventsData?.map((data, index) => (
+    <MobileRow
+      key={index}
+      onClick={() => router.push(`/event-management/${data?.id}`)}
+      title={data?.name || "N/A"}
+      subtitle={<span className="capitalize">{data?.role || "N/A"}</span>}
+      caption={<FormatDate data={data?.startDate} formatType="fullDate" />}
+      value={formatMoney(data?.eventBudget, data?.currency)}
+      status={<StatusBadge status={data?.status} size="sm" />}
+    />
+  ));
+
+  const profileTransactionsMobileRows = userTransactions?.map((data) => (
+    <MobileRow
+      key={data.ref}
+      onClick={() => handleTransaction(data.ref)}
+      title={data?.narration || "N/A"}
+      subtitle={`#${data?.transactionRef || "N/A"}`}
+      caption={<FormatDate data={data?.created_at} formatType="fullDate" />}
+      value={
+        <Text
+          fz={14}
+          fw={600}
+          c={
+            data?.direction === "CREDIT"
+              ? "var(--fj-success)"
+              : "var(--fj-danger)"
+          }
+        >
+          {formatMoney(data?.transactionAmount, data?.currency)}
+        </Text>
+      }
+      status={<StatusBadge status={data?.transactionStatus} size="sm" />}
+    />
+  ));
+
+  const profileActivityMobileRows = userActivities?.map((data) => (
+    <MobileRow
+      key={data.id}
+      title={data?.title || "N/A"}
+      subtitle={data?.eventName || "N/A"}
+      caption={<FormatDate data={data?.created_at} formatType="datePipeTime" />}
+      status={
+        <Text fz={12} c="dimmed" tt="capitalize">
+          {data?.performerRole || "N/A"}
+        </Text>
+      }
+    />
+  ));
+
   return (
     <AppLayout
       title="User Management"
@@ -702,6 +787,7 @@ const UserDetails = () => {
                             <PpTable
                               headers={eventsCreatedTableHeaders}
                               rowData={eventsFilteredRows}
+                             mobileRows={eventsFilteredMobileRows}
                               totalItems={userFilteredEvents?.length}
                               activePage={activePage}
                               setActivePage={setActivePage}
@@ -726,6 +812,7 @@ const UserDetails = () => {
                             <PpTable
                               headers={eventsCreatedTableHeaders}
                               rowData={eventsFilteredRows}
+                              mobileRows={eventsFilteredMobileRows}
                               totalItems={userFilteredEvents?.length}
                               activePage={activePage}
                               setActivePage={setActivePage}
@@ -750,6 +837,7 @@ const UserDetails = () => {
                             <PpTable
                               headers={eventsCreatedTableHeaders}
                               rowData={eventsFilteredRows}
+                              mobileRows={eventsFilteredMobileRows}
                               totalItems={userFilteredEvents?.length}
                               activePage={activePage}
                               setActivePage={setActivePage}
@@ -775,6 +863,7 @@ const UserDetails = () => {
             <PpTable
               headers={tableHeaders}
               rowData={rows}
+              mobileRows={recentMobileRows}
               totalItems={recentTransactions?.length}
               activePage={activePage}
               setActivePage={setActivePage}
@@ -789,6 +878,7 @@ const UserDetails = () => {
             <PpTable
               headers={profileEventsableHeaders}
               rowData={profileEventsRows}
+              mobileRows={profileEventsMobileRows}
               totalItems={userEventsData?.length}
               activePage={activePage}
               setActivePage={setActivePage}
@@ -804,6 +894,7 @@ const UserDetails = () => {
             <PpTable
               headers={profileTransactionsTableHeaders}
               rowData={profileTransactionsRows}
+              mobileRows={profileTransactionsMobileRows}
               totalItems={totalTransactionItems}
               activePage={activeTransactionsPage}
               setActivePage={setActiveTransactionsPage}
@@ -821,6 +912,7 @@ const UserDetails = () => {
             <PpTable
               headers={profileActivityTableHeaders}
               rowData={profileActivityRows}
+              mobileRows={profileActivityMobileRows}
               totalItems={userActivities?.length}
               activePage={activePage}
               setActivePage={setActivePage}

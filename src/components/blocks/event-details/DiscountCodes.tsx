@@ -17,6 +17,7 @@ import {
   SetDiscountCodeActive,
 } from "@/services/api";
 import PpTable from "../../blocks/table";
+import MobileRow from "../../blocks/table/MobileRow";
 import StatTile from "../../blocks/stat-tile";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
@@ -132,6 +133,46 @@ const DiscountCodes = ({ eventId }: { eventId: string }) => {
 
   if (isFetching && !isSample) return <TableSkeleton />;
 
+  const mobileRows = codes.map((code) => {
+    const exhausted = code.maxUses !== null && code.usedCount >= code.maxUses;
+
+    return (
+      <MobileRow
+        key={code.id}
+        title={<span className="font-mono font-bold">{code.code}</span>}
+        subtitle={
+          code.type === "percent"
+            ? `${code.value}% off`
+            : `${formatMoney(code.value, currency)} off`
+        }
+        caption={`${code.usedCount} / ${code.maxUses ?? "unlimited"} used`}
+        status={
+          exhausted ? (
+            <Badge color="red" variant="light" size="sm">
+              Exhausted
+            </Badge>
+          ) : undefined
+        }
+        trailing={
+          <Switch
+            checked={code.isActive}
+            disabled={toggle.isPending}
+            onChange={(event) =>
+              toggle.mutate({
+                codeId: code.id,
+                isActive: event.currentTarget.checked,
+              })
+            }
+          />
+        }
+        details={[
+          { label: "Scope", value: <span className="capitalize">{code.scope}</span> },
+          { label: "Expires", value: formatDateTime(code.expiresAt, "No expiry") },
+        ]}
+      />
+    );
+  });
+
   return (
     <Stack gap="xl">
       <SimpleGrid cols={{ base: 2, md: 3 }}>
@@ -151,6 +192,7 @@ const DiscountCodes = ({ eventId }: { eventId: string }) => {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         showPagination={false}
         isLoading={isFetching && !isSample}
         emptyState={discountCodeEmptyState}

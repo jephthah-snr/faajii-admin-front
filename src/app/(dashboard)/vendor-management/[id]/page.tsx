@@ -18,6 +18,7 @@ import {
 } from "@mantine/core";
 import classes from "@/styles/General.module.css";
 import {
+  MobileRow,
   ConfirmationModal,
   VendorDetailsSkeleton,
   FormatDate,
@@ -382,6 +383,38 @@ const VendorDetailsPage = () => {
     );
   });
 
+  const orderMobileRows = vendorOrders?.orders?.map((data, index) => (
+    <MobileRow
+      key={index}
+      onClick={() => {
+        setSelectedOrder(data);
+        openVendorOrderModal();
+      }}
+      title={data?.event?.name}
+      subtitle={data?.host?.name}
+      caption={
+        <FormatDate data={data?.event?.startDate || ""} formatType="orderStart" />
+      }
+      status={<StatusBadge status={data?.status || ""} size="sm" />}
+      trailing={
+        <Menu>
+          <Menu.Target>
+            <ActionIcon variant="transparent" aria-label="More">
+              <IconMore size={18} color="currentColor" variant="Linear" />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item
+              onClick={() => revokeOrderMutation.mutate(String(data.id))}
+            >
+              Revoke order
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    />
+  ));
+
   return (
     <AppLayout title="Vendors" subTitle={title || "N/A"} hasBackButton>
       <Box pos="relative">
@@ -501,6 +534,7 @@ const VendorDetailsPage = () => {
             <PpTable
               headers={orderHeaders}
               rowData={orderRows}
+              mobileRows={orderMobileRows}
               totalItems={vendorOrders?.totalOrders || 0}
               activePage={activePage}
               setActivePage={setActivePage}
@@ -511,7 +545,24 @@ const VendorDetailsPage = () => {
 
           <Tabs.Panel value="transactions">
             <Card radius={16} p={0} bg="transparent">
-              <Table.ScrollContainer minWidth={820}>
+              <Box hiddenFrom="lg">
+                {vendorTransactions?.map((transaction) => (
+                  <MobileRow
+                    key={transaction.id}
+                    title={transaction.event?.name || "Direct payout"}
+                    subtitle={transaction.narration || transaction.category}
+                    caption={
+                      <FormatDate
+                        data={transaction.createdAt}
+                        formatType="fullDateTimeAlt"
+                      />
+                    }
+                    value={formatMoney(transaction.amount, transaction.currency)}
+                    status={<StatusBadge status={transaction.status} size="sm" />}
+                  />
+                ))}
+              </Box>
+              <Table.ScrollContainer minWidth={820} visibleFrom="lg">
                 <Table verticalSpacing="md" horizontalSpacing="lg">
                   <Table.Thead>
                     <Table.Tr>

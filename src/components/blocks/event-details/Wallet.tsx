@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GetEventWallet } from "@/services/api";
 import EmptyState from "../../blocks/empty-state";
 import PpTable from "../../blocks/table";
+import MobileRow from "../../blocks/table/MobileRow";
 import StatBar from "../../blocks/stat-bar";
 import { TableSkeleton } from "../../elements/skeletons";
 import {
@@ -103,6 +104,17 @@ const Wallet = ({ eventId }: { eventId: string }) => {
     </Table.Tr>
   ));
 
+  const mobileRows = movements.map((movement) => (
+    <MobileRow
+      key={movement.id}
+      title={movement.counterparty || movement.narration || "—"}
+      subtitle={movement.direction === "CREDIT" ? "Funding" : "Payout"}
+      caption={formatDateTime(movement.created_at)}
+      value={formatMoney(movement.amount, movement.currency)}
+      status={<StatusBadge status={movement.status} size="sm" />}
+    />
+  ));
+
   return (
     <Stack gap="xl">
       <Group justify="space-between" align="center">
@@ -172,6 +184,7 @@ const Wallet = ({ eventId }: { eventId: string }) => {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           showPagination={false}
           emptyState={movementEmptyState}
         />

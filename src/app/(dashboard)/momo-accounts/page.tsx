@@ -13,7 +13,7 @@ import {
   SetMomoAccountEnabled,
 } from "@/services/api";
 import { MomoAccountStatus } from "@/services/api/finance/finance.types";
-import { PpTable, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatusBadge } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -176,6 +176,42 @@ export default function MomoAccountsPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = accounts.map((account) => (
+    <MobileRow
+      key={account.id}
+      title={account.fullName}
+      subtitle={`${account.number} · ${account.providerName || "Unknown"}`}
+      caption={
+        <Text
+          span
+          fz={12}
+          td="underline"
+          onClick={() => router.push(`/user-management/${account.userId}`)}
+        >
+          {account.userName || `User #${account.userId}`}
+        </Text>
+      }
+      status={<StatusBadge status={account.status} size="sm" />}
+      trailing={
+        <Switch
+          checked={account.enabled}
+          disabled={toggle.isPending}
+          onChange={(event) =>
+            toggle.mutate({
+              id: account.id,
+              enabled: event.currentTarget.checked,
+            })
+          }
+        />
+      }
+      details={[
+        { label: "Country", value: account.countryCode },
+        { label: "Verified", value: formatDateTime(account.verifiedAt, "Not verified") },
+        { label: "Added", value: formatDateTime(account.created_at) },
+      ]}
+    />
+  ));
+
   return (
     <AppLayout
       title="MoMo accounts"
@@ -185,6 +221,7 @@ export default function MomoAccountsPage() {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={page}
         setActivePage={setPage}

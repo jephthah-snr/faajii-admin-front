@@ -22,7 +22,7 @@ import {
   GiftLinkStatus,
   GiftLinkType,
 } from "@/services/api/gift-links/gift-links.types";
-import { PpTable, TableSkeleton, StatusBadge } from "@/components";
+import { MobileRow, PpTable, TableSkeleton, StatusBadge } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -153,6 +153,20 @@ export default function GiftLinksPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = links.map((link) => (
+    <MobileRow
+      key={link.id}
+      onClick={() => openLink(link.id)}
+      title={link.title}
+      subtitle={link.ownerName || `User #${link.userId}`}
+      caption={`${link.contributorCount} contributor${
+        link.contributorCount === 1 ? "" : "s"
+      }`}
+      value={formatMoney(link.totalRaised, link.currency)}
+      status={<StatusBadge status={link.status} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Gift links"
@@ -162,6 +176,7 @@ export default function GiftLinksPage() {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={page}
         setActivePage={setPage}

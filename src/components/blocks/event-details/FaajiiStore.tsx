@@ -19,6 +19,7 @@ import {
 } from "@mantine/core";
 import Image from "next/image";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import inputClasses from "@/styles/Input.module.css";
 import { NoImageS } from "@/images";
 import {
@@ -253,6 +254,58 @@ const FaajiiStore = ({
     </Table.Tr>
   ));
 
+  const mobileRows = storeData?.map((item) => (
+    <MobileRow
+      key={item?.id}
+      onClick={() => handleOpenModal(String(item?.id))}
+      leading={
+        <Image
+          src={item?.images?.[0] || NoImageS}
+          alt="icon"
+          className="rounded-[4px]"
+          width={36}
+          height={36}
+        />
+      }
+      title={item?.name || "N/A"}
+      subtitle={<span className="capitalize">{item?.category}</span>}
+      caption={`${item?.itemsLeft?.toLocaleString()} left of ${item?.totalQuantity?.toLocaleString()}`}
+      value={formatMoney(item?.price, item?.currency)}
+      status={
+        <StatusBadge
+          status={item?.isActive === 1 ? "Active" : "Inactive"}
+          size="sm"
+        />
+      }
+      trailing={
+        <Menu shadow="md">
+          <Menu.Target>
+            <ActionIcon variant="transparent" aria-label="More">
+              <IconMore size={18} color="currentColor" variant="Linear" />
+            </ActionIcon>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => handleUpdateInventory(item)}>
+              Update Inventory
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item
+              onClick={() =>
+                handleConfirmArchive(String(item?.id), item?.isActive)
+              }
+            >
+              {item?.isActive === 1 ? "Archive Item" : "Restore Item"}
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item onClick={() => handleConfirmDelete(String(item?.id))}>
+              Delete Item
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    />
+  ));
+
   return (
     <>
       {/* Filter & search */}
@@ -310,7 +363,7 @@ const FaajiiStore = ({
             gap={10}
             py={10}
             bg="var(--fj-bg)"
-            className="sticky top-14 z-10"
+            className="sticky top-[calc(var(--app-header-height,72px)-1px)] z-20"
           >
             <Flex align="center" gap={16}>
               <Box
@@ -399,6 +452,7 @@ const FaajiiStore = ({
       <PpTable
         headers={eventStoreHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         rowsPerPage={rowsPerPage}
         isLoading={isFetching}
       />

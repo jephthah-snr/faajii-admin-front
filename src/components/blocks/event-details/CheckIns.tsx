@@ -19,6 +19,7 @@ import {
   OverrideGuestCheckIn,
 } from "@/services/api";
 import PpTable from "../../blocks/table";
+import MobileRow from "../../blocks/table/MobileRow";
 import StatBar from "../../blocks/stat-bar";
 import {
   asList,
@@ -161,6 +162,44 @@ const CheckIns = ({ eventId }: { eventId: string }) => {
     </Table.Tr>
   ));
 
+  const mobileRows = records.map((record) => (
+    <MobileRow
+      key={record.id}
+      title={record.guestName}
+      subtitle={record.ticketType || "No tier"}
+      caption={
+        record.checkedIn
+          ? formatDateTime(record.checkedInAt, "—")
+          : record.guestPhone || record.guestEmail || "No contact"
+      }
+      status={
+        <StatusBadge
+          status={record.checkedIn ? "Checked in" : "Not arrived"}
+          size="sm"
+        />
+      }
+      trailing={
+        <Button
+          size="compact-xs"
+          variant="light"
+          color={record.checkedIn ? "red" : "teal"}
+          loading={
+            override.isPending &&
+            override.variables?.guestId === record.guestId
+          }
+          onClick={() =>
+            override.mutate({
+              guestId: record.guestId,
+              next: !record.checkedIn,
+            })
+          }
+        >
+          {record.checkedIn ? "Reverse" : "Check in"}
+        </Button>
+      }
+    />
+  ));
+
   return (
     <Stack gap="xl">
       <Stack gap="sm">
@@ -187,6 +226,7 @@ const CheckIns = ({ eventId }: { eventId: string }) => {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={page}
         setActivePage={setPage}

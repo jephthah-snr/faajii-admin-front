@@ -27,7 +27,7 @@ import {
 import {
   BroadcastAudience,
 } from "@/services/api/notifications/notifications.types";
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatCount,
@@ -248,6 +248,65 @@ export default function NotificationsPage() {
     );
   });
 
+  const deviceMobileRows = devices.map((device) => (
+    <MobileRow
+      key={device.id}
+      title={device.userName || `User #${device.userId}`}
+      subtitle={`${device.deviceType || "Unknown"} · v${device.appVersion || "—"}`}
+      caption={`Last seen ${formatDateTime(device.lastSeenAt, "never")}`}
+      status={
+        <StatusBadge
+          status={device.isActive ? "Active" : "Inactive"}
+          size="sm"
+        />
+      }
+    />
+  ));
+
+  const broadcastMobileRows = broadcasts.map((broadcast) => {
+    const cancellable =
+      broadcast.status === "draft" || broadcast.status === "queued";
+
+    return (
+      <MobileRow
+        key={broadcast.id}
+        title={broadcast.title}
+        subtitle={broadcast.message}
+        caption={`${formatCount(broadcast.deliveredCount)} / ${formatCount(
+          broadcast.recipientCount,
+        )} delivered`}
+        status={<StatusBadge status={broadcast.status} size="sm" />}
+        details={[
+          { label: "Audience", value: formatStatusLabel(broadcast.audience) },
+          {
+            label: "Sent",
+            value: formatDateTime(
+              broadcast.sentAt || broadcast.scheduledFor,
+              "Not sent",
+            ),
+          },
+          { label: "Created by", value: broadcast.createdByName || "—" },
+          ...(broadcast.failedCount > 0
+            ? [{ label: "Failed", value: formatCount(broadcast.failedCount) }]
+            : []),
+        ]}
+        actions={
+          cancellable ? (
+            <Button
+              size="xs"
+              variant="light"
+              color="red"
+              loading={cancel.isPending && cancel.variables === broadcast.id}
+              onClick={() => cancel.mutate(broadcast.id)}
+            >
+              Cancel broadcast
+            </Button>
+          ) : undefined
+        }
+      />
+    );
+  });
+
   return (
     <AppLayout
       title="Notifications"
@@ -282,6 +341,7 @@ export default function NotificationsPage() {
           <PpTable
             headers={deviceHeaders}
             rowData={deviceRows}
+            mobileRows={deviceMobileRows}
             showPagination={false}
             isLoading={devicesQuery.isFetching && !devicesAreSample}
             emptyState={deviceEmptyState}
@@ -293,6 +353,7 @@ export default function NotificationsPage() {
           <PpTable
             headers={broadcastHeaders}
             rowData={broadcastRows}
+            mobileRows={broadcastMobileRows}
             totalItems={totalBroadcasts}
             activePage={page}
             setActivePage={setPage}

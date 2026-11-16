@@ -18,7 +18,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
 import { GetPromoter, SetPromoterActive } from "@/services/api";
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatCommission,
@@ -159,6 +159,29 @@ export default function PromoterDetailPage() {
     </Table.Tr>
   ));
 
+  const promotionMobileRows = asList(promoter?.promotions).map((promotion) => (
+    <MobileRow
+      key={promotion.id}
+      title={promotion.event?.name || "Event removed"}
+      subtitle={`${promotion.ticketsSold.toLocaleString()} sold · ${formatFcfa(
+        promotion.earned,
+      )} earned`}
+      value={formatFcfa(promotion.gross)}
+      status={<StatusBadge status={promotion.status} size="sm" />}
+    />
+  ));
+
+  const ledgerMobileRows = asList(promoter?.walletTransactions).map((entry) => (
+    <MobileRow
+      key={entry.id}
+      title={entry.narration || entry.eventName || "No narration"}
+      subtitle={entry.type === "credit" ? "Commission" : "Withdrawal"}
+      caption={formatDateTime(entry.created_at)}
+      value={formatFcfa(entry.amount)}
+      status={<StatusBadge status={entry.status} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Promoters"
@@ -274,6 +297,7 @@ export default function PromoterDetailPage() {
                 <PpTable
                   headers={promotionHeaders}
                   rowData={promotionRows}
+                  mobileRows={promotionMobileRows}
                   showPagination={false}
                   isLoading={detailQuery.isFetching && !isSample}
                   emptyState={promotionsEmptyState}
@@ -284,6 +308,7 @@ export default function PromoterDetailPage() {
                 <PpTable
                   headers={ledgerHeaders}
                   rowData={ledgerRows}
+                  mobileRows={ledgerMobileRows}
                   showPagination={false}
                   isLoading={detailQuery.isFetching && !isSample}
                   emptyState={ledgerEmptyState}

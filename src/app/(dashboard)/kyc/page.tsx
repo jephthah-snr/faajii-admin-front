@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { AppLayout } from "@/layout";
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import { ApproveKycPart, DeclineKycPart, GetKycStats, GetKycSubmission, GetKycSubmissions } from "@/services/api";
 import type { KycPartStatus, KycSubmission, KycSubmissionDetail } from "@/services/api/kyc/kyc.types";
 import { asList, formatDateTime, getApiErrorMessage, rowsPerPage } from "@/utils";
@@ -53,10 +53,23 @@ export default function KycPage() {
     {selected?.[name].reason && <Text fz="sm" c="red">Decline reason: {selected[name].reason}</Text>}
     {status === "pending" && (declining === name ? <Stack><Textarea value={reason} onChange={(event) => setReason(event.currentTarget.value)} label="Reason for decline" description="This will be shown to the applicant." minRows={2} /><Group justify="flex-end"><Button variant="subtle" onClick={() => setDeclining(null)}>Cancel</Button><Button color="red" disabled={reason.trim().length < 3} loading={decision.isPending} onClick={() => decision.mutate({ part: name, approve: false })}>Confirm decline</Button></Group></Stack> : <Group justify="flex-end"><Button variant="light" color="red" onClick={() => setDeclining(name)}>Decline…</Button><Button color="teal" loading={decision.isPending} onClick={() => decision.mutate({ part: name, approve: true })}>Approve {title.toLowerCase()}</Button></Group>)}
   </Stack>;
+  const mobileRows = submissions.map((item) => (
+    <MobileRow
+      key={item.userId}
+      onClick={() => openDetail(item)}
+      leading={<Avatar src={item.user.avatar} name={item.user.fullname} size="md" />}
+      title={item.user.fullname}
+      subtitle={item.user.email}
+      caption={item.documentType || "Not submitted"}
+      status={<StatusBadge status={item.status} size="sm" />}
+    />
+  ));
+
   return <AppLayout title="KYC reviews" subTitle="Review submitted identity documents and selfies securely">
     <Stack gap="xl">
       {kycStats && <StatBar items={[{ label: "Awaiting review", value: kycStats.pending }, { label: "Verified", value: kycStats.verified }, { label: "Declined", value: kycStats.rejected }, { label: "Incomplete", value: kycStats.incomplete }]} />}
-      <PpTable headers={headers} rowData={rows} totalItems={list.data?.data?.pagination?.total || 0} activePage={page} setActivePage={setPage} rowsPerPage={rowsPerPage} isLoading={list.isFetching} hasActions query={search} handleQuery={(value) => { setSearch(value); setPage(1); }} searchPlaceholder="Search name, email or phone" emptyState={{ title: "No KYC submissions", description: "Submitted identity documents and selfies will appear here." }} />
+      <PpTable headers={headers} rowData={rows}
+      mobileRows={mobileRows} totalItems={list.data?.data?.pagination?.total || 0} activePage={page} setActivePage={setPage} rowsPerPage={rowsPerPage} isLoading={list.isFetching} hasActions query={search} handleQuery={(value) => { setSearch(value); setPage(1); }} searchPlaceholder="Search name, email or phone" emptyState={{ title: "No KYC submissions", description: "Submitted identity documents and selfies will appear here." }} />
     </Stack>
     <Modal opened={opened} onClose={close} title="KYC review" size="xl" centered>
       {selected && <Stack gap="lg"><Group><Avatar src={selected.user.avatar} name={selected.user.fullname} size={52} /><Stack gap={0}><Text fw={700}>{selected.user.fullname}</Text><Anchor href={`/user-management/${selected.userId}`}>{selected.user.email}</Anchor><Text fz="xs" c="var(--fj-text-muted)">{selected.user.phoneNumber}</Text></Stack></Group><Text fz="sm" c="var(--fj-text-muted)">Document: {selected.documentType || "—"} · Country: {selected.countryIso || "—"} · Number: {selected.documentNumber || "—"}</Text><Divider />{part("identity", selected.identity.status, "Identity document", selected.evidence.documentFrontUrl)}{selected.evidence.documentBackUrl && <Image src={selected.evidence.documentBackUrl} alt="Back of identity document" radius="sm" maw={360} fit="contain" />}{part("selfie", selected.selfie.status, "Selfie", selected.evidence.selfieUrl)}{selected.history.length > 0 && <><Divider /><Stack gap="sm"><Text fw={700}>Previous submissions</Text><Text fz="xs" c="var(--fj-text-muted)">Archived evidence is read-only and is kept for review and compliance.</Text>{selected.history.map((item) => <Stack key={item.id} gap="xs" p="sm" style={{ border: "1px solid var(--fj-border-subtle)", borderRadius: 10 }}><Group justify="space-between"><Text fw={600}>{item.submissionType === "identity" ? "Identity document" : "Selfie"}</Text><StatusBadge status={item.status} /></Group><Text fz="sm">{item.documentType || "Selfie"}{item.countryIso ? ` · ${item.countryIso}` : ""}{item.documentNumber ? ` · ${item.documentNumber}` : ""}</Text>{item.reason && <Text fz="sm" c="red">Decline reason: {item.reason}</Text>}{item.evidence.documentFrontUrl && <Image src={item.evidence.documentFrontUrl} alt="Archived identity document" radius="sm" maw={300} fit="contain" />}{item.evidence.documentBackUrl && <Image src={item.evidence.documentBackUrl} alt="Archived identity document back" radius="sm" maw={300} fit="contain" />}{item.evidence.selfieUrl && <Image src={item.evidence.selfieUrl} alt="Archived selfie" radius="sm" maw={300} fit="contain" />}</Stack>)}</Stack></>}</Stack>}

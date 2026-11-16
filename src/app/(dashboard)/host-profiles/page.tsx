@@ -30,7 +30,7 @@ import {
   AdminHostProfile,
   HostApprovalStatus,
 } from "@/services/api/host-profiles/host-profiles.types";
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatDateTime,
@@ -201,6 +201,20 @@ export default function HostProfilesPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = profiles.map((profile) => (
+    <MobileRow
+      key={profile.id}
+      onClick={() => openProfile(profile)}
+      leading={<Avatar size="md" src={profile.avatar} name={profile.name} />}
+      title={profile.name}
+      subtitle={profile.ownerName || `User #${profile.userId}`}
+      caption={`${profile.eventsHosted} event${
+        profile.eventsHosted === 1 ? "" : "s"
+      } hosted`}
+      status={<StatusBadge status={profile.approvalStatus} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Host profiles"
@@ -232,6 +246,7 @@ export default function HostProfilesPage() {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={page}
           setActivePage={setPage}

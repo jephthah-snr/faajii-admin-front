@@ -1,6 +1,6 @@
 "use client";
 
-import { FormatDate, PpTable, TransactionModal } from "@/components";
+import { MobileRow, FormatDate, PpTable, TransactionModal } from "@/components";
 import { IconCredit, IconDebit } from "@/config/icons";
 import { AppLayout } from "@/layout";
 import { GetTransactions } from "@/services/api";
@@ -133,12 +133,36 @@ const Transactions = () => {
     );
   });
 
+  const mobileRows = transactionsData?.map((data) => (
+    <MobileRow
+      key={data?.transactionId}
+      onClick={() => handleOpenModal(String(data?.transactionId))}
+      title={data?.narration || "N/A"}
+      subtitle={data?.user?.name || "-"}
+      caption={<FormatDate data={data?.created_at} formatType="fullDate" />}
+      value={
+        <Text
+          fz={14}
+          fw={600}
+          c={
+            data?.direction === "CREDIT"
+              ? "var(--fj-success)"
+              : "var(--fj-danger)"
+          }
+        >
+          {formatMoney(data?.transactionAmount, data?.currency)}
+        </Text>
+      }
+    />
+  ));
+
   return (
     <AppLayout title="Wallet Transactions">
       <Box>
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={activePage}
           setActivePage={setActivePage}

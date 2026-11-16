@@ -9,6 +9,7 @@ import type {
   PublicationChannel,
 } from "@/services/api/publications/publication.types";
 import PpTable from "../table";
+import MobileRow from "../table/MobileRow";
 import StatBar from "../stat-bar";
 import {
   asList,
@@ -118,6 +119,21 @@ const Reach = ({ eventId }: { eventId: string }) => {
     );
   });
 
+  const mobileRows = campaigns.map((campaign) => (
+    <MobileRow
+      key={campaign.reference}
+      title={campaign.title}
+      subtitle={`${formatCount(campaign.sentCount)} sent${
+        campaign.failedCount > 0
+          ? ` · ${formatCount(campaign.failedCount)} failed`
+          : ""
+      }`}
+      caption={channelLabel[campaign.channel]}
+      value={formatMoney(campaign.totalAmount, campaign.currency)}
+      status={<StatusBadge status={campaign.status} size="sm" />}
+    />
+  ));
+
   return (
     <Stack gap="xl">
       <StatBar
@@ -141,6 +157,7 @@ const Reach = ({ eventId }: { eventId: string }) => {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           showPagination={false}
           isLoading={campaignsQuery.isFetching && !isSample}
           emptyState={publicationEmptyState}

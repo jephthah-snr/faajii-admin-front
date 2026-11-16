@@ -18,7 +18,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { AppLayout } from "@/layout";
 import { GetFinanceSummary, GetWallets } from "@/services/api";
 import { WalletScope } from "@/services/api/finance/finance.types";
-import { PpTable, StatBar } from "@/components";
+import { MobileRow, PpTable, StatBar } from "@/components";
 import {
   asList,
   formatCount,
@@ -120,6 +120,21 @@ export default function WalletsPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = wallets.map((wallet) => (
+    <MobileRow
+      key={`${wallet.scope}-${wallet.id}`}
+      onClick={() =>
+        wallet.scope === "event" && wallet.eventId
+          ? router.push(`/event-management/${wallet.eventId}`)
+          : router.push(`/user-management/${wallet.userId}`)
+      }
+      title={wallet.ownerName || `User #${wallet.userId}`}
+      subtitle={wallet.eventName || (wallet.scope === "event" ? "Event purse" : "User wallet")}
+      value={formatMoney(wallet.balance, wallet.currency)}
+      status={<StatusBadge status={wallet.isActive ? "Active" : "Frozen"} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Wallets"
@@ -177,6 +192,7 @@ export default function WalletsPage() {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={page}
           setActivePage={setPage}

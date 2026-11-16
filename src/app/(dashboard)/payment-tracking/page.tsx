@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  MobileRow,
   DownloadCsvButton,
   FormatDate,
   PpTable,
@@ -279,6 +280,27 @@ const PaymentTrackingPage = () => {
     );
   });
 
+  const mobileRows = paymentData?.map((data) => {
+    const expectedAmount =
+      data?.bankName === "PAYSTACK"
+        ? data?.metadata?.paystackCharge?.amountToCharge
+        : data.expectedAmount;
+
+    return (
+      <MobileRow
+        key={data.id}
+        onClick={() => handleOpenModal(data)}
+        title={data.accountName || "-"}
+        subtitle={data.reference || "-"}
+        caption={
+          <FormatDate data={data.created_at} formatType="fullDate" />
+        }
+        value={formatAmount(expectedAmount, data.currency)}
+        status={<StatusBadge status={data.status} size="sm" />}
+      />
+    );
+  });
+
   return (
     <AppLayout title="Reconciliation">
 
@@ -286,6 +308,7 @@ const PaymentTrackingPage = () => {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={activePage}
           setActivePage={setActivePage}

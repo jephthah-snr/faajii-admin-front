@@ -2,6 +2,7 @@
 
 import {
   Badge,
+  Box,
   Card,
   Divider,
   Group,
@@ -22,7 +23,7 @@ import {
   GetPurchaseStatistics,
 } from "@/services/api";
 import { PurchaseChannel } from "@/services/api/purchases/purchase.types";
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatMoney,
@@ -124,6 +125,20 @@ export default function PurchasesPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = purchases.map((purchase) => (
+    <MobileRow
+      key={purchase.reference}
+      onClick={() => setSelectedReference(purchase.reference)}
+      title={purchase.event.name}
+      subtitle={`${purchase.buyer.name} · ${purchase.ticketCount} ticket${
+        purchase.ticketCount === 1 ? "" : "s"
+      }`}
+      caption={purchase.reference}
+      value={formatMoney(purchase.amount, purchase.currency)}
+      status={<StatusBadge status={purchase.status} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Purchases"
@@ -148,6 +163,7 @@ export default function PurchasesPage() {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={page}
         setActivePage={setPage}
@@ -271,7 +287,23 @@ export default function PurchasesPage() {
                     No ticket was issued for this checkout.
                   </Text>
                 ) : (
-                  <Table.ScrollContainer minWidth={650}>
+                  <>
+                  <Box hiddenFrom="lg">
+                    {purchase.fulfillmentEvidence?.tickets.map((ticket) => (
+                      <MobileRow
+                        key={ticket.ticketRef}
+                        title={ticket.guestName}
+                        subtitle={ticket.offerTitle || "Ticket"}
+                        caption={ticket.ticketRef}
+                        status={
+                          <Badge variant="light" size="sm">
+                            {ticket.status}
+                          </Badge>
+                        }
+                      />
+                    ))}
+                  </Box>
+                  <Table.ScrollContainer minWidth={650} visibleFrom="lg">
                     <Table>
                       <Table.Thead>
                         <Table.Tr>
@@ -300,6 +332,7 @@ export default function PurchasesPage() {
                       </Table.Tbody>
                     </Table>
                   </Table.ScrollContainer>
+                  </>
                 )}
 
                 <Divider label="Wallet credit" />

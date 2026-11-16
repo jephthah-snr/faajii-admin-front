@@ -5,6 +5,7 @@ import { IconArrowRight } from "@/config/icons";
 import { truncateText } from "@/utils";
 import { Burger, Flex, Stack, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { useEffect, useRef } from "react";
 
 interface HeaderProps {
   title?: string | React.ReactNode;
@@ -26,9 +27,27 @@ const Header = ({
   action,
 }: HeaderProps) => {
   const isMobile = useMediaQuery("(max-width: 640px)");
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  // Sticky table toolbars pin just below the header, whose height changes with
+  // the breakpoint and with a page's action buttons — so publish the real one.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty(
+        "--app-header-height",
+        `${el.offsetHeight}px`,
+      );
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <Flex
+      ref={headerRef}
       w="100%"
       direction={{ base: "column", md: "row" }}
       align={{ base: "flex-start", md: "center" }}

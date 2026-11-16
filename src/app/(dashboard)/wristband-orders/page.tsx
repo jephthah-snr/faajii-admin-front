@@ -32,7 +32,7 @@ import type {
   WristbandOrderStatus,
   WristbandPaymentState,
 } from '@/services/api/wristbands/wristband.types';
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   formatMoney,
@@ -160,6 +160,24 @@ export default function WristbandOrdersPage() {
     </Table.Tr>
   ));
 
+  const mobileRows = orders.map((order) => (
+    <MobileRow
+      key={order.id}
+      onClick={() => setSelected(order)}
+      title={order.eventName}
+      subtitle={`${order.customerName} · ${order.totalQuantity} band${order.totalQuantity === 1 ? '' : 's'}`}
+      caption={order.reference}
+      value={formatMoney(order.amount, order.currency)}
+      status={
+        <StatusBadge
+          size="sm"
+          status={order.status}
+          label={STATUS_OPTIONS.find((item) => item.value === order.status)?.label}
+        />
+      }
+    />
+  ));
+
   return (
     <AppLayout title="Wristband Orders" subTitle="Payments, production fulfillment, delivery tracking, and reconciliation.">
       <StatBar
@@ -186,6 +204,7 @@ export default function WristbandOrdersPage() {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         totalItems={totalItems}
         activePage={page}
         setActivePage={setPage}

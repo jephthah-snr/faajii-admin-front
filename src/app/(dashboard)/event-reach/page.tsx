@@ -19,7 +19,7 @@ import {
   PublicationChannel,
   PublicationStatus,
 } from "@/services/api/publications/publication.types";
-import { PpTable, StatBar, StatusBadge } from "@/components";
+import { MobileRow, PpTable, StatBar, StatusBadge } from "@/components";
 import {
   asList,
   defaultReachRegion,
@@ -183,6 +183,20 @@ export default function EventReachPage() {
     );
   });
 
+  const mobileRows = campaigns.map((row) => (
+    <MobileRow
+      key={row.reference}
+      onClick={() => router.push(`/event-reach/${row.reference}`)}
+      title={row.title}
+      subtitle={row.event?.name || "Event removed"}
+      caption={`${formatCount(row.sentCount)} sent${
+        row.failedCount > 0 ? ` · ${formatCount(row.failedCount)} failed` : ""
+      }`}
+      value={formatMoney(row.totalAmount, row.currency)}
+      status={<StatusBadge status={row.status} size="sm" />}
+    />
+  ));
+
   return (
     <AppLayout
       title="Event Reach"
@@ -244,6 +258,7 @@ export default function EventReachPage() {
         <PpTable
           headers={tableHeaders}
           rowData={rows}
+          mobileRows={mobileRows}
           totalItems={totalItems}
           activePage={page}
           setActivePage={setPage}

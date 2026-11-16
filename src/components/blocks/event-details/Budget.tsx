@@ -11,6 +11,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { GetEventBudget } from "@/services/api";
 import PpTable from "../../blocks/table";
+import MobileRow from "../../blocks/table/MobileRow";
 import StatBar from "../../blocks/stat-bar";
 import { TableSkeleton } from "../../elements/skeletons";
 import { formatMoney, isEndpointUnavailable, retryUnlessUnavailable } from "@/utils";
@@ -87,6 +88,38 @@ const Budget = ({ eventId }: { eventId: string }) => {
 
   if (isFetching && !isSample) return <TableSkeleton />;
 
+  const mobileRows = items.map((item) => {
+    const over = item.amountSpent > item.amount;
+
+    return (
+      <MobileRow
+        key={item.id}
+        title={item.item}
+        subtitle={`${formatMoney(item.amountSpent, currency)} of ${formatMoney(
+          item.amount,
+          currency,
+        )}`}
+        value={
+          <Text fz={14} fw={600} c={over ? "#FF8787" : undefined}>
+            {formatMoney(item.amount - item.amountSpent, currency)}
+          </Text>
+        }
+        caption={
+          <Progress
+            value={Math.min(
+              item.amount > 0 ? (item.amountSpent / item.amount) * 100 : 0,
+              100,
+            )}
+            color={over ? "red" : "teal"}
+            radius="xl"
+            size="xs"
+            mt={4}
+          />
+        }
+      />
+    );
+  });
+
   return (
     <Stack gap="xl">
       <Stack gap="sm">
@@ -115,6 +148,7 @@ const Budget = ({ eventId }: { eventId: string }) => {
       <PpTable
         headers={tableHeaders}
         rowData={rows}
+        mobileRows={mobileRows}
         showPagination={false}
         isLoading={isFetching && !isSample}
         emptyState={budgetEmptyState}
