@@ -29,6 +29,7 @@ export * from "./finance";
 export * from "./vibes";
 export * from "./notifications";
 export * from "./support";
+export * from "./banner-campaigns";
 
 // Platform
 export * from "./integrations";

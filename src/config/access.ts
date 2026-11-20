@@ -64,6 +64,8 @@ export const routeAccess: RouteAccess[] = [
   // Content & comms
   { path: "/vibes", roles: ["super", "admin", "support"] },
   { path: "/notifications", roles: ["super", "admin", "support"] },
+  // Home carousel banners (backend permission `events.manage`).
+  { path: "/banner-campaigns", roles: ["super", "admin"] },
   { path: "/support", roles: ["super", "admin", "support"] },
 
   // Platform

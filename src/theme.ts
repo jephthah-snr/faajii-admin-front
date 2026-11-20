@@ -11,6 +11,7 @@ import {
   NumberInput,
   Pagination,
   Paper,
+  Popover,
   PasswordInput,
   Progress,
   SegmentedControl,
@@ -23,6 +24,7 @@ import {
   Tooltip,
   createTheme,
 } from "@mantine/core";
+import { DateTimePicker } from "@mantine/dates";
 import classes from "@/styles/General.module.css";
 import inputClasses from "@/styles/Input.module.css";
 import PasswordToggleIcon from "@/components/elements/password-toggle";
@@ -272,6 +274,9 @@ const theme = createTheme({
         close: classes.rightDrawerClose,
       },
     }),
+    Popover: Popover.extend({
+      classNames: { dropdown: classes.popoverDropdown },
+    }),
     Tooltip: Tooltip.extend({
       defaultProps: { radius: "sm", withArrow: true, color: "dark" },
     }),
@@ -340,6 +345,23 @@ const theme = createTheme({
         comboboxProps: { shadow: "md" },
       },
       classNames: {
+        dropdown: classes.popoverDropdown,
+        option: classes.selectOption,
+        empty: classes.selectEmpty,
+        root: inputClasses.inputRoot,
+        input: inputClasses.textInput,
+        label: inputClasses.floatingLabel,
+        required: inputClasses.floatingLabelRequired,
+        description: inputClasses.inputDescription,
+        error: inputClasses.inputError,
+        section: inputClasses.inputSection,
+      },
+    }),
+    DateTimePicker: DateTimePicker.extend({
+      defaultProps: { size: "lg", radius: "md" },
+      classNames: {
+        timeWrapper: classes.dateTimeTime,
+        day: inputClasses.day,
         root: inputClasses.inputRoot,
         input: inputClasses.textInput,
         label: inputClasses.floatingLabel,

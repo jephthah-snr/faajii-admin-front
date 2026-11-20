@@ -319,6 +319,57 @@
   }
 }
 
+/* ---------------------------------------------------------------- Dropdowns
+   Select lists, date-time pickers and bare popovers share the Menu surface so
+   every floating panel in the app is the same colour, border and shadow. */
+
+.popoverDropdown {
+  composes: menuDropdown;
+  color: var(--fj-text-primary);
+}
+
+.selectOption {
+  font-size: 14px;
+  color: var(--fj-text-primary);
+  border-radius: 8px;
+  background: transparent;
+
+  &:hover,
+  &[data-combobox-selected] {
+    background: var(--fj-border-subtle);
+  }
+
+  &[data-checked] {
+    color: var(--fj-accent);
+    font-weight: 600;
+  }
+
+  &[data-combobox-disabled] {
+    color: var(--fj-text-muted);
+    opacity: 0.5;
+  }
+}
+
+.selectEmpty {
+  color: var(--fj-text-muted);
+}
+
+/* The time field inside a date-time picker is a bare TimeInput: give it the
+   same filled field as every other input instead of Mantine's default. */
+.dateTimeTime {
+  & input {
+    background-color: var(--fj-input-bg);
+    color: var(--fj-text-primary);
+    border: 1.5px solid transparent;
+    border-radius: var(--fj-radius-input);
+
+    &:focus,
+    &:focus-within {
+      border-color: var(--fj-accent);
+    }
+  }
+}
+
 .filterMenuArrow {
   border-color: transparent;
   margin-left: 10px;

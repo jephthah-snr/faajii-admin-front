@@ -30,6 +30,7 @@ export {
   VideoPlay as IconVibes,
   NotificationBing as IconNotifications,
   MessageQuestion as IconSupport,
+  Gallery as IconBanners,
   Cloud as IconIntegrations,
   Setting2 as IconTeamSettings,
   Logout as IconLogout,

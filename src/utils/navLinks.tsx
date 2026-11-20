@@ -1,5 +1,6 @@
 import {
   Icon,
+  IconBanners,
   IconDashboard,
   IconEvents,
   IconGiftLinks,
@@ -119,6 +120,7 @@ export const navSections: NavSection[] = [
         navLink: "/notifications",
         icon: IconNotifications,
       },
+      { label: "Banners", navLink: "/banner-campaigns", icon: IconBanners },
       { label: "Support", navLink: "/support", icon: IconSupport },
     ],
   },

@@ -100,7 +100,9 @@ const Header = ({
         <Burger opened={openNav} onClick={onClick} hiddenFrom="sm" size="sm" />
       </Flex>
 
-      {action}
+      {/* The title block is full width, so without this the action is the
+          thing that shrinks and Mantine clips the button label. */}
+      {action && <Flex style={{ flexShrink: 0 }}>{action}</Flex>}
     </Flex>
   );
 };
