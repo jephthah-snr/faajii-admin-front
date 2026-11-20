@@ -1,3 +1,4 @@
+import type { AdminWristbandProduct } from "@/services/api/wristbands/wristband-catalog.types";
 import type {
   AdminGiftLink,
   AdminGiftLinkDetail,
@@ -482,5 +483,62 @@ export const mockPaymentTrackings: PaymentTracking[] = [
       permanentFailReason: "Sender account reversed the transfer",
       permanentlyFailedAt: "2026-09-02T12:40:00Z",
     },
+  },
+];
+
+/* ----------------------------- Wristband catalog --------------------------- */
+
+/**
+ * Sample catalog mirroring the three bands bundled in the app. Prices are the
+ * app's XOF prices; production costs are illustrative only.
+ */
+export const mockWristbandProducts: AdminWristbandProduct[] = [
+  {
+    id: 1,
+    code: "satin-white",
+    name: "Satin cloth band",
+    description:
+      "Smooth satin fabric band with a secure sliding clasp. Your design is printed along the strap.",
+    images: [],
+    palette: ["#FFFFFF", "#F6C9D4", "#F9E7A0", "#BDE3C8", "#B7D3F2", "#C9B8E8"],
+    minQuantity: 1,
+    pricing: [{ currency: "XOF", unitPrice: 650, productionCost: 420 }],
+    isActive: true,
+    sortOrder: 1,
+    ordersCount: 38,
+    createdAt: "2026-03-02T09:00:00Z",
+    updatedAt: "2026-08-14T10:20:00Z",
+  },
+  {
+    id: 2,
+    code: "tyvek",
+    name: "Tyvek paper band",
+    description:
+      "Lightweight tear-resistant paper band with full-surface print. Perfect for one-day events.",
+    images: [],
+    palette: ["#FFFFFF", "#FF4FA0", "#FF7A00", "#B7FF3C", "#FFE81A", "#37C8FF"],
+    minQuantity: 1,
+    pricing: [{ currency: "XOF", unitPrice: 350, productionCost: 190 }],
+    isActive: true,
+    sortOrder: 2,
+    ordersCount: 64,
+    createdAt: "2026-03-02T09:00:00Z",
+    updatedAt: "2026-08-14T10:20:00Z",
+  },
+  {
+    id: 3,
+    code: "cloth-qr",
+    name: "Cloth band with QR card",
+    description:
+      "Woven cloth band with a scannable QR card for entry checks. Your design prints on the strap.",
+    images: [],
+    palette: ["#000000", "#FF3D71", "#FF8A00", "#22D07A", "#38B6FF", "#B14BF4"],
+    minQuantity: 50,
+    pricing: [{ currency: "XOF", unitPrice: 800, productionCost: 540 }],
+    isActive: false,
+    sortOrder: 3,
+    ordersCount: 12,
+    createdAt: "2026-03-02T09:00:00Z",
+    updatedAt: "2026-09-01T08:05:00Z",
   },
 ];

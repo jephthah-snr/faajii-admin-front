@@ -1,3 +1,4 @@
+import type { FinanceEventRow } from "@/services/api/finance/finance-reports.types";
 import type {
   AdminFinanceSummary,
   AdminMomoAccount,
@@ -246,5 +247,54 @@ export const mockMomoAccounts: AdminMomoAccount[] = [
     status: "active",
     verifiedAt: "2026-08-11T12:05:00Z",
     created_at: "2026-08-11T11:58:00Z",
+  },
+];
+
+/* ----------------------------- Platform earnings --------------------------- */
+
+/**
+ * Sample rows for `/finance/events`. Each follows the fee rule: Faajii keeps
+ * 5% of ticket value whoever pays it, so a customer-borne event shows gross =
+ * value × 1.05 and a creator-borne one shows gross = value.
+ */
+export const mockFinanceEvents: FinanceEventRow[] = [
+  {
+    eventId: 8842,
+    eventRef: "EVT-8842",
+    name: "Cotonou Beach Countdown",
+    hostName: "Fatou Diallo",
+    currency: "XOF",
+    startDate: "2026-12-31T20:00:00Z",
+    feeBearer: "customer",
+    ticketsSold: 640,
+    gross: 6_720_000,
+    platformRevenue: 320_000,
+    hostPayout: 6_400_000,
+  },
+  {
+    eventId: 8830,
+    eventRef: "EVT-8830",
+    name: "Abidjan Rooftop Sessions",
+    hostName: "Kouassi Yao",
+    currency: "XOF",
+    startDate: "2026-10-18T19:00:00Z",
+    feeBearer: "creator",
+    ticketsSold: 410,
+    gross: 4_100_000,
+    platformRevenue: 205_000,
+    hostPayout: 3_895_000,
+  },
+  {
+    eventId: 8817,
+    eventRef: "EVT-8817",
+    name: "Lagos Owambe — Adeyemi at 60",
+    hostName: "Tolu Adeyemi",
+    currency: "NGN",
+    startDate: "2026-11-02T14:00:00Z",
+    feeBearer: "creator",
+    ticketsSold: 220,
+    gross: 3_300_000,
+    platformRevenue: 165_000,
+    hostPayout: 3_135_000,
   },
 ];

@@ -1,6 +1,7 @@
 import axios from '@/services/axios';
 import {ApiResponse} from '../utils/utils.types';
 import {AdminWristbandOrderDetail, AdminWristbandOrdersPage, AdminWristbandStatistics, WristbandOrderStatus, WristbandPaymentState} from './wristband.types';
+import {AdminWristbandProduct, UploadedWristbandImage, WristbandProductInput} from './wristband-catalog.types';
 
 export async function GetAdminWristbandOrders(params: {page: number; limit: number; search?: string; status?: WristbandOrderStatus; paymentState?: WristbandPaymentState; paymentMethod?: string;}): Promise<ApiResponse<AdminWristbandOrdersPage>> {
   return (await axios.get('/admin/wristbands/orders', {params})).data;
@@ -17,3 +18,27 @@ export async function UpdateAdminWristbandFulfillment(id: number, payload: {stat
 export async function ReconcileAdminWristbandPayment(id: number, payload: {providerReference?: string; amount?: number; note?: string;}): Promise<ApiResponse<AdminWristbandOrderDetail>> {
   return (await axios.post(`/admin/wristbands/orders/${id}/reconcile`, payload)).data;
 }
+
+/* ------------------------------- Catalog ---------------------------------- */
+
+export async function GetAdminWristbandProducts(): Promise<ApiResponse<AdminWristbandProduct[]>> {
+  return (await axios.get('/admin/wristbands/products')).data;
+}
+export async function CreateAdminWristbandProduct(payload: WristbandProductInput): Promise<ApiResponse<AdminWristbandProduct>> {
+  return (await axios.post('/admin/wristbands/products', payload)).data;
+}
+export async function UpdateAdminWristbandProduct(id: number, payload: WristbandProductInput): Promise<ApiResponse<AdminWristbandProduct>> {
+  return (await axios.put(`/admin/wristbands/products/${id}`, payload)).data;
+}
+/** Shows or hides a band in the app without touching existing orders. */
+export async function SetAdminWristbandProductActive(id: number, isActive: boolean): Promise<ApiResponse<AdminWristbandProduct>> {
+  return (await axios.patch(`/admin/wristbands/products/${id}/status`, {isActive})).data;
+}
+export async function UploadAdminWristbandImage(file: File): Promise<ApiResponse<UploadedWristbandImage>> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return (await axios.post('/admin/wristbands/products/images', formData)).data;
+}
+
+export * from './wristband.types';
+export * from './wristband-catalog.types';

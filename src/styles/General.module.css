@@ -656,3 +656,27 @@
 .mobileRowActions > * {
   flex: 1;
 }
+
+/* ------------------------------------------------------------ Segmented ---- */
+
+/* Mantine's own dark ramp gives the sliding indicator a grey that matches
+   nothing else on the page. Tie it to the card surface instead, so the thumb
+   reads as the same material as the cards around it. */
+.segmentedRoot {
+  background-color: var(--fj-surface) !important;
+  border: 1px solid var(--fj-border-subtle);
+}
+
+.segmentedIndicator {
+  background-color: var(--fj-surface-elevated) !important;
+  border: 1px solid var(--fj-border);
+  box-shadow: none !important;
+}
+
+.segmentedLabel {
+  color: var(--fj-text-secondary);
+
+  &[data-active] {
+    color: var(--fj-text-primary) !important;
+  }
+}

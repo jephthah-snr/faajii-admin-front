@@ -1,6 +1,13 @@
 import axios from "@/services/axios";
 import { ApiResponse, PaginatedResponse } from "../utils/utils.types";
 import {
+  FinanceEventDetail,
+  FinanceEventFilters,
+  FinanceEventRow,
+  FinanceSummary,
+  FinanceSummaryFilters,
+} from "./finance-reports.types";
+import {
   AdminFinanceSummary,
   AdminMomoAccount,
   AdminMomoAccountFilters,
@@ -54,4 +61,28 @@ export const SetMomoAccountEnabled = async (
   return res.data as ApiResponse<AdminMomoAccount>;
 };
 
+/* ----------------------------- Platform earnings --------------------------- */
+
+export const GetFinanceReport = async (
+  filters: FinanceSummaryFilters,
+): Promise<ApiResponse<FinanceSummary>> => {
+  const res = await axios.get("/admin/finance/summary", { params: filters });
+  return res.data as ApiResponse<FinanceSummary>;
+};
+
+export const GetFinanceEvents = async (
+  filters: FinanceEventFilters,
+): Promise<PaginatedResponse<FinanceEventRow>> => {
+  const res = await axios.get("/admin/finance/events", { params: filters });
+  return res.data as PaginatedResponse<FinanceEventRow>;
+};
+
+export const GetFinanceEvent = async (
+  id: string | number,
+): Promise<ApiResponse<FinanceEventDetail>> => {
+  const res = await axios.get(`/admin/finance/events/${id}`);
+  return res.data as ApiResponse<FinanceEventDetail>;
+};
+
 export * from "./finance.types";
+export * from "./finance-reports.types";

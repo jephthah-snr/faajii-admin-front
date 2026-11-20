@@ -357,6 +357,11 @@ const theme = createTheme({
     }),
     SegmentedControl: SegmentedControl.extend({
       defaultProps: { radius: "md", size: "md" },
+      classNames: {
+        root: classes.segmentedRoot,
+        indicator: classes.segmentedIndicator,
+        label: classes.segmentedLabel,
+      },
     }),
 
     /* -------------------------------------------------------------- Data */

@@ -4,13 +4,15 @@ import {
   Badge,
   Button,
   Group,
+  ScrollArea,
+  SegmentedControl,
   Stack,
   Table,
   Tabs,
   Text,
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/layout";
 import {
   GetAdminEventGuests,
@@ -26,6 +28,7 @@ import {
   EventCoPlanners,
   EventBudget,
   EventDiscountCodes,
+  EventFinance,
   EventOverview,
   EventPromoters,
   EventReach,
@@ -91,12 +94,60 @@ const ticketEmptyState = {
   icon: IconNoTickets,
 };
 
+/**
+ * The event screen's thirteen tabs, grouped by the question each answers.
+ * Money collects everything that moves cash: what the event earned for Faajii,
+ * payments in, the host's purse, promoter commission and paid reach.
+ */
+const tabGroups: Record<string, { label: string; tabs: string[] }> = {
+  overview: { label: "Overview", tabs: ["overview"] },
+  people: { label: "People", tabs: ["guests", "check-ins", "planners"] },
+  operations: {
+    label: "Operations",
+    tabs: ["budget", "tasks", "sponsors", "discounts"],
+  },
+  money: {
+    label: "Money",
+    tabs: ["finance", "transactions", "wallet", "promoters", "reach"],
+  },
+  store: { label: "Store", tabs: ["faajii-store"] },
+};
+
+const tabLabels: Record<string, string> = {
+  overview: "Overview",
+  guests: "Guests",
+  "check-ins": "Check-ins",
+  planners: "Co-planners",
+  budget: "Budget",
+  tasks: "Tasks",
+  sponsors: "Sponsors",
+  discounts: "Discounts",
+  finance: "Revenue",
+  transactions: "Payments",
+  wallet: "Purse",
+  promoters: "Promoters",
+  reach: "Reach",
+  "faajii-store": "Faajii Store",
+};
+
+const groupOfTab: Record<string, string> = Object.fromEntries(
+  Object.entries(tabGroups).flatMap(([group, { tabs }]) =>
+    tabs.map((value) => [value, group]),
+  ),
+);
+
 /** Guards a list-shaped field so a malformed payload renders empty, not crashes. */
 const asArray = <T,>(value: T[] | undefined): T[] =>
   Array.isArray(value) ? value : [];
 
 export default function EventDetailsPage() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  // `?tab=finance` lets other screens link straight to a tab.
+  const [tab, setTab] = useState<string>(() => {
+    const requested = searchParams.get("tab");
+    return requested && requested in groupOfTab ? requested : "overview";
+  });
   const [partyStoreFilter, setPartyStoreFilter] = useState("All");
   const [partyStoreSearch, setPartyStoreSearch] = useState("");
   const [importOpened, { open: openImport, close: closeImport }] =
@@ -194,6 +245,12 @@ export default function EventDetailsPage() {
     const data = partyStoreQuery.data?.data;
     return Array.isArray(data) ? data : [];
   }, [partyStoreQuery.data?.data]);
+  const activeGroupTabs = tabGroups[groupOfTab[tab] ?? "overview"].tabs;
+  const tabCounts: Record<string, number | undefined> = {
+    guests: guests.length,
+    transactions: transactions.length,
+    "faajii-store": partyStoreItems.length,
+  };
   const filteredPartyStoreItems = useMemo(() => {
     const kindByFilter: Record<string, string> = {
       Tickets: "ticket",
@@ -347,26 +404,35 @@ export default function EventDetailsPage() {
       subTitle={event?.name || "Loading event"}
       hasBackButton
     >
-      <Tabs defaultValue="overview">
-        <Tabs.List mb="xl">
-          <Tabs.Tab value="overview">Overview</Tabs.Tab>
-          <Tabs.Tab value="guests">Guests ({guests.length})</Tabs.Tab>
-          <Tabs.Tab value="check-ins">Check-ins</Tabs.Tab>
-          <Tabs.Tab value="planners">Co-planners</Tabs.Tab>
-          <Tabs.Tab value="budget">Budget</Tabs.Tab>
-          <Tabs.Tab value="tasks">Tasks</Tabs.Tab>
-          <Tabs.Tab value="sponsors">Sponsors</Tabs.Tab>
-          <Tabs.Tab value="discounts">Discounts</Tabs.Tab>
-          <Tabs.Tab value="promoters">Promoters</Tabs.Tab>
-          <Tabs.Tab value="reach">Reach</Tabs.Tab>
-          <Tabs.Tab value="transactions">
-            Transactions ({transactions.length})
-          </Tabs.Tab>
-          <Tabs.Tab value="wallet">Purse</Tabs.Tab>
-          <Tabs.Tab value="faajii-store">
-            Faajii Store ({partyStoreItems.length})
-          </Tabs.Tab>
-        </Tabs.List>
+      {/* Thirteen flat tabs were too many to scan, so they sit under five
+          groups: pick the area, then the screen inside it. Every panel below
+          keeps its own value, so a group is only a way of reaching it. */}
+      <Tabs value={tab} onChange={(value) => value && setTab(value)}>
+        <ScrollArea type="never" mb="md">
+          <SegmentedControl
+            value={groupOfTab[tab] ?? "overview"}
+            onChange={(group) => setTab(tabGroups[group].tabs[0])}
+            data={Object.entries(tabGroups).map(([value, group]) => ({
+              value,
+              label: group.label,
+            }))}
+          />
+        </ScrollArea>
+
+        {activeGroupTabs.length > 1 && (
+          <Tabs.List mb="xl">
+            {activeGroupTabs.map((value) => (
+              <Tabs.Tab key={value} value={value}>
+                {tabLabels[value]}
+                {tabCounts[value] !== undefined && ` (${tabCounts[value]})`}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        )}
+
+        <Tabs.Panel value="finance">
+          <EventFinance eventId={id} />
+        </Tabs.Panel>
 
         <Tabs.Panel value="overview">
           <EventOverview

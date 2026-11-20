@@ -170,6 +170,106 @@ PATCH /admin/momo/accounts/:id
 `GET /v1/momo/providers` is already public and is reused directly for the
 provider filter, so the admin dropdown cannot drift from what the app offers.
 
+### Platform earnings (`/finance`, `/finance/events`)
+
+**The gap.** No endpoint says what Faajii *keeps*. `/admin/purchases`,
+`/admin/wristbands/*` and `/admin/events/:id/transactions` report what
+customers paid — gross. The admin cannot answer "how much are we making?" from
+them, so it shows gross and an estimate until these routes exist.
+
+```
+GET   /admin/finance/summary?from=&to=
+GET   /admin/finance/events?page=&limit=&search=&currency=&from=&to=&sort=
+GET   /admin/finance/events/:id
+```
+
+Shapes: `src/services/api/finance/finance-reports.types.ts`
+(`FinanceSummary`, `FinanceEventRow`, `FinanceEventDetail`).
+
+**Ticket fee rule.** Faajii charges **5% of item value** on every ticket
+purchase, and the same 5% on Faajii Store items (tickets and merchandise). Who pays it is per event, and decides where it is collected:
+
+| Fee payer | Buyer pays | Host keeps | Faajii earns |
+| --- | --- | --- | --- |
+| Customer | ticket × 1.05 (fee added at checkout) | ticket | ticket × 5% |
+| Creator | ticket | ticket × 0.95 (fee deducted) | ticket × 5% |
+
+The backend must store the fee payer per event/order and report
+`feeBearer`, `feeAddedAtCheckout` and `feeDeductedFromHost` so the admin can
+reconcile what buyers paid against what hosts are owed.
+
+**Rules the admin relies on.**
+
+1. **Per region, never summed.** `markets[]` carries one entry per currency
+   (XOF, NGN) and net revenue is reported per region until the markets are
+   unified. The screens switch region with a dropdown, so a new region needs
+   no redesign — add it to `marketLabels` in `src/utils/finance.ts` or just
+   return it from the backend.
+2. **`gross`** is everything customers paid, across streams. **`platformRevenue`**
+   is what Faajii keeps, per stream, net of that stream's `costs`:
+   - tickets and merchandise (including Faajii Store tickets/merch): 5% of the
+     item value, whoever bears it;
+   - **wristbands: customer payments − production cost.** Wristband payments
+     arrive as gross; `costs` is the production cost and `platformRevenue` the
+     difference. Cost comes from the product's `productionCost` (see Wristband
+     catalog), **snapshotted on each order item when it is placed** so changing
+     a cost later does not rewrite past revenue;
+   - reach: what the host paid.
+3. **`netRevenue = platformRevenue − processorFees − promoterCommission`.**
+   Refunds are informational: `platformRevenue` is already net of fees on
+   refunded orders.
+4. **Promoter commission is settled in FCFA platform-wide** (see Promoters), but
+   `promoterCommission` here must be expressed in the *market's* currency so net
+   revenue stays in one unit. Please confirm the conversion rule.
+5. **Streams** are `tickets`, `wristbands`, `merchandise`, `reach`. Faajii Store
+   tickets count under `tickets` and Store merchandise under `merchandise`.
+6. `trend` is one point per day in the range, per market.
+7. `hostPayout` / `host.earned` = ticket value − `feeDeductedFromHost`;
+   `host.balance` = earned − paid out.
+
+`/admin/wristbands/statistics` should also return `productionCost` per paid
+currency so the wristband net can be shown before `/admin/finance` exists.
+
+Until `/admin/finance/summary` is served the admin reads the paid totals from
+`/admin/purchases/statistics` and `/admin/wristbands/statistics` and labels the
+figure an estimate. Per-event rows on `/finance/events` run on sample data until
+the list route exists; an event's Revenue tab falls back to its live ticket
+payments.
+
+### Wristband catalog (`/wristband-catalog`)
+
+Admins set up the bands the app offers. The app already reads
+`GET /v1/wristbands/catalog` (`{id, code, name, description, unitPrice,
+currency, images[], palette[], minimumQuantity}`); the admin record is the same
+product with per-region pricing and an admin-only production cost.
+
+```
+GET   /admin/wristbands/products
+POST  /admin/wristbands/products
+PUT   /admin/wristbands/products/:id
+PATCH /admin/wristbands/products/:id/status     # { isActive }
+POST  /admin/wristbands/products/images         # multipart `file` → { url }
+```
+
+Shapes: `src/services/api/wristbands/wristband-catalog.types.ts`.
+
+- `pricing[]` is `{currency, unitPrice, productionCost}` per region. The app's
+  `/v1/wristbands/catalog` resolves it to the buyer's market and returns one
+  `unitPrice` + `currency`. **`productionCost` must never reach the app.**
+- `code` is a slug fixed at creation; orders reference it (`productCode`).
+- `isActive: false` hides a band from the app but keeps it on past orders.
+  There is no delete.
+- Order items must snapshot `unitPrice` and `unitCost` at order time.
+
+**Mobile app change required** (`faajii-mobile-core`,
+`src/modules/wristbands/data/products.ts`): `mergeCatalogProduct` returns
+`undefined` unless `row.code` matches one of the three bundled bands
+(`satin-white`, `tyvek`, `cloth-qr`), and names/descriptions come from the
+app's own translations. Until it builds a product from the row itself — name,
+description, photos, palette, minimum quantity — a band created in the admin
+will not appear. Mockup compositing is currently disabled in the app, so a
+photo, a palette and a price are all a product needs.
+
 ### Notifications (`/notifications`)
 
 The app registers FCM tokens via `/v1/notifications/register-token`; the admin

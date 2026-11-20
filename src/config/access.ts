@@ -28,6 +28,10 @@ export const routeAccess: RouteAccess[] = [
   // Reached from the dashboard avatar; useful to every role.
   { path: "/pending-backend", roles: "*" },
 
+  // Finance — platform earnings, including the per-event breakdown under
+  // `/finance/events`. Support never sees what the platform earns.
+  { path: "/finance", roles: ["super", "admin", "finance"] },
+
   // Community
   { path: "/user-management", roles: ["super", "admin", "support"] },
   { path: "/host-profiles", roles: ["super", "admin", "support"] },
@@ -46,6 +50,8 @@ export const routeAccess: RouteAccess[] = [
   { path: "/purchases", roles: ["super", "admin", "finance", "support"] },
   { path: "/order-management", roles: ["super", "admin", "support"] },
   { path: "/wristband-orders", roles: ["super", "admin", "support"] },
+  // Carries production cost, which is margin — support does not see it.
+  { path: "/wristband-catalog", roles: ["super", "admin", "finance"] },
   { path: "/merchandise-orders", roles: ["super", "admin", "finance", "support"] },
   { path: "/gift-links", roles: ["super", "admin", "support"] },
 
@@ -69,7 +75,7 @@ export const routeAccess: RouteAccess[] = [
 export const fallbackRoute: Record<AdminPermission, string> = {
   super: "/dashboard",
   admin: "/dashboard",
-  finance: "/transactions",
+  finance: "/finance",
   support: "/user-management",
 };
 

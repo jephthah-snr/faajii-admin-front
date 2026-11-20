@@ -201,6 +201,42 @@ export const pendingIntegrations: PendingIntegration[] = [
 
   /* ---------------------------------- Money -------------------------------- */
   {
+    key: "wristband-catalog",
+    feature: "Wristband catalog",
+    area: "Commerce",
+    route: "/wristband-catalog",
+    routeLabel: "Wristband Catalog",
+    note: "The app reads GET /v1/wristbands/catalog but only shows rows whose code matches one of its three bundled bands, with names from its own translations. The mobile app must accept any code and render name, description and photos from the row before admin-created bands appear.",
+    endpoints: [
+      "GET /admin/wristbands/products",
+      "POST /admin/wristbands/products",
+      "PUT /admin/wristbands/products/:id",
+      "PATCH /admin/wristbands/products/:id/status",
+      "POST /admin/wristbands/products/images",
+    ],
+  },
+  {
+    key: "finance-summary",
+    feature: "Platform revenue",
+    area: "Money",
+    route: "/finance",
+    routeLabel: "Finance → Revenue",
+    note: "Nothing served today says what Faajii keeps. Until this lands, Revenue and the dashboard show gross payments from purchases and wristbands plus a 5% ticket-fee estimate. Per-day trend, cost lines, the wristband net (payments less production cost), the 5% fee on store items, and date filtering need it.",
+    endpoints: ["GET /admin/finance/summary"],
+  },
+  {
+    key: "finance-events",
+    feature: "Event revenue",
+    area: "Money",
+    route: "/finance/events",
+    routeLabel: "Finance → Event revenue",
+    note: "Per-event earnings and host settlement. The list runs on sample rows; an event's own Revenue tab falls back to its live ticket payments with a fee estimate.",
+    endpoints: [
+      "GET /admin/finance/events",
+      "GET /admin/finance/events/:id",
+    ],
+  },
+  {
     key: "payment-tracking",
     feature: "Payment reconciliation",
     area: "Money",

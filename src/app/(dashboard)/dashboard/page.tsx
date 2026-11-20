@@ -15,9 +15,12 @@ import {
   IconDebit,
   IconEvents,
   IconPurchases,
+  IconRevenue,
   IconUsers,
   IconVendors,
 } from "@/config/icons";
+import { canAccessRoute } from "@/config/access";
+import { useFinanceSummary } from "@/hooks";
 import { AppLayout } from "@/layout";
 import {
   Anchor,
@@ -88,6 +91,9 @@ const Dashboard = () => {
 
   const loggedInUser = useSelector((state: RootState) => state.auth.user);
   const canSeeMoney = loggedInUser?.permission !== "support";
+  // The revenue band links into /finance, so it follows that route's access.
+  const canSeeRevenue = canAccessRoute("/finance", loggedInUser?.permission);
+  const finance = useFinanceSummary("30d", { enabled: canSeeRevenue });
 
   const { data: analytics, isFetching: isFetchingAnalytics } = useQuery({
     queryKey: ["analytics"],
@@ -309,6 +315,85 @@ const Dashboard = () => {
             )}
           </SimpleGrid>
         </Stack>
+
+        {/* ----------------------------------------------------------- Revenue */}
+        {canSeeRevenue && (
+          <Stack gap={12}>
+            <Group justify="space-between">
+              <SectionLabel>Revenue · {finance.rangeLabel}</SectionLabel>
+              <Anchor
+                component={Link}
+                href="/finance"
+                fz={13}
+                c="var(--fj-text-secondary)"
+                underline="hover"
+              >
+                Open revenue
+              </Anchor>
+            </Group>
+            {finance.isLoading ? (
+              <SummaryCardSkeleton />
+            ) : finance.markets.length === 0 ? (
+              <Card radius="lg">
+                <Text fz={14} c="var(--fj-text-muted)">
+                  No paid sales yet. Revenue appears here once customers pay
+                  for tickets, wristbands or merchandise.
+                </Text>
+              </Card>
+            ) : (
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                {finance.markets.map((market) => {
+                  const estimate = market.estimatedTicketFee;
+                  const earned =
+                    market.platformRevenue ??
+                    (estimate ? (estimate.min + estimate.max) / 2 : null);
+                  return (
+                    <Card
+                      key={market.currency}
+                      component={Link}
+                      href="/finance"
+                      radius="lg"
+                      p={20}
+                    >
+                      <Group justify="space-between" mb={10}>
+                        <Group gap={8}>
+                          <IconRevenue
+                            size={16}
+                            color="var(--fj-text-muted)"
+                            variant="Bulk"
+                          />
+                          <Text
+                            c="var(--fj-text-secondary)"
+                            fw={500}
+                            fz={13}
+                            tt="uppercase"
+                            style={{ letterSpacing: "0.04em" }}
+                          >
+                            Faajii revenue
+                          </Text>
+                        </Group>
+                        <Text fz={12} fw={700} c="var(--fj-text-muted)">
+                          {market.currency}
+                        </Text>
+                      </Group>
+                      <Text fw={700} fz={28} lh={1.1}>
+                        {earned == null
+                          ? "—"
+                          : `${market.platformRevenue == null ? "≈ " : ""}${formatMoney(earned, market.currency)}`}
+                      </Text>
+                      <Text fz={12} c="var(--fj-text-muted)" mt={8}>
+                        Customers paid{" "}
+                        {formatMoney(market.gross, market.currency)}
+                        {market.platformRevenue == null &&
+                          " · estimate, ticket fee only"}
+                      </Text>
+                    </Card>
+                  );
+                })}
+              </SimpleGrid>
+            )}
+          </Stack>
+        )}
 
         {/* -------------------------------------------- Growth & event split */}
         <Flex

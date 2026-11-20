@@ -62,6 +62,6 @@ export interface AdminWristbandOrderDetail extends AdminWristbandOrder {
 export interface AdminWristbandOrdersPage {data: AdminWristbandOrder[]; pagination: Pagination;}
 export interface AdminWristbandStatistics {
   byStatus: Array<{status: WristbandOrderStatus; orders: number; amount: number}>;
-  paid: Array<{currency: string; orders: number; amount: number}>;
+  paid: Array<{currency: string; orders: number; amount: number; /** Production cost of the paid orders. Needed to know the net. */ productionCost?: number | null}>;
   pendingReconciliation: number;
 }

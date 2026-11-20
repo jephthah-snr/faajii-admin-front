@@ -8,5 +8,7 @@ export { default as MobileRow } from "./table/MobileRow";
 export { default as TableToolbar } from "./table-toolbar";
 export { default as EmptyState } from "./empty-state";
 export * from "./event-details";
+export * from "./finance";
+export * from "./wristband-catalog";
 export * from "./team-setting";
 export { default as VendorOverviewPanel } from "./vendor-details";

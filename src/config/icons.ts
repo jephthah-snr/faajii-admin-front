@@ -25,6 +25,7 @@ export {
   ArrangeHorizontal as IconTransactions,
   Receipt21 as IconReconciliation,
   Wallet3 as IconWallets,
+  MoneyRecive as IconRevenue,
   EmptyWallet as IconMomo,
   VideoPlay as IconVibes,
   NotificationBing as IconNotifications,

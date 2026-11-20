@@ -13,6 +13,7 @@ import {
   IconPurchases,
   IconReach,
   IconReconciliation,
+  IconRevenue,
   IconSupport,
   IconTeamSettings,
   IconTransactions,
@@ -46,43 +47,11 @@ export const navSections: NavSection[] = [
     links: [{ label: "Dashboard", navLink: "/dashboard", icon: IconDashboard }],
   },
   {
-    title: "Community",
+    // Everything about money in one place. Revenue is the entry point; event
+    // revenue is reached from it, so the two never light up together.
+    title: "Finance",
     links: [
-      { label: "Users", navLink: "/user-management", icon: IconUsers },
-      {
-        label: "Host Profiles",
-        navLink: "/host-profiles",
-        icon: IconHostProfile,
-      },
-      { label: "KYC Reviews", navLink: "/kyc", icon: IconHostProfile },
-      { label: "Vendors", navLink: "/vendor-management", icon: IconVendors },
-    ],
-  },
-  {
-    title: "Events",
-    links: [
-      { label: "Events", navLink: "/event-management", icon: IconEvents },
-      { label: "Promoters", navLink: "/promoters", icon: IconPromoters },
-      { label: "Event Reach", navLink: "/event-reach", icon: IconReach },
-    ],
-  },
-  {
-    title: "Commerce",
-    links: [
-      { label: "Ticket Purchases", navLink: "/purchases", icon: IconPurchases },
-      { label: "Order Tracking", navLink: "/order-management", icon: IconOrders },
-      {
-        label: "Wristband Orders",
-        navLink: "/wristband-orders",
-        icon: IconWristbands,
-      },
-      { label: "Merchandise Orders", navLink: "/merchandise-orders", icon: IconOrders },
-      { label: "Gift Links", navLink: "/gift-links", icon: IconGiftLinks },
-    ],
-  },
-  {
-    title: "Money",
-    links: [
+      { label: "Revenue", navLink: "/finance", icon: IconRevenue },
       {
         label: "Transactions",
         navLink: "/transactions",
@@ -95,6 +64,50 @@ export const navSections: NavSection[] = [
       },
       { label: "Wallets", navLink: "/wallets", icon: IconWallets },
       { label: "MoMo Accounts", navLink: "/momo-accounts", icon: IconMomo },
+    ],
+  },
+  {
+    title: "Events",
+    links: [
+      { label: "Events", navLink: "/event-management", icon: IconEvents },
+      { label: "Promoters", navLink: "/promoters", icon: IconPromoters },
+      { label: "Event Reach", navLink: "/event-reach", icon: IconReach },
+    ],
+  },
+  {
+    title: "Orders",
+    links: [
+      { label: "Ticket Purchases", navLink: "/purchases", icon: IconPurchases },
+      {
+        label: "Wristband Orders",
+        navLink: "/wristband-orders",
+        icon: IconWristbands,
+      },
+      {
+        label: "Wristband Catalog",
+        navLink: "/wristband-catalog",
+        icon: IconWristbands,
+      },
+      {
+        label: "Merchandise Orders",
+        navLink: "/merchandise-orders",
+        icon: IconOrders,
+      },
+      { label: "Order Tracking", navLink: "/order-management", icon: IconOrders },
+      { label: "Gift Links", navLink: "/gift-links", icon: IconGiftLinks },
+    ],
+  },
+  {
+    title: "People",
+    links: [
+      { label: "Users", navLink: "/user-management", icon: IconUsers },
+      {
+        label: "Host Profiles",
+        navLink: "/host-profiles",
+        icon: IconHostProfile,
+      },
+      { label: "KYC Reviews", navLink: "/kyc", icon: IconHostProfile },
+      { label: "Vendors", navLink: "/vendor-management", icon: IconVendors },
     ],
   },
   {
